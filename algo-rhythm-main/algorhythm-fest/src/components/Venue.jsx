@@ -1,0 +1,68 @@
+import { motion } from "framer-motion"
+
+export default function Venue() {
+  return (
+    <section id="venue" className="min-h-screen px-6 py-20">
+      <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
+        Venue
+      </h2>
+
+      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-stretch">
+
+        {/* ===== Venue Info Card ===== */}
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-120px" }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+          className="rounded-2xl p-8 h-full
+          bg-[linear-gradient(135deg,rgba(15,23,42,0.9),rgba(10,15,30,0.9))]
+          border border-white/10 shadow-lg"
+        >
+          <h3 className="text-2xl font-semibold mb-4 text-purple-300">
+            GOPALAN COLLEGE OF ENGINEERING AND MANAGEMENT
+          </h3>
+
+          <p className="text-gray-300">
+            Behind SAP Labs, Seetharam Palya, Basavanagar, Hoodi
+          </p>
+          <p className="text-gray-300 mb-4">
+            Bengaluru - 560048
+          </p>
+
+          <p className="text-gray-400 text-sm">
+            Join us at the heart of innovation and technology for two days of
+            competitions, creativity, and celebration at ALGO-RHYTHM 3.0.
+          </p>
+
+          <a
+            href="https://maps.google.com/?q=Gopalan+College+of+Engineering+and+Management"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-6 px-6 py-3 rounded-xl
+            bg-gradient-to-r from-purple-500 to-blue-500 font-semibold
+            hover:scale-105 transition"
+          >
+            Open in Google Maps
+          </a>
+        </motion.div>
+
+        {/* ===== Map ===== */}
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-120px" }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+          className="w-full h-full min-h-[350px] rounded-2xl overflow-hidden border border-white/10"
+        >
+          <iframe
+            title="venue-map"
+            src="https://www.google.com/maps?q=Gopalan+College+of+Engineering+and+Management&output=embed"
+            className="w-full h-full border-0"
+            loading="lazy"
+          />
+        </motion.div>
+      </div>
+    </section>
+  )
+}

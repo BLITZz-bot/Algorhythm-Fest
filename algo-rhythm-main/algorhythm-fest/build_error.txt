@@ -1,0 +1,23 @@
+
+> algorhythm-fest@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 347 modules transformed.
+[31m✗[39m Build failed in 486ms
+[31merror during build:
+[31m[vite]: Rollup failed to resolve import "html2pdf.js" from "D:/bharatha01/algo-rhythm-main/algorhythm-fest/src/components/RegistrationForm.jsx".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`[31m
+    at viteLog (file:///D:/bharatha01/algo-rhythm-main/algorhythm-fest/node_modules/vite/dist/node/chunks/config.js:33635:57)
+    at file:///D:/bharatha01/algo-rhythm-main/algorhythm-fest/node_modules/vite/dist/node/chunks/config.js:33669:73
+    at onwarn (file:///D:/bharatha01/algo-rhythm-main/algorhythm-fest/node_modules/@vitejs/plugin-react/dist/index.js:76:7)
+    at file:///D:/bharatha01/algo-rhythm-main/algorhythm-fest/node_modules/vite/dist/node/chunks/config.js:33669:28
+    at onRollupLog (file:///D:/bharatha01/algo-rhythm-main/algorhythm-fest/node_modules/vite/dist/node/chunks/config.js:33664:63)
+    at onLog (file:///D:/bharatha01/algo-rhythm-main/algorhythm-fest/node_modules/vite/dist/node/chunks/config.js:33467:4)
+    at file:///D:/bharatha01/algo-rhythm-main/algorhythm-fest/node_modules/rollup/dist/es/shared/node-entry.js:20958:32
+    at Object.logger [as onLog] (file:///D:/bharatha01/algo-rhythm-main/algorhythm-fest/node_modules/rollup/dist/es/shared/node-entry.js:22945:9)
+    at ModuleLoader.handleInvalidResolvedId (file:///D:/bharatha01/algo-rhythm-main/algorhythm-fest/node_modules/rollup/dist/es/shared/node-entry.js:21689:26)
+    at file:///D:/bharatha01/algo-rhythm-main/algorhythm-fest/node_modules/rollup/dist/es/shared/node-entry.js:21647:26[39m
