@@ -33,7 +33,7 @@ export default function HeroVideo() {
           block md:hidden
           absolute inset-0
           w-full h-full
-          object-contain
+          object-cover
           bg-black
           pointer-events-none
           transform-gpu will-change-transform

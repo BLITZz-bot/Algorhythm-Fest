@@ -543,10 +543,10 @@ export default function RegistrationForm({ event, onClose }) {
                                 </div>
                             )}
 
-                            <div className="pt-4 flex justify-end">
-                                <button type="submit" className="group relative px-10 py-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-[2rem] text-white font-black uppercase tracking-widest text-sm hover:shadow-[0_0_40px_rgba(168,85,247,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden">
+                            <div className="pt-4 flex justify-center sm:justify-end mb-10 sm:mb-0">
+                                <button type="submit" className="group relative w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-[2rem] text-white font-black uppercase tracking-widest text-sm hover:shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden">
                                     <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg] pointer-events-none" />
-                                    <span className="relative flex items-center gap-2">
+                                    <span className="relative flex items-center justify-center gap-2">
                                         Continue to Payment
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                                     </span>

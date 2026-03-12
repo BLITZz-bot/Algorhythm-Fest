@@ -27,7 +27,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-6 py-10 grid md:grid-cols-3 gap-8 text-center md:text-left">
 
         {/* Fest Info */}
-        <div style={{ marginLeft: "-15px" }}> {/* Adjust marginLeft here to move this entire block left or right */}
+        <div className="md:ml-[-15px]"> 
           <h3 className="text-xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
             ALGO-RHYTHM 3.0
           </h3>
@@ -40,7 +40,7 @@ export default function Footer() {
         </div>
 
         {/* Social Media Links */}
-        <div className="flex flex-col items-center md:items-center" style={{ marginLeft: "0px" }}> {/* Adjust marginLeft to move icons left or right */}
+        <div className="flex flex-col items-center">
           <h4 className="font-semibold mb-3 text-purple-300 tracking-wide">Connect With Us</h4>
           <div className="flex gap-4">
             {/* Instagram */}
@@ -59,7 +59,7 @@ export default function Footer() {
         </div>
 
         {/* Credits */}
-        <div className="flex flex-col items-center md:items-start text-center md:text-left" style={{ marginLeft: "150px" }}> {/* Adjust marginLeft to move About left or right */}
+        <div className="flex flex-col items-center md:items-start md:ml-[150px]">
           <h4 className="font-semibold mb-3 text-purple-300">About</h4>
           <p className="text-gray-400 text-sm whitespace-nowrap">
             Official fest website for ALGO-RHYTHM 3.0.
