@@ -276,7 +276,7 @@ app.post('/api/admin/send-report', async (req, res) => {
                     teamMembers: reg.teamMembers?.length > 0
                         ? reg.teamMembers.map(m => `Name: ${m.fullName}\nEmail: ${m.email}\nPhone: ${m.phone}`).join("\n\n")
                         : "N/A",
-                    screenshot: reg.screenshotPath ? `http://localhost:5000/uploads/${reg.screenshotPath}` : "N/A"
+                    screenshot: reg.screenshotPath ? `${baseUrl}/uploads/${reg.screenshotPath}` : "N/A"
                 });
 
                 // Enable text wrapping for team members cell to allow multiple lines
