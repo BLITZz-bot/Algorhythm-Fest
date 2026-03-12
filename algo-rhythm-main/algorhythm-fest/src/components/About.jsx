@@ -49,6 +49,10 @@ export default function About() {
         </motion.div>
 
       </div>
+      {/* Subtle Bottom Right Watermark */}
+      {/* <div className="absolute bottom-2 right-4 opacity-80 pointer-events-none select-none">
+        <span className="text-[10px] font-black tracking-[0.3em] bg-clip-text text-transparent bg-gradient-to-r from-gray-500 to-gray-400">GRAFIK</span>
+      </div> */}
     </motion.section>
   )
 }

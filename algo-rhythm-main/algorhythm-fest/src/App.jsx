@@ -21,6 +21,7 @@ import Timeline from "./components/Timeline"
 import CornerLogos from "./components/Cornerlogos"
 import MyRegistrations from "./components/MyRegistrations"
 import AdminDashboard from "./components/AdminDashboard"
+import FixedWatermark from "./components/FixedWatermark"
 import { useState } from "react"
 
 export default function App() {
@@ -81,6 +82,7 @@ export default function App() {
       <AdminDashboard isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
 
       <CornerLogos />
+      <FixedWatermark />
 
       <ScrollProgress />
 

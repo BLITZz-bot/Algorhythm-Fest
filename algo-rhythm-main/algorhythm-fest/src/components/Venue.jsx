@@ -31,8 +31,7 @@ export default function Venue() {
           </p>
 
           <p className="text-gray-400 text-sm">
-            Join us at the heart of innovation and technology for two days of
-            competitions, creativity, and celebration at ALGO-RHYTHM 3.0.
+            Join us at GOPALAN COLLEGE OF ENGINEERING AND MANAGEMENT to celebrate ALGO-RHYTHM 3.0 togather.
           </p>
 
           <a

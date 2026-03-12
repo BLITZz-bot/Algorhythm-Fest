@@ -288,7 +288,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                     >
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                             <div>
-                                <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Organizer Console</h2>
+                                <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Admin Console</h2>
                                 <p className="text-gray-400 text-sm">Live Registeration Details</p>
                             </div>
                             <div className="flex flex-wrap gap-3">

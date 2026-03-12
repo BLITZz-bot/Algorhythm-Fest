@@ -3,23 +3,23 @@ import { motion, AnimatePresence } from "framer-motion"
 
 const timelineData = {
   "APR 10": [
-    { time: "09:00 AM – 10:30 AM", title: "INARGUATION", type: "ceremony" },
-    { time: "10:30 AM – 12:30 PM", title: "CODE SPRINT", type: "tech" },
-    { time: "10:30 AM – 12:30 PM", title: "CANVISTA", type: "poster maikng" },
-    { time: "10:30 AM – 01:30 PM", title: "HIGHLIGHT REEL", type: "Videography" },
-    { time: "11:30 AM – 03:30 PM", title: "CHESS", type: "Board Game" },
-    { time: "12:30 PM – 03:30 PM", title: "ESCAPE ROOM", type: "Fun" },
-    { time: "12:30 PM – 04:30 PM", title: "CAMPUS CARNAGE", type: "gaming" },
-    { time: "02:30 PM – 04:30 PM", title: "FASHION SHOW", type: "Fun" },
+    { time: "09:00 AM – 10:30 AM", title: "INARGUATION", type: "Ceremony" },
+    { time: "10:30 AM – 01:30 PM", title: "ESCAPE ROOM", type: "Fun" },
+    { time: "10:30 AM – 02:00 PM(second day)", title: "HIGHLIGHT REEL", type: "Reel Making" },
+    { time: "10:30 AM – 02:30 PM", title: "CHESS", type: "Board Game" },
+    { time: "11:30 AM – 03:30 PM", title: "CAMPUS CARNAGE", type: "Gaming" },
+    { time: "12:30 PM – 02:30 PM", title: "CANVISTA", type: "Poster Making" },
+    { time: "01:30 PM – 03:30 PM", title: "CODE SPRINT", type: "Tech" },
+    { time: "01:30 PM – 04:30 PM", title: "VINTARA", type: "Fashion Show" },
   ],
   "APR 11": [
     { time: "09:00 AM – 01:30 PM", title: "TRIPLE THREAT CHALLENGE", type: "Fun" },
     { time: "09:30 AM – 12:30 PM", title: "THE WORD SYNDICATE", type: "Fun" },
-    { time: "09:00 AM – 10:00 AM", title: "TECH DEBATE", type: "Tech" },
-    { time: "10:30 AM – 01:30 AM", title: "IGNITE THE BEAt", type: "Dance" },
-    { time: "10:30 AM – 12:00 PM", title: "SHOT CUT", type: "EDITING" },
-    { time: "09:00 AM – 10:00 AM", title: "BATTLE OF PROMPTS", type: "Tech" },
-    { time: "02:00 PM – 04:30 PM", title: "VALEDICTORY", type: "ceremony" },
+    { time: "09:30 AM – 01:30 PM", title: "TECH DEBATE", type: "Tech" },
+    { time: "10:30 AM – 12:30 PM", title: "SHOT CUT", type: "Editing" },
+    { time: "10:30 AM – 02:00 PM", title: "IGNITE THE BEAT", type: "Dance" },
+    { time: "12:30 PM – 02:00 PM", title: "BATTLE OF PROMPTS", type: "Tech" },
+    { time: "02:00 PM – 04:30 PM", title: "VALEDICTORY", type: "Ceremony" },
   ],
 }
 
@@ -28,7 +28,7 @@ export default function Timeline() {
   const events = timelineData[activeTab]
 
   return (
-    <section className="relative py-28 px-4 sm:px-6 overflow-hidden">
+    <section id="timeline" className="relative py-28 px-4 sm:px-6 overflow-hidden">
       {/* Background Ambience */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.05)_0%,rgba(0,0,0,0)_100%)] pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.15)_0%,transparent_60%)] rounded-full pointer-events-none" />
@@ -98,6 +98,35 @@ export default function Timeline() {
             ))}
           </motion.div>
         </AnimatePresence>
+
+        {/* Navigation Actions */}
+        <div className="mt-20 flex justify-center relative z-20">
+          {activeTab === "APR 10" ? (
+            <button
+              onClick={() => {
+                setActiveTab("APR 11");
+                const el = document.getElementById("timeline");
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold hover:bg-cyan-900 hover:text-white transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+            >
+              GO TO SECOND DAY TIMELINE 
+              <span className="transform group-hover:translate-x-1 transition">→</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setActiveTab("APR 10");
+                const el = document.getElementById("timeline");
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-950/80 border border-purple-500/40 text-purple-300 font-bold hover:bg-purple-900 hover:text-white transition-all shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+            >
+              <span className="transform group-hover:-translate-x-1 transition">←</span>
+              GO TO FIRST DAY TIMELINE
+            </button>
+          )}
+        </div>
 
       </div>
     </section>

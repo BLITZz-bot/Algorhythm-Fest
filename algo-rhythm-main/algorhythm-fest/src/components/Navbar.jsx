@@ -1,81 +1,159 @@
 import { useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function Navbar({ onOpenRegistrations, onOpenAdmin }) {
   const [open, setOpen] = useState(false)
 
+  // Floating animation for the hamburger menu
+  const hamburgerVariants = {
+    initial: { opacity: 0, x: -50, rotate: -90 },
+    animate: { opacity: 1, x: 0, rotate: 0, transition: { type: "spring", stiffness: 200, damping: 15 } },
+    hover: { scale: 1.1, textShadow: "0px 0px 8px rgb(255 255 255 / 0.8)", transition: { yoyo: Infinity, duration: 0.3 } },
+    tap: { scale: 0.9 }
+  }
+
+  // Staggered reveal for sidebar links
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -30 },
+    show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  }
+
   return (
     <>
-      {/* LEFT HAMBURGER */}
+      {/* LEFT HAMBURGER - Floating Glass Button */}
       <motion.button
         onClick={() => setOpen(true)}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4 }}
-        className="fixed top-4 left-4 z-50
-                   text-3xl text-white
-                   hover:text-purple-300
-                   active:scale-95
-                   transition"
+        variants={hamburgerVariants}
+        initial="initial"
+        animate="animate"
+        whileHover="hover"
+        whileTap="tap"
+        className="fixed top-6 left-6 z-50
+                   w-14 h-14 rounded-full
+                   bg-white/10 backdrop-blur-md border border-white/20
+                   text-2xl text-white flex items-center justify-center
+                   shadow-[0_0_15px_rgba(255,255,255,0.1)]
+                   hover:bg-white/20 hover:border-purple-400/50 hover:shadow-[0_0_25px_rgba(168,85,247,0.4)]
+                   transition-colors duration-300"
       >
-        ☰
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+        </svg>
       </motion.button>
 
-      {/* OVERLAY */}
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-          onClick={() => setOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {/* OVERLAY */}
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-40"
+            onClick={() => setOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* SIDE MENU */}
+      {/* SIDE MENU - Glassmorphism Panel */}
       <motion.div
-        initial={{ x: "-100%" }}
-        animate={{ x: open ? 0 : "-100%" }}
-        transition={{ type: "tween", duration: 0.35 }}
-        className="fixed top-0 left-0 h-full w-72
-                   bg-gradient-to-b from-purple-900 to-black
-                   border-r border-white/10
+        initial={{ x: "-100%", borderTopRightRadius: "50%", borderBottomRightRadius: "50%" }}
+        animate={{ x: open ? 0 : "-100%", borderTopRightRadius: "0%", borderBottomRightRadius: "0%" }}
+        transition={{ type: "spring", stiffness: 260, damping: 25 }}
+        className="fixed top-0 left-0 h-full w-80
+                   bg-gradient-to-br from-slate-900/95 via-purple-900/95 to-black/95
+                   backdrop-blur-xl border-r border-purple-500/30
+                   shadow-[10px_0_30px_rgba(0,0,0,0.8)]
                    z-50 p-8 flex flex-col"
       >
-        {/* CLOSE */}
-        <button
+        {/* CLOSE BUTTON */}
+        <motion.button
           onClick={() => setOpen(false)}
-          className="text-2xl mb-10 hover:text-purple-300"
+          whileHover={{ rotate: 90, scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 transition-colors"
         >
-          ✕
-        </button>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </motion.button>
+
+        {/* LOGO AREA */}
+        <div className="mb-12 mt-4">
+          <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-400 to-cyan-400">
+            AlgoRhythm
+          </h2>
+          <p className="text-xs text-purple-300 tracking-[0.2em] uppercase mt-1">Techno-Cultural Fest 2026</p>
+        </div>
 
         {/* LINKS */}
-        <nav className="flex flex-col flex-1 gap-6 text-lg">
-          <a href="#home" onClick={() => setOpen(false)}>Home</a>
-          <a href="#about" onClick={() => setOpen(false)}>About</a>
-          <a href="#schedule" onClick={() => setOpen(false)}>Schedule</a>
-          <a href="#venue" onClick={() => setOpen(false)}>Venue</a>
-          <a href="#clubs" onClick={() => setOpen(false)}>Clubs</a>
+        <motion.nav
+          variants={containerVariants}
+          initial="hidden"
+          animate={open ? "show" : "hidden"}
+          className="flex flex-col flex-1 gap-4 text-lg"
+        >
+          {['Home', 'About', 'Schedule', 'Venue', 'Clubs'].map((item) => (
+            <motion.a
+              key={item}
+              variants={itemVariants}
+              href={`#${item.toLowerCase()}`}
+              onClick={() => setOpen(false)}
+              className="group relative px-4 py-3 rounded-xl overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-out" />
+              <span className="relative z-10 font-medium text-gray-300 group-hover:text-white transition-colors flex items-center gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-pink-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                {item}
+              </span>
+            </motion.a>
+          ))}
 
-          <div className="w-full h-px bg-white/10 my-2"></div>
+          <motion.div variants={itemVariants} className="w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent my-4" />
 
-          <button
+          {/* Registrations Button */}
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { onOpenRegistrations(); setOpen(false); }}
-            className="text-left font-semibold text-pink-400 hover:text-pink-300 transition flex items-center gap-2"
+            className="w-full relative px-6 py-4 rounded-xl bg-gradient-to-r from-pink-600/20 to-purple-600/20 border border-pink-500/30 hover:border-pink-400/60 hover:from-pink-600/30 hover:to-purple-600/30 transition-all group overflow-hidden"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            Your Registrations
-          </button>
+            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:250%_250%] group-hover:animate-shine" />
+            <span className="relative z-10 text-pink-300 font-semibold flex items-center justify-between">
+              Access My Pass
+              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+            </span>
+          </motion.button>
 
-          <button
+          {/* Admin Button */}
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { onOpenAdmin(); setOpen(false); }}
-            className="group relative flex items-center justify-between gap-2 px-6 py-4 rounded-2xl bg-white/5 border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300 mt-auto"
+            className="w-full mt-auto relative px-6 py-4 rounded-xl bg-slate-800/50 border border-slate-600/50 hover:border-cyan-500/50 hover:bg-slate-800 transition-all group overflow-hidden"
           >
-            <div className="flex items-center gap-3">
-              <svg className="w-4 h-4 text-purple-400 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 tracking-wider text-sm">ADMIN CONSOLE</span>
+            <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
+            <div className="flex items-center justify-between relative z-10 w-full">
+              <div className="flex items-center gap-3">
+                <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/20 transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <span className="font-bold text-sm text-slate-300 group-hover:text-cyan-300 tracking-wider">ADMIN CONSOLE</span>
+              </div>
             </div>
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-0 group-hover:opacity-10 transition duration-500" />
-          </button>
-        </nav>
+          </motion.button>
+        </motion.nav>
       </motion.div>
     </>
   )

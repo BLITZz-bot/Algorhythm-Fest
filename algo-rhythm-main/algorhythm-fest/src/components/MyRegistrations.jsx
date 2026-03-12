@@ -223,7 +223,7 @@ export default function MyRegistrations({ isOpen, onClose }) {
                             Your Registrations
                         </h2>
                         <p className="text-gray-400 mb-8">
-                            Enter the email address used during registration to find your tickets and receipts.
+                            Enter the Leader's email address used during registration to find your access pass.
                         </p>
 
                         {/* SEARCH FORM */}

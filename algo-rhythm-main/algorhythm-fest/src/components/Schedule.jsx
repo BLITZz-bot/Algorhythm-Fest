@@ -7,138 +7,8 @@ import RegistrationForm from "./RegistrationForm"
 export const eventsDay1 = [
   {
     time: "10:30 AM",
-    title: "CODE SPRINT",
-    location: "LAB 3, 4th FLOOR",
-    description: "Participants race against the clock to solve algorithmic challenges.",
-    category: "Tech",
-    prize: "₹6,000",
-    minTeamSize: 1,
-    maxTeamSize: 2,
-    rules: ["1. This event consists of two rounds that will be conducted on HackerRank.",
-
-      "2. Participants may use any programming language.",
-
-      "3. Every participant must have a HackerRank account.",
-
-      "4. The first round consists of three questions and is an elimination round.",
-
-      "5. The second round consists of two questions. ",
-
-      "6. Participants must be current college students. A valid college ID card is required for participation.",
-
-      "7. All phones and smartwatches must be surrendered at the start of the event and will be returned afterward. Failure to comply will result in immediate disqualification.",
-
-      "8. There are 2 prizes if there are more than 11 registrations; otherwise, there will be only 1 prize.",
-
-      "9. Any form of cheating, including internet access or the use of chatbots, will lead to instant disqualification. Volunteers will monitor for compliance. ",
-
-      "10. Event-specific rules will be explained before the start of the event. ",
-
-      "11. Please check the schedule for overlapping events. ",
-
-      "12. If you have registered for overlapping events, organizers are not responsible and no refund will be initiated.",
-      "13. The participants from GCEM contact the respective event coordinators before registering"],
-    coordinators: ["M Tarun – 9663053076",
-      "Bettina – 7619689937"
-    ],
-    registerLink: "#",
-    fee: "₹350",
-  },
-  {
-    time: "10:30 AM",
-    title: "CANVISTA",
-    location: "LAB 5, Ground Floor",
-    description: "This is a Poster Designing event. It will consist of two rounds.The theme will be provided to the participants at the start of the event, and the poster must be made digitally within the set time limit using any software they wish to use.",
-    category: "Fun",
-    prize: "₹4,500",
-    minTeamSize: 1,
-    maxTeamSize: 1,
-    rules: ["1. Participants must be currently enrolled in their college.",
-      "2.  Participants must bring a valid college ID card.",
-      "3.  Participants must bring their laptops with all necessary software pre-installed",
-      "4.  Computers will be provided to participants who are not able to bring their laptops(only limited computers available). ",
-      "5.  Internet access will be provided at the venue.",
-      "6.  The theme of the poster will be announced at the start of the competition.",
-      "7.  Specific instructions will be provided before the start of the event. ",
-      "8.  *Please check the schedule for overlapping events",
-      "9.  *If you have registered for overlapping events, management is not responsible, no refund will be initiated.",
-      "10. *The participants from GCEM contact the respective event coordinators before registering."],
-    coordinators: ["Nithelan Jayakumar – 9952738262", "Bushra M – 8310084375"],
-    registerLink: "#",
-    fee: "₹200",
-  },
-  {
-    time: "10:30 AM",
-    title: "HIGHLIGHT REEL",
-    location: "410 Room, 4th Floor",
-    description: "This event will require the participants to take photos and/or videos of the event happening on the day They are then required to compile these photos and/or videos into a single edited video of a span of max 2 mins. These videos will be evaluated by the jury and the winners will be announced.The participants will need to cover the event on both the days.",
-    category: "Fun",
-    prize: "₹5,000",
-    comboPass: "₹450 (HIGHLIGHT REEL + SHOT CUT)",
-    minTeamSize: 2,
-    maxTeamSize: 3,
-    rules: ["1. Participants must be currently enrolled in their college.",
-      "2.  Participants must bring a valid college ID card.",
-      "3.The participants should not misbehave during the event. If caught misbehaving, it might lead to disqualification.",
-      "4.The videos submitted must not include any watermarks or logos. ",
-      "5.The video must not include any kind of slander towards the institution.",
-      "6.Specific instructions about the video will be briefed to the teams before the start of the event.",
-      "7.Participants have to bring their own equipment (camera, phone, laptop), as they will not be provided by the college.",
-      "8. Participation as a group of 3(Min=2, Max=3)",
-      "9.Judging Criteria:",
-      "      -Creativity & Originality",
-      "      -Content Coverage",
-      "      -Visual Quality & Editing",
-      "10. The originality of the edit will be verified by reviewing the project timeline/history in the editing software used by the participants.",
-      "11. *Please check the schedule for overlapping events.",
-      "12. *If you have registered for overlapping events, management is not responsible, no refund will be initiated.",
-      "13. *The participants from GCEM contact the respective event coordinators before registering."],
-    coordinators: ["Abdul Shuaib – 7892698624", "Veeresh Viraktamath – 9380022929"],
-    registerLink: "#",
-    fee: "₹300",
-  },
-  {
-    time: "11:30 AM",
-    title: "CHESS",
-    location: "Seminar Hall, 1st Floor",
-    description: "Chess is a strategic, two-player board game played on a 64-square grid, aiming to checkmate the opponent's king.",
-    category: "Fun",
-    prize: "₹6,000",
-    minTeamSize: 1,
-    maxTeamSize: 1,
-    rules: ["*All games will follow same as FIDE tournaments*",
-      "1. Tournament Format: The tournament will follow the Swiss System for 3 rounds. After the Swiss rounds, the Top 16 players will qualify for the Knockout stage.",
-
-      "2. Rounds: All players will play 3 Swiss rounds. Pairings will be announced before each round.",
-
-      "3. Scoring System:",
-      "Win = 1 point",
-      "Draw = 0.5 point",
-      "Loss = 0 point",
-
-      "4. Qualification:After 3 rounds, players will be ranked based on total points and tie-breaks. The Top 16 players will advance to knockouts.",
-
-      "5. Knockout Stage: The knockout rounds will be played as Round of 16 → Quarterfinal → Semifinal → Final.",
-
-      "6. Time Control: Each game will be played in Rapid format (7 minutes per game for individual).",
-
-      "7. Touch-Move Rule: If a player touches a piece intentionally, that piece must be moved if a legal move exists.",
-
-      "8. Illegal Moves: Two illegal moves by a player will result in loss of the game.",
-
-      "9. Fair Play: Mobile phones and electronic devices are not allowed in the playing area.",
-
-      "10. Authority & ID: The arbiter’s decision will be final, and players must carry their college ID cards.",
-      "11. *The participants from GCEM contact the respective event coordinators before registering."
-    ],
-    coordinators: ["Saravanan M – 8618648916", "Nithesh - 8431648766"],
-    registerLink: "#",
-    fees: "₹250"
-  },
-  {
-    time: "12:30 PM",
     title: "ESCAPE ROOM",
-    location: "Lab 2 & 4,$th Floor",
+    location: "Lab 2 & 4, 4th Floor,GCEM Campus",
     description: "This is a web-based technical escape room competition conducted in a controlled lab environment. Teams will solve a series of logical, programming, and cybersecurity-based challenges across four progressive levels. Each level contains multiple puzzles that must be solved to obtain a key and unlock the next stage.",
     category: "Tech",
     prize: "₹4,500",
@@ -158,8 +28,8 @@ export const eventsDay1 = [
       "12. Any attempt to tamper with the system, share answers, or engage in unfair practices will lead to immediate disqualification.",
       "13. Specific instructions and login credentials will be provided at the venue before the event begins.",
       "14. Prizes will be awarded based on final rankings.",
-      "15. Participants are responsible for checking the event schedule. The organizers are not responsible for clashes with other events, and no refund will be provided in case of overlap.",
-      "16. The participants from GCEM contact the respective event coordinator before registering"],
+      "15. Please check the event schedule before registering multiple events. Participants are responsible for checking the event schedule. The MANAGEMENT is not responsible for clashes with other events, and no refund will be provided in case of overlap.The participants from GCEM contact the respective event coordinator before registering",
+      "16. Report to the coordinator 30 minutes before the event starts.",],
     coordinators: ["Jyesht M – 8951323830",
       "Vivek Kashyap – 8850623515",
       "Thanishka Reddy – 9449119449"],
@@ -167,15 +37,85 @@ export const eventsDay1 = [
     fee: "₹300",
   },
   {
-    time: "12:30 AM",
+    time: "10:30 AM",
+    title: "CHESS",
+    location: "Seminar Hall, 1st Floor,GCEM Campus",
+    description: "The tournament will follow standard FIDE chess rules, starting with 3 Swiss rounds where players earn points for wins and draws to determine rankings.",
+    category: "Fun",
+    prize: "₹6,000",
+    minTeamSize: 1,
+    maxTeamSize: 1,
+    rules: ["*GAME RULES ARE SAME AS FIDE TOURNAMENTS*",
+      "1. Tournament Format: The tournament will follow the Swiss System for 3 rounds. After the Swiss rounds, the Top 16 players will qualify for the Knockout stage.",
+
+      "2. Rounds: All players will play 3 Swiss rounds. Pairings will be announced before each round.",
+
+      "3. Scoring System:",
+      "Win = 1 point",
+      "Draw = 0.5 point",
+      "Loss = 0 point",
+
+      "4. Qualification: After 3 rounds, players will be ranked based on total points and tie-breaks. The Top 16 players will advance to knockouts.",
+
+      "5. Knockout Stage: The knockout rounds will be played as Round of 16 → Quarterfinal → Semifinal → Final.",
+
+      "6. Time Control: Each game will be played in Rapid format (7 minutes per player for Swiss rounds and 10 minutes per player for Knockout rounds).",
+
+      "7. Touch-Move Rule: If a player touches a piece intentionally, that piece must be moved if a legal move exists.",
+
+      "8. Illegal Moves: Two illegal moves by a player will result in the loss of the game.",
+
+      "9. Fair Play: Mobile phones and electronic devices are not allowed in the playing area.",
+
+      "10. Authority & ID: The arbiter’s decision will be final, and players must carry their college ID cards.",
+      "11. Please check the schedule for overlapping events before registering for multiple events.",
+      "12. If you have registered for overlapping events, management will not be responsible and no refund will be initiated. The participants from GCEM contact the respective event coordinators before registering.",
+      "13. Participants must report to the coordinator 30 minutes before the event starts."
+    ],
+    coordinators: ["Saravanan M – 8618648916", "Nithesh - 8431648766"],
+    registerLink: "#",
+    fee: "₹250"
+  },
+  {
+    time: "10:30 AM",
+    title: "HIGHLIGHT REEL",
+    location: "410 Room, 4th Floor,GCEM Campus",
+    description: "This event will require the participants to take photos and/or videos of the event happening on the day They are then required to compile these photos and/or videos into a single edited video of a span of max 2 mins. These videos will be evaluated by the jury and the winners will be announced.The participants will need to cover the event on both the days.",
+    category: "Fun",
+    prize: "₹5,000",
+    comboPass: "₹450 (HIGHLIGHT REEL + SHOT CUT)",
+    minTeamSize: 2,
+    maxTeamSize: 3,
+    rules: ["1. Participants must be currently enrolled in their college.",
+      "2.  Participants must bring a valid college ID card.",
+      "3.The participants should not misbehave during the event. If caught misbehaving, it might lead to disqualification.",
+      "4.The videos submitted must not include any watermarks or logos. ",
+      "5.The video must not include any kind of slander towards the institution.",
+      "6.Specific instructions about the video will be briefed to the teams before the start of the event.",
+      "7.Participants have to bring their own equipment (camera, phone, laptop), as they will not be provided by the college.",
+      "8. Participation as a group of 3(Min=2, Max=3)",
+      "9.Judging Criteria:",
+      "      -Creativity & Originality",
+      "      -Content Coverage",
+      "      -Visual Quality & Editing",
+      "10. The originality of the edit will be verified by reviewing the project timeline/history in the editing software used by the participants.",
+      "11. Please check the schedule for overlapping events before registering  multiple events",
+      "12. If you have registered for overlapping events, management is not responsible, no refund will be initiated.13. The participants from GCEM contact the respective event coordinators before registering.",
+      "13. Report to the coordinator 30 minutes before the event starts."],
+    coordinators: ["Abdul Shuaib – 7892698624", "Veeresh Viraktamath – 9380022929"],
+    registerLink: "#",
+    fee: "₹300",
+  },
+  {
+    time: "11:30 AM",
     title: "CAMPUS CARNAGE",
-    location: "Room 405,406 & 407, 4th Floor",
+    location: "Room 405,406 & 407, 4th Floor, GCEM Campus",
     description: "The BGMI Tournament is a competitive esports event where teams battle in custom lobby matches to showcase their strategy, coordination, and combat skills.",
     category: "Fun",
     prize: "₹10,000",
     minTeamSize: 4,
     maxTeamSize: 4,
-    rules: ["1. Participants must be currently enrolled students of their respective institutions.",
+    rules: ["All participants should arrive at the venue 30 min prior to the event.", "1. Participants must be currently enrolled students of their respective institutions.",
 
       "2.  All participants must carry a valid college ID card for verification.",
 
@@ -225,16 +165,80 @@ export const eventsDay1 = [
       "18. Any additional rules or instructions will be communicated to participants before the start of each match.",
 
       "19. Official observer records and organizer decisions will be final in case of any disputes.",
-      "20. The participants from GCEM contact the respective event coordinator before registering"],
+      "20. Please check the event schedule before registering multiple events. Participants are responsible for checking the event schedule. The MANAGEMENT is not responsible for clashes with other events, and no refund will be provided in case of overlap.The participants from GCEM contact the respective event coordinator before registering",
+      "21. Report to the coordinator 30 minutes before the event starts."],
     coordinators: ["Rajesh – 8073439040", "Pavan - 8073083421", "Darshan A- 7760055444"],
     registerLink: "#",
     fee: "₹600",
   },
   {
+    time: "12:30 PM",
+    title: "CANVISTA",
+    location: "LAB 5, Ground Floor, GCEM Campus",
+    description: "This is a Poster Designing event. It will consist of two rounds.The theme will be provided to the participants at the start of the event, and the poster must be made digitally within the set time limit using any software they wish to use.",
+    category: "Fun",
+    prize: "₹4,500",
+    minTeamSize: 1,
+    maxTeamSize: 1,
+    rules: ["1. Participants must be currently enrolled in their college.",
+      "2.  Participants must bring a valid college ID card.",
+      "3.  Participants must bring their laptops with all necessary software pre-installed",
+      "4.  Computers will be provided to participants who are not able to bring their laptops(only limited computers available). ",
+      "5.  Internet access will be provided at the venue.",
+      "6.  The theme of the poster will be announced at the start of the competition.",
+      "7.  Specific instructions will be provided before the start of the event. ",
+      "8.  Please check the schedule for overlapping events before registering for multiple events.",
+      "9.  If you have registered for overlapping events, MANAGEMENT is not responsible, no refund will be initiated.10. The participants from GCEM contact the respective event coordinators before registering.",
+      "11. Report to the coordinator 30 minutes before the event starts."
+    ],
+    coordinators: ["Nithelan Jayakumar – 9952738262", "Bushra M – 8310084375"],
+    registerLink: "#",
+    fee: "₹200",
+  },
+  {
+    time: "01:30 PM",
+    title: "CODE SPRINT",
+    location: "LAB 3, 4th Floor,GCEM Campus",
+    description: "Participants race against the clock to solve algorithmic challenges.",
+    category: "Tech",
+    prize: "₹6,000",
+    minTeamSize: 1,
+    maxTeamSize: 2,
+    rules: ["1. This event consists of two rounds that will be conducted on HackerRank.",
+
+      "2. Participants may use any programming language.",
+
+      "3. Every participant must have a HackerRank account.",
+
+      "4. The first round consists of three questions and is an elimination round.",
+
+      "5. The second round consists of two questions. ",
+
+      "6. Participants must be current college students. A valid college ID card is required for participation.",
+
+      "7. All phones and smartwatches must be surrendered at the start of the event and will be returned afterward. Failure to comply will result in immediate disqualification.",
+
+      "8. There are 2 prizes if there are more than 11 registrations; otherwise, there will be only 1 prize.",
+
+      "9. Any form of cheating, including internet access or the use of chatbots, will lead to instant disqualification. Volunteers will monitor for compliance. ",
+
+      "10. Event-specific rules will be explained before the start of the event. ",
+
+      "11. Please check the schedule for overlapping events before registering for multiple events. ",
+
+      "12. If you have registered for overlapping events, MANAGEMENT is not responsible and no refund will be initiated.The participants from GCEM contact the respective event coordinators before registering",
+      "13. Report to the coordinator 30 minutes before the event starts."],
+    coordinators: ["M Tarun – 9663053076",
+      "Bettina – 7619689937"
+    ],
+    registerLink: "#",
+    fee: "₹350",
+  },
+  {
     time: "01:30 PM",
     title: "VINTARA",
-    location: "Amphitheatre",
-    description: "The Fashion Show is an exciting group event where teams showcase their creativity, style, and confidence on the ramp. Participants will perform based on a specific theme within a 3–4 minute time limit. The event highlights coordination, originality, and stage presence while maintaining decency and discipline. It promises a vibrant and entertaining experience for both participants and the audience.",
+    location: "GIS Amphitheatre",
+    description: "The VINTARA is an exciting FASION SHOW event where teams showcase their creativity, style, and confidence on the ramp. Participants will perform based on a specific theme within a 3–4 minute time limit. The event highlights coordination, originality, and stage presence while maintaining decency and discipline. It promises a vibrant and entertaining experience for both participants and the audience.",
     category: "Fun",
     prize: "₹8,000",
     minTeamSize: 4,
@@ -242,23 +246,27 @@ export const eventsDay1 = [
     rules: ["1.	Each team must have 4-8 members.",
       "2.	Performance time limit: 3–4 minutes (strict).",
       "3.	Vulgarity or inappropriate content is strictly prohibited.",
-      "4.	Teams must report 1 hour before event start time.",
-      "5.	Judges’ decision will be final and binding.",
+      "4.	Teams must arrive and report to the coordinator at the venue 1 hour before event start time.",
+      "5.	Judges decision will be final and binding.",
       "6.	Theme must be followed strictly.",
       "7.	Costumes must be decent and modest.",
       "8.	Excessive skin exposure is strictly prohibited.",
       "9.	Transparent or inappropriate outfits will lead to disqualification.",
-      "10.	No political, religiously sensitive, or controversial representations.",
-      "11.	No fire, water, smoke, powder, sharp objects, or hazardous props.",
-      "12.	Organizing committee reserves the right to disqualify any participant violating decorum.",
-      "13. The participants from GCEM contact the respective event coordinators before registering",
+      "10. No political, religiously sensitive, or controversial representations.",
+      "11. No fire, water, smoke, powder, sharp objects, or hazardous props.",
+      "12. Organizing committee reserves the right to disqualify any participant violating decorum.",
+      "13. Please check the schedule for overlapping events before registering for multiple events.",
+      "14. If you have registered for overlapping events, management is not responsible,any such situations no refund will be initiated.",
+      "15. The participants from GCEM contact the respective event coordinators before registering",
+      ".",
       "'MUSIC RULES'",
       "1.Submit via Google Drive/email 48 hours prior.",
       "2.File name format:  CollegeName_TeamName.mp3",
       "3.No obscene lyrics.",
       "4.No explicit content.",
       "5.Only one track allowed per entry.",
-      "6.Backup pen drive mandatory."],
+      "6.Backup pen drive mandatory.",
+      "",],
     coordinators: ["Shreeka K - 8861619612", "Vishaka - 8431217851", "Yeshwanth - 8884359993"],
     registerLink: "#",
     fee: "₹800"
@@ -267,9 +275,33 @@ export const eventsDay1 = [
 
 export const eventsDay2 = [
   {
+    time: "09:00 AM",
+    title: "TRIPLE THREAT CHALLENGE",
+    location: "Seminar Hall, 4th floor, GCEM Campus",
+    description: "TRIPLE THREAT CHALLENGE is a team-based challenge event conducted. Each team consists of four members and will compete across three exciting rounds that test teamwork, coordination, communication, and speed.",
+    category: "Fun",
+    prize: "₹4,000",
+    minTeamSize: 4,
+    maxTeamSize: 4,
+    rules: ["  1. Participants must be currently enrolled in their respective colleges.",
+      "2. Each team must consist of 4 members.",
+      "3. All participants must carry a valid college ID card.",
+      "4. Teams must report to the  coordinator and arrive at the venue 15 minutes before the event begins.",
+      "5. Participants must strictly follow the instructions given by the coordinators.",
+      "6. Any form of misconduct or unfair practice will lead to disqualification.",
+      "7. Registration fees once paid are non-refundable and non-transferable under any circumstances.",
+      "8. The decision of the judges/coordinators will be final and binding.",
+      "9. Please check the schedule for overlapping events before registering multiple events",
+      "10. If you have registered for overlapping events, MANAGEMENT is not responsible,any such situations no refund will be initiated.The participants from GCEM contact the respective event coordinators before registering",
+  ],
+    coordinators: ["Gagana – 8050859858", "Himashree - 8885392795"],
+    registerLink: "#",
+    fee: "₹500"
+  },
+  {
     time: "09:30 AM",
     title: "THE WORD SYNDICATE",
-    location: "Seminar Hall, 1st Floor",
+    location: "Seminar Hall, 1st Floor, GCEM Campus",
     description: "This is an interactive and strategic word-based competition where teams participate in a simulated auction to bid for letters, words, or language-based challenges using fake currency. Teams must use their bidding strategy, vocabulary knowledge, and quick thinking to build valid words, solve linguistic puzzles, and earn points. The event encourages creativity, language skills, and decision-making while maintaining a competitive and engaging environment.",
     category: "Fun",
     prize: "₹3,000",
@@ -288,45 +320,22 @@ export const eventsDay2 = [
       "11. Teams are not allowed to use mobile phones, smart devices, dictionaries, translation tools, or any external resources during the event.",
       "12. Any attempt to communicate answers with other teams, share resources, or engage in unfair practices will result in immediate disqualification.",
       "13. Points will be awarded based on word complexity, correctness, creativity, and task completion as defined by the event rules.",
-      "14. Participants are responsible for checking the event schedule. The organizers are not responsible for clashes with other events, and no refund will be provided in case of overlap.",
-      "15. The participants from GCEM contact the respective event coordinators before registering"],
+      "14.  Please check the schedule for overlapping events before registering multiple events.",
+      "14. Participants are responsible for checking the event schedule. The Management is not responsible for clashes with other events, and no refund will be provided in case of overlap. The participants from GCEM contact the respective event coordinators before registering",
+      "15. Report to the coordinator 30 minutes before the event starts."],
     coordinators: ["Charan Kumar – 9482886761", "Vadla Chaturya - 9986070222"],
     registerLink: "#",
     fee: "₹200"
   },
   {
-    time: "09:00 AM",
-    title: "TRIPLE THREAT CHALLENGE",
-    location: "Seminar Hall, 4th floor",
-    description: "Takeshi’s Castle is a team-based challenge event conducted. Each team consists of four members and will compete across three exciting rounds that test teamwork, coordination, communication, and speed.",
-    category: "Fun",
-    prize: "₹4,000",
-    minTeamSize: 4,
-    maxTeamSize: 4,
-    rules: ["  1. Participants must be currently enrolled in their respective colleges.",
-      "2. Each team must consist of 4 members.",
-      "3. All participants must carry a valid college ID card.",
-      "4. Teams must report to the venue 15 minutes before the event begins.",
-      "5. Participants must strictly follow the instructions given by the coordinators.",
-      "6. Any form of misconduct or unfair practice will lead to disqualification.",
-      "7. Registration fees once paid are non-refundable and non-transferable under any circumstances.",
-      "8. The decision of the judges/coordinators will be final and binding.",
-      "9. *Please check the schedule for overlapping events.",
-      "10. *If you have registered for overlapping events, management is not possible,no refund will be initiated.",
-      "11. The participants from GCEM contact the respective event coordinators before registering"],
-    coordinators: ["Gagana – 8050859858", "Himashree - 8885392795"],
-    registerLink: "#",
-    fee: "₹500"
-  },
-  {
     time: "09:30 AM",
     title: "TECH DEBATE COMPETITION",
-    location: "1st FLOOR",
+    location: "1st Floor, GCEM Bl ock",
     description: "A knockout-style technical debate competition focusing on emerging technologies like AI, Cybersecurity, Blockchain, Quantum Computing & Digital Ethics.",
     category: "Tech",
     prize: "₹4,500",
     minTeamSize: 2,
-    maxTeamSize: 4,
+    maxTeamSize: 3,
     rules: ["1. Participants must carry valid college ID card.",
       "2. Teams must report 45 minutes before event start.",
       "3. Topic will be given 30 minutes prior to debate.",
@@ -336,8 +345,8 @@ export const eventsDay2 = [
       "7. No offensive/personal remarks.",
       "8. Time limit strictly followed.",
       "9. Judges decision will be final.",
-      "10. No refund for overlapping events.",
-      "11. The participants from GCEM contact the respective event coordinators before registering"],
+      "10. Please check the schedule for overlapping events before registering multiple events.",
+      "11. Participants are responsible for checking the event schedule. The Management is not responsible for clashes with other events, and no refund will be provided in case of overlap. The participants from GCEM contact the respective event coordinators before registering"],
     coordinators: ["Prince Kumar – 7277402658",
       "Tarun Kumar Pathak – 8073165834"],
     registerLink: "#",
@@ -347,18 +356,19 @@ export const eventsDay2 = [
   {
     time: "10:30 AM",
     title: "IGNITE THE BEAT",
-    location: "Amphitheatre",
-    description: "Students present research and innovative ideas.",
+    location: "GIS Amphitheatre",
+    description: "Step into the spotlight and let your passion ignite the stage, where every move tells a story and every rhythm captivates the soul. Witness an electrifying showcase of talent, energy, and grace, as dancers compete to turn dreams into motion.",
     category: "Fun",
     prize: "₹6,000",
-    minTeamSize: 2,
-    maxTeamSize: 5,
-    rules: ["*Duration: 6-8 minutes performance time per team*",
+    minTeamSize: 3,
+    maxTeamSize: 10,
+    rules: ["*Duration: 6-8 minutes per team for there performance*",
+      "All participants should arrive at the venue 1 hour prior to the event.",
       "1. Music",
       "• Teams must submit their music tracks in MP3 format via Google Drive/email by 07/03/2026.",
       "• File name format: College/Group Name.mp3",
       "• Backup copies of music tracks should be brought on USB drive.",
-      "• Music should be appropriate and free of any explicit content.",
+      "• Music should be appropriate and not contain any explicit content.",
       ".",
       "2. Choreography",
       "• All dance forms are allowed (Classical, Hip-hop, Semi-classical, Folk,Contemporary).",
@@ -370,33 +380,34 @@ export const eventsDay2 = [
       ".",
       "4. Props",
       "• Props are allowed but must be handled by participants themselves.",
-      "• Dangerous props (fire, sharp objects) are prohibited.",
+      "• Dangerous/Problematic props (fire, sharp objects,powders etc) are prohibited.",
       ".",
       // "• There will be 2 prizes if more than 8 registrations; otherwise, only 1 prize",
       "5. Note",
-      "• Please check the schedule for overlapping events.",
-      "• If registered for overlapping events, management is not responsible and no refund",
-      "will be initiated.",
-      "6. The participants from GCEM contact the respective event coordinators before registering",
+      "• Please check the schedule for overlapping events before registering multiple events",
+      "• If registered for overlapping events, MANAGEMENT is not responsible and no refund will be initiated.The participants from GCEM contact the respective event coordinators before registering",
+      "• Arrive at the venue and report to the coordinators 1 hour before the event starts",
       ".",
-      "Code of Conduct",
+      "CODE OF CONDUCT",
       "• Participants are expected to maintain decorum and sportsmanship.",
       "• Any form of misbehavior or disrespect towards organizers, judges, or fellow will lead to disqualification.",
-      "• Vulgar language, inappropriate gestures, and offensive content are strictly.",
-      "• If technical issues occur, participants may be allowed to restart (subject tojudges' approval).",
+      "• Vulgar language, inappropriate gestures, and offensive content are strictly prohibited.",
+      "• If technical issues occur, participants may be allowed to restart (subject to judges approval).",
       "• The decision of the judges is final and binding.",
       "• Performances are judged based on choreography, synchronization,expression, creativity, and overall impact.",
-      "Safety",
+      ".",
+      "SAFETY",
       "•Participants should ensure their performance is safe and does not pose any risk to themselves or the audience",
+
     ],
     coordinators: ["Divyashree RM – 7019691887", "Abhishek R - 7019323085"],
     registerLink: "#",
     fee: "₹600",
   },
   {
-    time: "3:30 PM",
+    time: "10:30 AM",
     title: "SHOT CUT",
-    location: "Room 410, 4th Floor",
+    location: "Room 410, 4th Floor, GCEM Campus",
     description: "Shot-Cut is a 9:16 / 16:9 reel advertising challenge where teams get 48 hours to turn a common theme into a powerful brand story. It’s not just about making a video — it’s about thinking creatively, understanding marketing strategy, and delivering strong visuals with convincing storytelling, all under pressure. Every second matters, and the final reel must be sharp, engaging, and impactful, with a duration of 60 seconds or less.",
     category: "Fun",
     prize: "5000",
@@ -421,17 +432,17 @@ export const eventsDay2 = [
       "-Visual Quality & Editing",
       "-Presentation & Clarity",
       "14. Judges Decision: The judges decision will be final.",
-      "15. *Please check the schedule for overlapping events",
-      "16. *If you have registered for overlapping events, management is not responsible, no refund will be initiated.",
-      "17. *The participants from GCEM contact the respective event coordinators before registering"],
+      "15. Please check the schedule for overlapping events before registering multiple events",
+      "16. If you have registered for overlapping events, MANAGEMENT is not responsible, no refund will be initiated.The participants from GCEM contact the respective event coordinators before registering",
+      "17. Report to the coordinators 30 minutes before the event starts"],
     coordinators: ["Abhishek Mannatharaj - 7483076739", "Veeresh Viraktamath – 9380022929"],
     registerLink: "#",
     fee: "₹300",
   },
   {
-    time: "12:00 PM",
+    time: "12:30 PM",
     title: "BATTLE OF PROMPTS",
-    location: "Room 410, 4th Floor",
+    location: "Lab 5, Ground Floor, GCEM Campus",
     description: "Battle of Prompts: Participants must generate images using text-to-image prompts only, within the allowed attempts during the competition time. The final submission must include the generated image and exact prompt used, without external editing or pre-prepared prompts.",
     category: "Tech",
     prize: "₹3,000",
@@ -452,9 +463,9 @@ export const eventsDay2 = [
       "13. In case of a tie, the participant with the highest similarity score and fewer attempts will be ranked higher.",
       "14. Any attempt to bypass tool restrictions or manipulate the judging process will result in disqualification.",
       "15. All participants must respect the competition environment and follow instructions given by the event coordinators.",
-      "16. *Please check the schedule for overlapping events",
-      "17. *If you have registered for overlapping events, management is not responsible, no refund will be initiated.",
-      "18. *The participants from GCEM contact the respective event coordinators before registering"
+      "16. Please check the schedule for overlapping events before registering multiple events",
+      "17. If you have registered for overlapping events, management is not responsible, no refund will be initiated.The participants from GCEM contact the respective event coordinators before registering",
+      "18. Report to the coordinators 30 minutes before the event starts"
     ],
     coordinators: ["P Mohan - 9606629280", "Brunda - 8197283013"],
     registerLink: "#",
@@ -597,110 +608,260 @@ function EventCard({ title, description, category, onClick }) {
 
 
 
+/* ─── CATEGORY GRADIENT MAPS ─── */
+const headerGradients = {
+  Tech: "from-cyan-600/90 via-blue-700/80 to-indigo-800/90",
+  Fun: "from-pink-600/90 via-fuchsia-700/80 to-purple-800/90",
+  Workshop: "from-emerald-600/90 via-green-700/80 to-teal-800/90",
+}
+const headerGlows = {
+  Tech: "shadow-cyan-500/30",
+  Fun: "shadow-pink-500/30",
+  Workshop: "shadow-emerald-500/30",
+}
+const tabActiveColors = {
+  Tech: "border-cyan-400 text-cyan-300",
+  Fun: "border-pink-400 text-pink-300",
+  Workshop: "border-emerald-400 text-emerald-300",
+}
+
+/* ─── SMALL ICON COMPONENTS ─── */
+const IconClock = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+)
+const IconMapPin = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" /><circle cx="12" cy="9" r="2.5" /></svg>
+)
+const IconTrophy = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 22V14.6a5 5 0 0 1-3.8-3.8L5 4h14l-1.2 6.8A5 5 0 0 1 14 14.6V22" /></svg>
+)
+const IconTicket = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" /><path d="M13 5v2" /><path d="M13 17v2" /><path d="M13 11v2" /></svg>
+)
+const IconUsers = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+)
+const IconPhone = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+)
+
 function EventModal({ event, isEventOpen, onClose }) {
   const [showRegistration, setShowRegistration] = useState(false)
+  const [activeTab, setActiveTab] = useState("about")
 
   if (!event) return null
 
+  const cat = event.category || "Tech"
+  const teamText = event.minTeamSize === event.maxTeamSize
+    ? `${event.minTeamSize}`
+    : `${event.minTeamSize || "?"} – ${event.maxTeamSize || "?"}`
+
+  const tabs = [
+    { id: "about", label: "📋 About" },
+    { id: "rules", label: "📜 Rules" },
+    { id: "coordinators", label: "👥 Contact" },
+  ]
+
   return (
     <>
+      {/* Backdrop */}
       <motion.div
         className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
       >
+        {/* Modal */}
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="bg-gradient-to-br from-purple-900/90 to-black/90 border border-white/10 backdrop-blur-xl rounded-2xl p-8 max-w-4xl w-full text-left relative max-h-[90vh] overflow-y-auto shadow-2xl shadow-purple-900/40"
+          initial={{ y: 60, opacity: 0, scale: 0.96 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 260, damping: 24 }}
+          onClick={(e) => e.stopPropagation()}
+          className={`relative w-full max-w-2xl rounded-3xl overflow-hidden border border-white/10 shadow-2xl ${headerGlows[cat] || headerGlows.Tech} max-h-[90vh] flex flex-col`}
         >
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-4 text-gray-400 hover:text-white text-xl"
-          >
-            ✕
-          </button>
+          {/* ═══ GRADIENT HEADER ═══ */}
+          <div className={`relative bg-gradient-to-r ${headerGradients[cat] || headerGradients.Tech} px-8 pt-8 pb-6`}>
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-10 w-24 h-24 bg-white/5 rounded-full translate-y-1/2" />
 
-          <h3 className="text-2xl font-bold mb-2">{event.title}</h3>
-          <p className="text-purple-300">{event.time}</p>
-          <p className="text-gray-300 mb-4">{event.location}</p>
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white/70 hover:text-white hover:bg-black/50 transition text-lg"
+            >
+              ✕
+            </button>
 
-          <div className="flex gap-3 mb-2 flex-wrap">
-            {event.category && (
-              <span
-                className={`text-xs px-3 py-1 rounded-full border ${getCategoryStyles(
-                  event.category
-                )}`}
-              >
-                {event.category}
-              </span>
-            )}
+            {/* Category pill */}
+            <motion.span
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className={`inline-block text-[11px] uppercase tracking-widest px-3 py-1 rounded-full border mb-3 font-semibold ${getCategoryStyles(cat)}`}
+            >
+              {cat}
+            </motion.span>
 
-            {event.prize && (
-              <span className="text-xs px-3 py-1 rounded-full bg-pink-500/20 border border-pink-400/30 text-pink-200">
-                Prize: {event.prize}
-              </span>
-            )}
+            {/* Title */}
+            <motion.h3
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="text-3xl font-extrabold text-white tracking-tight drop-shadow-lg"
+            >
+              {event.title}
+            </motion.h3>
           </div>
 
-          {event.fee && (
-            <div className="mb-4">
-              <span className="text-xs px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 font-medium tracking-wide">
-                Registration Fee: {event.fee}
+          {/* ═══ INFO CHIPS BAR ═══ */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-[rgba(10,10,25,0.95)] px-8 py-4 flex flex-wrap gap-3 border-b border-white/5"
+          >
+            {/* Time */}
+            <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300">
+              <IconClock /> {event.time}
+            </span>
+            {/* Location */}
+            <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300">
+              <IconMapPin /> {event.location}
+            </span>
+            {/* Prize */}
+            {event.prize && (
+              <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-400/20 text-amber-300 font-medium">
+                <IconTrophy /> {event.prize}
               </span>
+            )}
+            {/* Fee */}
+            {event.fee && (
+              <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-400/20 text-blue-300 font-medium">
+                <IconTicket /> {event.fee}
+              </span>
+            )}
+            {/* Team Size */}
+            <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300">
+              <IconUsers /> Team: {teamText}
+            </span>
+            {/* Combo Pass */}
+            {event.comboPass && (
+              <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-400/20 text-purple-300 font-medium">
+                🎟️ Combo: {event.comboPass}
+              </span>
+            )}
+          </motion.div>
 
-              {event.comboPass && (
-                <span className="ml-2 text-xs px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/20 text-amber-300 font-medium tracking-wide">
-                  Combo Pass: {event.comboPass}
-                </span>
+          {/* ═══ TABS ═══ */}
+          <div className="bg-[rgba(10,10,25,0.95)] px-8 pt-4">
+            <div className="flex gap-1 border-b border-white/10">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 py-2.5 text-sm font-medium transition-all border-b-2 -mb-px ${activeTab === tab.id
+                      ? (tabActiveColors[cat] || tabActiveColors.Tech)
+                      : "border-transparent text-gray-500 hover:text-gray-300"
+                    }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ═══ TAB CONTENT ═══ */}
+          <div className="bg-[rgba(10,10,25,0.95)] px-8 py-6 overflow-y-auto flex-1">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              {activeTab === "about" && (
+                <div>
+                  {event.description && (
+                    <p className="text-gray-300 leading-relaxed text-sm">{event.description}</p>
+                  )}
+                </div>
               )}
-            </div>
-          )}
 
-          {event.description && (
-            <p className="text-gray-400 mb-6">{event.description}</p>
-          )}
+              {activeTab === "rules" && event.rules && (
+                <ul className="space-y-2.5">
+                  {event.rules.map((rule, i) => (
+                    <motion.li
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="text-gray-300 text-sm"
+                    >
+                      {rule}
+                    </motion.li>
+                  ))}
+                </ul>
+              )}
 
-          {event.rules && (
-            <div className="mb-6">
-              <h4 className="text-purple-300 font-semibold mb-2">Rules</h4>
-              <ul className="text-gray-300 space-y-2 list-none">
-                {event.rules.map((r, i) => (
-                  <li key={i}>{r}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+              {activeTab === "coordinators" && event.coordinators && (
+                <div className="space-y-3">
+                  {event.coordinators.map((c, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.08 }}
+                      className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                        {c.charAt(0)}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white text-sm font-medium">{c.split("–")[0] || c.split("-")[0]}</p>
+                        {(c.includes("–") || c.includes("-")) && (
+                          <p className="text-gray-400 text-xs flex items-center gap-1 mt-0.5">
+                            <IconPhone /> {(c.split("–")[1] || c.split("-")[1] || "").trim()}
+                          </p>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </div>
 
-          {event.coordinators && (
-            <div className="mb-6">
-              <h4 className="text-purple-300 font-semibold mb-2">
-                Coordinators
-              </h4>
-              <ul className="text-gray-300 space-y-1">
-                {event.coordinators.map((c, i) => (
-                  <li key={i}>{c}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Changed from generic link to trigger internal Registration form */}
-          {isEventOpen ? (
-            <button
-              onClick={() => setShowRegistration(true)}
-              className="mt-4 inline-block w-full text-center px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg shadow-purple-700/40 font-semibold hover:shadow-purple-500/70 hover:scale-105 transition"
-            >
-              Register for this Event
-            </button>
-          ) : (
-            <button
-              disabled
-              className="mt-4 inline-block w-full text-center px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-500 font-bold uppercase tracking-widest cursor-not-allowed shadow-inner"
-            >
-              Registrations Closed
-            </button>
-          )}
+          {/* ═══ FOOTER / REGISTER BUTTON ═══ */}
+          <div className="bg-[rgba(10,10,25,0.95)] px-8 pb-6 pt-2 border-t border-white/5">
+            {isEventOpen ? (
+              activeTab === "rules" ? (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowRegistration(true)}
+                  className="w-full text-center px-6 py-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg shadow-purple-700/40 font-semibold text-white hover:shadow-purple-500/60 transition"
+                >
+                  🚀 Register for this Event
+                </motion.button>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab("rules")}
+                  className="w-full text-center px-6 py-3.5 rounded-xl bg-white/10 border border-white/20 text-gray-200 font-semibold hover:bg-white/20 hover:text-white transition"
+                >
+                  📜 Read Rules to Register
+                </motion.button>
+              )
+            ) : (
+              <button
+                disabled
+                className="w-full text-center px-6 py-3.5 rounded-xl bg-white/5 border border-white/10 text-gray-500 font-bold uppercase tracking-widest cursor-not-allowed"
+              >
+                Registrations Closed
+              </button>
+            )}
+          </div>
         </motion.div>
       </motion.div>
 

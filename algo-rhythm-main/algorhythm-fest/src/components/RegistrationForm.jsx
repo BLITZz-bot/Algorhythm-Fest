@@ -15,12 +15,14 @@ export default function RegistrationForm({ event, onClose }) {
         email: "",
         phone: "",
         college: "",
+        teamName: "",
         transactionId: "",
+        paymentDate: "",
         paymentScreenshot: null
     })
 
     const comboPassDetails = event?.comboPass || event?.ComboPass;
-    const standardFeeString = event?.fee || (event?.prize === "Participation" ? "Free" : "₹150");
+    const standardFeeString = event?.fee || event?.fees || (event?.prize === "Participation" ? "Free" : "₹150");
 
     useEffect(() => {
         if (event && event.minTeamSize > 1) {
@@ -31,11 +33,12 @@ export default function RegistrationForm({ event, onClose }) {
     }, [event]);
 
     const handleChange = (e) => {
-        if (e.target.name === 'transactionId') setUtrError("");
-        if (e.target.name === 'paymentScreenshot') {
-            setFormData({ ...formData, paymentScreenshot: e.target.files[0] })
+        const { name, value, type, files } = e.target;
+        if (name === 'transactionId') setUtrError("");
+        if (type === 'file') {
+            setFormData(prev => ({ ...prev, [name]: files[0] }));
         } else {
-            setFormData({ ...formData, [e.target.name]: e.target.value })
+            setFormData(prev => ({ ...prev, [name]: value }));
         }
     }
 
@@ -54,8 +57,15 @@ export default function RegistrationForm({ event, onClose }) {
         submissionData.append("phone", formData.phone)
         submissionData.append("college", formData.college)
         submissionData.append("transactionId", formData.transactionId)
+        submissionData.append("paymentDate", formData.paymentDate)
         submissionData.append("eventTitle", event.title)
         submissionData.append("teamMembers", JSON.stringify(teamMembers))
+
+        const minTeamSize = event.minTeamSize || 1;
+        const maxTeamSize = event.maxTeamSize || 1;
+        if (minTeamSize >= 2 || maxTeamSize > 1) {
+            submissionData.append("teamName", formData.teamName)
+        }
 
         if (formData.paymentScreenshot) {
             submissionData.append("paymentScreenshot", formData.paymentScreenshot)
@@ -95,139 +105,191 @@ export default function RegistrationForm({ event, onClose }) {
         setIsDownloading(true);
 
         try {
+            // ==========================================
+            // PREMIUM DARK TICKET DESIGN FOR PDF
+            // ==========================================
             const safeName = formData?.fullName ? formData.fullName.replace(/\s+/g, '_') : 'Attendee';
             const doc = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
-                format: 'a4'
+                format: [180, 260]
             });
 
-            // Add background
-            doc.setFillColor(248, 250, 252);
-            doc.rect(0, 0, 210, 297, 'F');
+            // 1. Dark Background (Slate 900)
+            doc.setFillColor(15, 23, 42);
+            doc.rect(0, 0, 180, 260, 'F');
 
-            // Header Banner
-            doc.setFillColor(79, 70, 229);
-            // Overdraw slightly to ensure no white gaps in restrictive viewer margins
-            doc.rect(-5, -5, 220, 45, 'F');
+            // 2. Ticket Outline/Container (Glowing border effect approximation)
+            doc.setDrawColor(168, 85, 247); // Purple 500
+            doc.setLineWidth(1);
+            doc.roundedRect(5, 5, 170, 250, 8, 8, 'D');
 
+            // Inner dark card fill (slightly lighter than bg)
+            doc.setFillColor(30, 41, 59); // Slate 800
+            doc.roundedRect(5, 5, 170, 250, 8, 8, 'F');
+
+            // 3. Header Banner Block (Pink to Purple gradient feel)
+            doc.setFillColor(219, 39, 119); // Pink 600
+            doc.roundedRect(5, 5, 170, 45, 8, 8, 'F');
+            // Overwrite bottom rounded corners to make it a flush banner
+            doc.rect(5, 20, 170, 30, 'F');
+
+            // Header Text (Fixed alignment and size for longer text)
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(22);
-            doc.text("REGISTRATION DETAILS", 105, 20, { align: "center" });
+            doc.text("A L G O R H Y T H M  3 . 0", 90, 21, { align: "center" });
 
             doc.setFontSize(12);
             doc.setFont("helvetica", "normal");
-            doc.text("AlgoRhythm Fest 2026", 105, 30, { align: "center" });
+            doc.setTextColor(253, 164, 175); // Pink 300
+            doc.text("O F F I C I A L   A C C E S S   P A S S", 90, 33, { align: "center" });
 
-            // White container card
-            doc.setFillColor(255, 255, 255);
-            doc.setDrawColor(226, 232, 240);
-            doc.roundedRect(15, 50, 180, 230, 5, 5, 'FD');
+            // 4. Barcode/Ticket Tear Line
+            doc.setDrawColor(71, 85, 105); // Slate 600
+            doc.setLineDash([3, 3], 0);
+            doc.line(10, 60, 170, 60);
+            doc.setLineDash([], 0); // Reset dash
 
-            // Event Details
-            doc.setTextColor(30, 41, 59);
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(20);
-            doc.text(event.title, 25, 70);
-
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(12);
-            doc.setTextColor(100, 116, 139);
-            doc.text(`${event.time} | ${event.location}`, 25, 80);
-
-            doc.setDrawColor(226, 232, 240);
-            doc.line(25, 90, 185, 90);
-
-            // Registrant Info
+            // 5. Registration ID & Status Badge
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.setTextColor(148, 163, 184);
-            doc.text("REGISTRANT DETAILS", 25, 105);
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(14);
-            doc.setTextColor(30, 41, 59);
-            doc.text(formData.fullName, 25, 115);
+            doc.setTextColor(148, 163, 184); // Slate 400
+            doc.text("UTR NO:", 15, 75);
 
             doc.setFont("helvetica", "normal");
-            doc.setFontSize(12);
-            doc.setTextColor(71, 85, 105);
-            doc.text(`College: ${formData.college}`, 25, 125);
-            doc.text(`Email: ${formData.email}`, 25, 133);
-            doc.text(`Phone: ${formData.phone}`, 25, 141);
+            doc.setTextColor(255, 255, 255);
+            const ticketId = formData.transactionId ? formData.transactionId.substring(0, 16).toUpperCase() : `ALG-${Math.floor(Math.random() * 1000000)}`;
+            doc.text(ticketId, 15, 81);
 
-            // Payment Info
+            // Status Badge
+            doc.setFillColor(16, 185, 129); // Emerald 500
+            doc.roundedRect(140, 71, 30, 12, 6, 6, 'F');
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.setTextColor(148, 163, 184);
-            doc.text("PAYMENT INFO", 130, 105);
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(12);
-            doc.setTextColor(30, 41, 59);
-            doc.text("Status:", 130, 115);
-
+            doc.setTextColor(255, 255, 255);
             const isFree = event.prize === "Participation";
-            doc.setTextColor(5, 150, 105); // always green success
-            doc.text(isFree ? "Free Registration" : "Successful", 150, 115);
+            doc.text(isFree ? "FREE" : "VERIFIED", 155, 79, { align: "center" });
 
-            doc.setTextColor(30, 41, 59);
-            doc.text("Total:", 130, 125);
-            doc.setTextColor(79, 70, 229);
+            // Date of Payment (Removed per request)
 
+            // 6. MAIN EVENT DETAILS
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            doc.setTextColor(168, 85, 247); // Purple 500
+            doc.text(event.title.toUpperCase(), 90, 105, { align: "center" });
+
+            // Time & Location Box (Fixed overflowing box)
+            doc.setFillColor(15, 23, 42); // slate 900 inner box
+            doc.roundedRect(15, 115, 150, 24, 4, 4, 'F');
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.setTextColor(255, 255, 255);
+            doc.text("TIME:", 25, 125);
+            doc.text("VENUE:", 85, 125);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(203, 213, 225); // slate 300
+            doc.text(event.time, 25, 133);
+
+            // Handle long venue names
+            const venueLines = doc.splitTextToSize(event.location, 75);
+            doc.text(venueLines, 85, 133);
+
+            // 7. ATTENDEE DATA
+            let currentY = 160;
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.setTextColor(253, 164, 175); // Pink 300
+            doc.text("PARTICIPANTS DETAILS", 15, currentY);
+            currentY += 8;
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(15);
+            doc.setTextColor(255, 255, 255);
+            doc.text(formData.fullName.toUpperCase(), 15, currentY);
+            currentY += 8;
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(148, 163, 184); // slate 400
+            doc.text(`College: ${formData.college}`, 15, currentY);
+            currentY += 6;
+            doc.text(`Email: ${formData.email}`, 15, currentY);
+            currentY += 6;
+            doc.text(`Phone: ${formData.phone}`, 15, currentY);
+            currentY += 12;
+
+            // 8. TEAM MODULE (If applicable)
+            if (teamMembers && teamMembers.length > 0) {
+                if (formData.teamName) {
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(10);
+                    doc.setTextColor(168, 85, 247); // purple 500
+                    doc.text(`TEAM: ${formData.teamName.toUpperCase()}`, 15, currentY);
+                    currentY += 6;
+                }
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(8);
+                doc.setTextColor(203, 213, 225); // slate 300
+
+                // Display each team member on a new line with full details
+                teamMembers.forEach((m, i) => {
+                    const memberLine = `${i + 1}. ${m.fullName} | ${m.email} | ${m.phone}`;
+                    const textLines = doc.splitTextToSize(memberLine, 150);
+                    doc.text(textLines, 15, currentY);
+                    currentY += (textLines.length * 4);
+                });
+            }
+
+            // 9. FINANCIALS
             // Dynamic fee parsing for PDF
             let pdfFeeText = (passType === 'combo' && comboPassDetails)
                 ? comboPassDetails
                 : standardFeeString;
 
-            doc.text(pdfFeeText, 150, 125);
-
-            if (formData.transactionId) {
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(10);
-                doc.setTextColor(148, 163, 184);
-                doc.text("TRANSACTION REF (UTR)", 130, 145);
-
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(11);
-                doc.setTextColor(51, 65, 85);
-                doc.text(formData.transactionId, 130, 153);
+            // Standard jsPDF fonts do not support the ₹ unicode character. Replace with Rs.
+            if (pdfFeeText) {
+                pdfFeeText = pdfFeeText.toString().replace(/₹/g, "Rs. ");
             }
-
-            // Team Members Module
-            let currentY = 175;
-            if (teamMembers && teamMembers.length > 0) {
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(10);
-                doc.setTextColor(148, 163, 184);
-                doc.text("TEAM MEMBERS", 25, currentY);
-                currentY += 10;
-
-                teamMembers.forEach((member, idx) => {
-                    doc.setFont("helvetica", "bold");
-                    doc.setFontSize(11);
-                    doc.setTextColor(30, 41, 59);
-                    doc.text(`${idx + 2}. ${member.fullName}`, 25, currentY);
-
-                    doc.setFont("helvetica", "normal");
-                    doc.setFontSize(10);
-                    doc.setTextColor(100, 116, 139);
-                    doc.text(`Email: ${member.email}  |  Phone: ${member.phone}`, 25, currentY + 6);
-                    currentY += 16;
-                });
-            }
-
-            doc.setDrawColor(226, 232, 240);
-            doc.line(25, 265, 185, 265);
-
-            doc.setFont("helvetica", "normal");
+            doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.setTextColor(100, 116, 139);
-            doc.text("Thank you for registering for AlgoRhythm Fest!", 105, 273, { align: "center" });
-            doc.text("This receipt is auto-generated and does not require a signature.", 105, 278, { align: "center" });
+            doc.setTextColor(253, 164, 175); // Pink 300
+            doc.text(passType === 'combo' ? "COMBO PASS FEE" : "STANDARD FEE", 15, 232);
 
-            doc.save(`Registration_Receipt_${safeName}.pdf`);
+            doc.setFontSize(14);
+            doc.setTextColor(255, 255, 255);
+            doc.text(pdfFeeText || "Free", 15, 238);
+
+            // 10. FOOTER WARNING & WATERMARK
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.setTextColor(100, 116, 139); // Slate 500
+            doc.text("Present this digital pass at the registration desk for entry.", 90, 242, { align: "center" });
+
+            // "Fake" Barcode generation (Visual flair) - restricted within border bounds
+            doc.setFillColor(148, 163, 184); // Slate 400
+            for (let i = 0; i < 45; i++) {
+                const width = Math.random() * 2 + 0.3;
+                doc.rect(12 + (i * 3.5), 244, width, 8, 'F');
+            }
+
+            // Text over barcode
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(7)
+            doc.setTextColor(255, 255, 255);
+            doc.text("THANKS FOR REGISTERING!", 78, 259, { align: "center", charSpace: 1 });
+
+            // Small GRAFIK watermark inside the ticket
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(7);
+            doc.setTextColor(51, 65, 85); // Slate 700 (Very subtle)
+            doc.text("DESIGNED BY GRAFIK", 173, 248, { angle: 90 });
+
+            doc.save(`Access_Pass_${safeName}.pdf`);
         } catch (err) {
             console.error("PDF generation failed:", err);
             alert("Failed to create PDF document: " + (err.message || err.toString()));
@@ -240,10 +302,14 @@ export default function RegistrationForm({ event, onClose }) {
 
     const minTeamSize = event.minTeamSize || 1;
     const maxTeamSize = event.maxTeamSize || 1;
-    const isTeamEvent = maxTeamSize > 1;
+    const isTeamEvent = minTeamSize >= 2 || maxTeamSize > 1;
 
     const handleStep1Submit = (e) => {
         e.preventDefault();
+        if (isTeamEvent && (!formData.teamName || formData.teamName.trim() === "")) {
+            alert("Please enter a Team Name.");
+            return;
+        }
         if (teamMembers.length + 1 < minTeamSize) {
             alert(`This event requires a minimum team size of ${minTeamSize}. Please add ${minTeamSize - 1 - teamMembers.length} more member(s).`);
             return;
@@ -254,25 +320,91 @@ export default function RegistrationForm({ event, onClose }) {
     return (
         <AnimatePresence>
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                className="fixed inset-0 z-[60] bg-slate-900 flex flex-col overflow-y-auto w-full min-h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[60] bg-[#020617] flex flex-col overflow-y-auto w-full min-h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             >
-                {/* Header */}
-                <div className="relative p-6 sm:p-10 border-b border-purple-500/30">
+                {/* Animated Background Energy */}
+                <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                    <motion.div
+                        animate={{
+                            x: [0, 100, 0],
+                            y: [0, 50, 0],
+                            scale: [1, 1.2, 1],
+                        }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-purple-600/10 blur-[120px] rounded-full"
+                    />
+                    <motion.div
+                        animate={{
+                            x: [0, -80, 0],
+                            y: [0, 100, 0],
+                            scale: [1, 1.1, 1],
+                        }}
+                        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                        className="absolute top-[20%] -right-[5%] w-[45%] h-[45%] bg-pink-600/10 blur-[100px] rounded-full"
+                    />
+                    <motion.div
+                        animate={{
+                            x: [0, 50, 0],
+                            y: [0, -60, 0],
+                        }}
+                        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+                        className="absolute -bottom-[10%] left-[20%] w-[40%] h-[40%] bg-blue-600/5 blur-[80px] rounded-full"
+                    />
+                </div>
+
+                {/* Header Section */}
+                <div className="relative p-6 sm:p-8 flex items-center justify-between border-b border-white/5 backdrop-blur-md z-20">
+                    <div>
+                        <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                            {event.title} <span className="text-purple-500">Registration</span>
+                        </h2>
+                        <p className="text-slate-400 text-xs sm:text-sm flex items-center gap-2 mt-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                            {event.time} • {event.location}
+                        </p>
+                    </div>
                     <button
                         onClick={onClose}
-                        className="absolute top-6 right-6 text-gray-400 hover:text-white transition bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center"
+                        className="text-slate-400 hover:text-white transition bg-white/5 hover:bg-white/10 p-2 rounded-xl border border-white/10"
                     >
-                        ✕
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 mb-2">
-                        Register for {event.title}
-                    </h2>
-                    <p className="text-gray-300 text-sm sm:text-base">
-                        {event.time} • {event.location}
-                    </p>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="relative pt-8 px-6 sm:px-10 max-w-3xl mx-auto w-full z-20">
+                    <div className="flex items-center justify-between relative">
+                        {[1, 2, 3].map((s) => (
+                            <div key={s} className="flex flex-col items-center relative z-10">
+                                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border transition-all duration-500 rotate-45 ${step >= s ? 'bg-purple-600 border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.4)]' : 'bg-slate-900 border-slate-800 text-slate-600'}`}>
+                                    <div className="-rotate-45">
+                                        {step > s ? (
+                                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        ) : (
+                                            <span className="font-bold text-white text-sm">{s}</span>
+                                        )}
+                                    </div>
+                                </div>
+                                <span className={`text-[10px] mt-4 font-bold uppercase tracking-[0.2em] transition-colors duration-500 ${step >= s ? 'text-purple-400' : 'text-slate-600'}`}>
+                                    {s === 1 ? 'Details' : s === 2 ? 'Payment' : 'Success'}
+                                </span>
+                            </div>
+                        ))}
+                        {/* Connecting Lines background */}
+                        <div className="absolute top-[20px] left-[10%] right-[10%] h-[2px] bg-slate-800 -z-0" />
+                        {/* Connecting Lines active */}
+                        <div className="absolute top-[20px] left-[10%] right-[10%] h-[2px] -z-0">
+                            <motion.div 
+                                initial={{ width: "0%" }}
+                                animate={{ width: step === 1 ? "0%" : step === 2 ? "50%" : "100%" }}
+                                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]"
+                                transition={{ duration: 0.8, ease: "easeInOut" }}
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 {/* Body */}
@@ -280,199 +412,249 @@ export default function RegistrationForm({ event, onClose }) {
                     {step === 1 && (
                         <motion.form
                             key="step1"
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: 20, opacity: 0 }}
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -20, opacity: 0 }}
                             onSubmit={handleStep1Submit}
-                            className="space-y-8 max-w-3xl mx-auto w-full my-auto"
+                            className="space-y-6 max-w-3xl mx-auto w-full py-8 z-20"
                         >
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-3">
-                                    <label className="text-sm font-medium text-purple-200">Full Name <span className="text-pink-500">*</span></label>
-                                    <input required type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded-2xl px-6 py-4 text-lg text-slate-900 focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500 transition" placeholder="John Doe" />
+                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                
+                                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Team Leader Full Name <span className="text-pink-500">*</span></label>
+                                        <input required type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="M.M.Bharath" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Email <span className="text-pink-500">*</span></label>
+                                        <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="cse@example.com" />
+                                    </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-sm font-medium text-purple-200">Email Address <span className="text-pink-500">*</span></label>
-                                    <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded-2xl px-6 py-4 text-lg text-slate-900 focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500 transition" placeholder="john@example.com" />
-                                </div>
-                            </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-3">
-                                    <label className="text-sm font-medium text-purple-200">Phone Number <span className="text-pink-500">*</span></label>
-                                    <input required type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" maxLength="10" name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded-2xl px-6 py-4 text-lg text-slate-900 focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500 transition" placeholder="9876543210" />
-                                </div>
-                                <div className="space-y-3">
-                                    <label className="text-sm font-medium text-purple-200">College Name <span className="text-pink-500">*</span></label>
-                                    <input required type="text" name="college" value={formData.college} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded-2xl px-6 py-4 text-lg text-slate-900 focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500 transition" placeholder="Your College" />
+                                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Phone <span className="text-pink-500">*</span></label>
+                                        <input required type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" maxLength="10" name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="987*****10" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">College <span className="text-pink-500">*</span></label>
+                                        <input required type="text" name="college" value={formData.college} onChange={handleChange} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="Your College Name" />
+                                    </div>
                                 </div>
                             </div>
 
                             {isTeamEvent && (
-                                <div className="pt-6 border-t border-purple-500/30">
-                                    <h3 className="text-xl font-bold text-white mb-4">Team Members ({teamMembers.length + 1} / {maxTeamSize})</h3>
-                                    {teamMembers.map((member, index) => (
-                                        <div key={index} className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-4 relative">
-                                            {index >= (minTeamSize - 1) && (
-                                                <button type="button" onClick={() => {
-                                                    const newMembers = [...teamMembers];
-                                                    newMembers.splice(index, 1);
-                                                    setTeamMembers(newMembers);
-                                                }} className="absolute top-4 right-4 text-gray-400 hover:text-red-400 text-xl">✕</button>
-                                            )}
-                                            <h4 className="text-purple-300 font-medium mb-4">Member {index + 2} {index < (minTeamSize - 1) && "(Required)"}</h4>
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                <div>
-                                                    <label className="text-xs font-medium text-purple-200">Full Name <span className="text-pink-500">*</span></label>
-                                                    <input required type="text" value={member.fullName} onChange={(e) => {
+                                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden group">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                    
+                                    <div className="relative z-10 mb-8 space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Team Name <span className="text-pink-500">*</span></label>
+                                        <input required type="text" name="teamName" value={formData.teamName} onChange={handleChange} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="Your Team Name" />
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-lg font-bold text-white tracking-tight">Team Roster</h3>
+                                        <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-lg text-xs font-bold border border-purple-500/20">
+                                            {teamMembers.length + 1} / {maxTeamSize} Members
+                                        </span>
+                                    </div>
+
+                                    <div className="relative z-10 space-y-4">
+                                        {teamMembers.map((member, index) => (
+                                            <div key={index} className="bg-white/5 border border-white/10 rounded-3xl p-6 relative group/member hover:border-white/20 transition-colors duration-300">
+                                                {index >= (minTeamSize - 1) && (
+                                                    <button type="button" onClick={() => {
                                                         const newMembers = [...teamMembers];
-                                                        newMembers[index].fullName = e.target.value;
+                                                        newMembers.splice(index, 1);
                                                         setTeamMembers(newMembers);
-                                                    }} className="w-full bg-white border border-gray-300 rounded-xl px-4 py-2 mt-1 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 text-slate-900" placeholder="Name" />
-                                                </div>
-                                                <div>
-                                                    <label className="text-xs font-medium text-purple-200">Email <span className="text-pink-500">*</span></label>
-                                                    <input required type="email" value={member.email} onChange={(e) => {
-                                                        const newMembers = [...teamMembers];
-                                                        newMembers[index].email = e.target.value;
-                                                        setTeamMembers(newMembers);
-                                                    }} className="w-full bg-white border border-gray-300 rounded-xl px-4 py-2 mt-1 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 text-slate-900" placeholder="Email" />
-                                                </div>
-                                                <div>
-                                                    <label className="text-xs font-medium text-purple-200">Phone <span className="text-pink-500">*</span></label>
-                                                    <input required type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" maxLength="10" value={member.phone} onChange={(e) => {
-                                                        const newMembers = [...teamMembers];
-                                                        newMembers[index].phone = e.target.value;
-                                                        setTeamMembers(newMembers);
-                                                    }} className="w-full bg-white border border-gray-300 rounded-xl px-4 py-2 mt-1 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 text-slate-900" placeholder="9876543210" />
+                                                    }} className="absolute top-4 right-4 text-slate-500 hover:text-pink-500 transition-colors">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                )}
+                                                <h4 className="text-xs font-bold uppercase tracking-widest text-purple-400 mb-4 flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                                                    Member {index + 2} {index < (minTeamSize - 1) && <span className="text-[10px] text-slate-500">(Required)</span>}
+                                                </h4>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                    <div className="space-y-1">
+                                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Name</label>
+                                                        <input required type="text" value={member.fullName} onChange={(e) => {
+                                                            const newMembers = [...teamMembers];
+                                                            newMembers[index].fullName = e.target.value;
+                                                            setTeamMembers(newMembers);
+                                                        }} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-all" placeholder="Full Name" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Email</label>
+                                                        <input required type="email" value={member.email} onChange={(e) => {
+                                                            const newMembers = [...teamMembers];
+                                                            newMembers[index].email = e.target.value;
+                                                            setTeamMembers(newMembers);
+                                                        }} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-all" placeholder="email@example.com" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Phone</label>
+                                                        <input required type="tel" pattern="[0-9]{10}" maxLength="10" value={member.phone} onChange={(e) => {
+                                                            const newMembers = [...teamMembers];
+                                                            newMembers[index].phone = e.target.value;
+                                                            setTeamMembers(newMembers);
+                                                        }} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-all" placeholder="Phone" />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
+
                                     {teamMembers.length + 1 < maxTeamSize && (
-                                        <button type="button" onClick={() => setTeamMembers([...teamMembers, { fullName: "", email: "", phone: "" }])} className="text-pink-400 hover:text-pink-300 font-medium flex items-center gap-2 px-4 py-2 bg-pink-500/10 rounded-xl border border-pink-500/20 hover:bg-pink-500/20 transition">
-                                            + Add Team Member
+                                        <button type="button" onClick={() => setTeamMembers([...teamMembers, { fullName: "", email: "", phone: "" }])} className="w-full mt-4 py-4 rounded-2xl border-2 border-dashed border-white/10 text-slate-400 font-bold hover:border-purple-500/50 hover:text-purple-400 hover:bg-purple-500/5 transition-all duration-300 flex items-center justify-center gap-2">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                                            Add Another Member
                                         </button>
                                     )}
                                 </div>
                             )}
 
                             {comboPassDetails && (
-                                <div className="pt-6 border-t border-purple-500/30">
-                                    <h3 className="text-xl font-bold text-white mb-4">Select Registration Type <span className="text-pink-500">*</span></h3>
+                                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden">
+                                    <h3 className="text-lg font-bold text-white tracking-tight mb-6">Choose Your Experience</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <label className={`relative flex flex-col p-4 cursor-pointer rounded-2xl border-2 transition-all ${passType === 'standard' ? 'bg-purple-500/20 border-purple-500' : 'bg-white/5 border-white/10 hover:border-white/20'}`}>
+                                        <label className={`relative flex flex-col p-6 cursor-pointer rounded-3xl border-2 transition-all duration-300 ${passType === 'standard' ? 'bg-purple-500/10 border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.2)]' : 'bg-white/5 border-white/10 hover:border-white/20'}`}>
                                             <input type="radio" name="passType" value="standard" checked={passType === 'standard'} onChange={() => setPassType('standard')} className="sr-only" />
-                                            <span className="font-semibold text-white text-lg">Standard Pass</span>
-                                            <span className="text-purple-300 mt-1">{standardFeeString}</span>
-                                            {passType === 'standard' && <div className="absolute top-4 right-4 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center"><div className="w-2 h-2 bg-white rounded-full"></div></div>}
+                                            <span className="font-bold text-white text-lg tracking-tight">Standard Pass</span>
+                                            <span className="text-slate-400 mt-1 font-medium">{standardFeeString}</span>
+                                            <div className={`absolute top-6 right-6 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${passType === 'standard' ? 'border-purple-500 bg-purple-500' : 'border-slate-700'}`}>
+                                                {passType === 'standard' && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                                            </div>
                                         </label>
 
-                                        <label className={`relative flex flex-col p-4 cursor-pointer rounded-2xl border-2 transition-all ${passType === 'combo' ? 'bg-amber-500/20 border-amber-500' : 'bg-white/5 border-white/10 hover:border-white/20'}`}>
+                                        <label className={`relative flex flex-col p-6 cursor-pointer rounded-3xl border-2 transition-all duration-300 ${passType === 'combo' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'bg-white/5 border-white/10 hover:border-white/20'}`}>
                                             <input type="radio" name="passType" value="combo" checked={passType === 'combo'} onChange={() => setPassType('combo')} className="sr-only" />
-                                            <span className="font-semibold text-white text-lg flex items-center gap-2">Combo Pass <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-amber-950 uppercase">Best Value</span></span>
-                                            <span className="text-amber-300 mt-1 text-sm">{comboPassDetails}</span>
-                                            {passType === 'combo' && <div className="absolute top-4 right-4 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center"><div className="w-2 h-2 bg-white rounded-full"></div></div>}
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-white text-lg tracking-tight">Combo Pass</span>
+                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black bg-amber-500 text-amber-950 uppercase tracking-tighter">BEST VALUE</span>
+                                            </div>
+                                            <span className="text-amber-500/80 mt-1 font-medium text-sm">{comboPassDetails}</span>
+                                            <div className={`absolute top-6 right-6 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${passType === 'combo' ? 'border-amber-500 bg-amber-500' : 'border-slate-700'}`}>
+                                                {passType === 'combo' && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                                            </div>
                                         </label>
                                     </div>
                                 </div>
                             )}
 
-                            <div className="pt-8 flex justify-end">
-                                <button type="submit" className="px-10 py-4 text-lg rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold hover:shadow-[0_0_30px_rgba(236,72,153,0.4)] transition hover:scale-105">
-                                    Proceed to Payment →
+                            <div className="pt-4 flex justify-end">
+                                <button type="submit" className="group relative px-10 py-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-[2rem] text-white font-black uppercase tracking-widest text-sm hover:shadow-[0_0_40px_rgba(168,85,247,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden">
+                                    <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg] pointer-events-none" />
+                                    <span className="relative flex items-center gap-2">
+                                        Continue to Payment
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </span>
                                 </button>
                             </div>
                         </motion.form>
                     )}
-
                     {step === 2 && (
                         <motion.form
                             key="step2"
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: 20, opacity: 0 }}
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -20, opacity: 0 }}
                             onSubmit={handleSubmit}
-                            className="space-y-10 max-w-2xl mx-auto w-full my-auto"
+                            className="space-y-6 max-w-2xl mx-auto w-full py-8 z-20"
                         >
-                            <div className="bg-white/5 border border-white/10 rounded-3xl p-10 text-center relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-pink-600/10 pointer-events-none" />
-                                <h3 className="text-lg font-semibold text-white mb-6">Scan the QR code below to complete your payment</h3>
-
-                                {/* ========================================== */}
-                                {/* 🖼️ REPLACE THE "src" BELOW WITH YOUR QR CODE */}
-                                {/* Example: src="/your-qr-code.png"           */}
-                                {/* ========================================== */}
-                                <div className="mx-auto w-48 h-48 bg-white rounded-xl p-3 flex items-center justify-center mb-6">
-                                    <img src="my-qr-code.png" alt="Payment QR" className="w-[150px] h-[150px] object-contain" />
+                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10 opacity-30 pointer-events-none" />
+                                
+                                <div className="relative z-10 relative text-center mb-8">
+                                    <h3 className="text-xl font-bold text-white tracking-tight mb-2">Complete Payment</h3>
+                                    <p className="text-slate-400 text-sm">Scan the dynamic QR below to secure your spot</p>
                                 </div>
 
-                                <p className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 text-xl">
-                                    Amount to Pay: {(passType === 'combo' && comboPassDetails)
-                                        ? comboPassDetails
-                                        : standardFeeString}
-                                </p>
-                            </div>
-
-                            <div className="space-y-3">
-                                <label className="text-sm font-medium text-purple-200">
-                                    Transaction ID {event.prize === "Participation" ? "(Optional)" : <span className="text-pink-500">*</span>}
-                                </label>
-                                <input
-                                    type="text"
-                                    name="transactionId"
-                                    value={formData.transactionId}
-                                    onChange={handleChange}
-                                    className={`w-full bg-white border ${utrError ? 'border-red-500 ring-2 ring-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-pink-500 focus:ring-pink-500'} rounded-2xl px-6 py-4 text-lg text-slate-900 focus:outline-none focus:ring-2 transition`}
-                                    placeholder="Enter UPI Ref No. (UTR)"
-                                />
-                                <AnimatePresence>
-                                    {utrError && (
-                                        <motion.p
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0 }}
-                                            className="text-red-400 text-sm mt-1"
-                                        >
-                                            {utrError}
-                                        </motion.p>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            <div className="space-y-3">
-                                <label className="text-sm font-medium text-purple-200">Upload Payment Screenshot (Showing UTR) <span className="text-pink-500">*</span></label>
-                                <div className="w-full bg-white border border-gray-300 rounded-2xl px-6 py-4 flex items-center justify-center focus-within:border-pink-500 focus-within:ring-2 focus-within:ring-pink-500 transition cursor-pointer relative group">
-                                    <input
-                                        required
-                                        type="file"
-                                        name="paymentScreenshot"
-                                        accept="image/*"
-                                        onChange={handleChange}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    />
-                                    <div className="flex items-center space-x-3 text-slate-600 group-hover:text-pink-600 transition">
-                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                        <span className="text-lg font-medium">{formData.paymentScreenshot ? formData.paymentScreenshot.name : "Choose an image..."}</span>
+                                <div className="relative mx-auto w-56 h-56 group/qr transition-transform duration-500 hover:scale-105">
+                                    <div className="absolute -inset-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-[2.5rem] opacity-20 blur-2xl group-hover/qr:opacity-40 transition-opacity" />
+                                    <div className="relative h-full bg-white rounded-[2rem] p-4 flex items-center justify-center border border-white/20 shadow-2xl">
+                                        <img src="my-qr-code.png" alt="Payment QR" className="w-[180px] h-[180px] object-contain" />
                                     </div>
                                 </div>
-                                <p className="text-xs text-gray-400 mt-2">Accepted formats: JPG, PNG. Max size: 5MB.</p>
+
+                                <div className="mt-8 bg-black/40 rounded-2xl p-6 border border-white/5 backdrop-blur-md">
+                                    <div className="flex justify-between items-center text-sm font-bold uppercase tracking-widest text-slate-500 mb-2">
+                                        <span>Plan Type</span>
+                                        <span>Total Amount</span>
+                                    </div>
+                                    <div className="flex justify-between items-end">
+                                        <span className="text-white font-bold text-lg">{passType === 'combo' ? 'Combo Pass' : 'Standard Entry'}</span>
+                                        <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 tracking-tighter">
+                                            {(passType === 'combo' && comboPassDetails) ? comboPassDetails : standardFeeString}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="pt-8 flex justify-between items-center">
-                                <button type="button" onClick={() => setStep(1)} disabled={isSubmitting} className="px-8 py-4 text-lg rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 transition disabled:opacity-50">
-                                    ← Back
+                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 sm:p-10 shadow-2xl space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
+                                        Transaction ID (UTR) {event.prize === "Participation" ? "(Optional)" : <span className="text-pink-500">*</span>}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="transactionId"
+                                        value={formData.transactionId}
+                                        onChange={handleChange}
+                                        className={`w-full bg-white/5 border ${utrError ? 'border-red-500 ring-4 ring-red-500/10' : 'border-white/10'} rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all`}
+                                        placeholder="12-digit Ref No."
+                                    />
+                                    <AnimatePresence>
+                                        {utrError && (
+                                            <motion.p initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="text-red-400 text-[10px] font-black uppercase tracking-widest ml-1 mt-1">
+                                                {utrError}
+                                            </motion.p>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+
+                                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Enter the date of payment done</label>
+                                        <input
+                                            type="date"
+                                            name="paymentDate"
+                                            value={formData.paymentDate}
+                                            onChange={handleChange}
+                                            max={new Date().toISOString().split("T")[0]}
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-purple-500 transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Screenshot of payment showing UTR number <span className="text-pink-500">*</span></label>
+                                        <div className="relative group/file">
+                                            <input required type="file" name="paymentScreenshot" accept="image/*" onChange={handleChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                            <div className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white transition-all group-hover/file:border-purple-500/50 flex items-center justify-center gap-2">
+                                                <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                                <span className="text-sm font-bold truncate max-w-[120px]">{formData.paymentScreenshot ? formData.paymentScreenshot.name : "Choose File"}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 flex justify-between items-center">
+                                <button type="button" onClick={() => setStep(1)} disabled={isSubmitting} className="px-8 py-4 rounded-2xl text-slate-500 font-bold hover:text-white transition-colors">
+                                    ← Edit Details
                                 </button>
-                                <button type="submit" disabled={isSubmitting} className="px-10 py-4 text-lg rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] transition hover:scale-105 disabled:opacity-75 disabled:cursor-not-allowed flex items-center">
+                                <button type="submit" disabled={isSubmitting} className="group relative px-10 py-5 bg-gradient-to-r from-emerald-600 to-green-600 rounded-[2rem] text-white font-black uppercase tracking-widest text-sm hover:shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-3">
                                     {isSubmitting ? (
+                                        <div className="flex items-center gap-2">
+                                            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                            Verifying...
+                                        </div>
+                                    ) : (
                                         <>
-                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            Processing...
+                                            Complete Registration
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                                         </>
-                                    ) : "Complete Registration"}
+                                    )}
                                 </button>
                             </div>
                         </motion.form>
@@ -483,72 +665,56 @@ export default function RegistrationForm({ event, onClose }) {
                             key="step3"
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="py-8 max-w-2xl mx-auto w-full my-auto"
+                            className="py-12 max-w-2xl mx-auto w-full z-20 flex flex-col items-center"
                         >
-                            <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 sm:p-12 relative overflow-hidden shadow-2xl">
-                                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-emerald-500" />
-                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.05),transparent_50%)] pointer-events-none" />
+                            <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[3rem] p-10 sm:p-14 relative overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full text-center">
+                                <div className="absolute top-0 left-0 w-full h-[6px] bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 animate-gradient-x" />
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(168,85,247,0.15),transparent_70%)] pointer-events-none" />
 
-                                <div className="flex flex-col items-center text-center mb-8 relative z-10">
-                                    <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-6 border border-green-500/20 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
-                                        <svg className="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path>
-                                        </svg>
+                                <div className="relative mb-10">
+                                    <div className="w-24 h-24 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-3xl rotate-12 flex items-center justify-center mx-auto border border-green-500/30 shadow-[0_0_40px_rgba(16,185,129,0.2)]">
+                                        <div className="-rotate-12">
+                                            <svg className="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
                                     </div>
-                                    <h3 className="text-3xl font-bold text-white mb-2">Registration Confirmed!</h3>
-                                    <p className="text-gray-400">Your spot for <span className="text-pink-400 font-semibold">{event.title}</span> is secured.</p>
+                                    <div className="absolute -inset-2 bg-green-500/20 blur-2xl rounded-full opacity-50 -z-10" />
                                 </div>
 
-                                <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-4 relative z-10 mb-8 backdrop-blur-sm">
-                                    <div className="flex justify-between items-center pb-4 border-b border-white/10">
-                                        <span className="text-gray-400">Attendee</span>
-                                        <span className="text-white font-medium text-right">{formData.fullName}</span>
+                                <h3 className="text-4xl font-black text-white tracking-tighter mb-4">Spot Secured!</h3>
+                                <p className="text-slate-400 font-medium mb-12">Registration for <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 font-bold">{event.title}</span> is successful.</p>
+
+                                <div className="bg-black/30 rounded-3xl p-8 border border-white/5 backdrop-blur-md space-y-4 mb-10 text-left">
+                                    <div className="flex justify-between items-center pb-4 border-b border-white/5">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Attendee</label>
+                                        <span className="text-white font-bold">{formData.fullName}</span>
                                     </div>
-                                    <div className="flex justify-between items-center pb-4 border-b border-white/10">
-                                        <span className="text-gray-400">Email</span>
-                                        <span className="text-white font-medium text-right truncate pl-4">{formData.email}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center pb-4 border-b border-white/10">
-                                        <span className="text-gray-400">Phone</span>
-                                        <span className="text-white font-medium text-right">{formData.phone}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center pb-4 border-b border-white/10">
-                                        <span className="text-gray-400">College</span>
-                                        <span className="text-white font-medium text-right">{formData.college}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center pb-4 border-b border-white/10">
-                                        <span className="text-gray-400">Pass Type</span>
-                                        <span className="text-white font-medium text-right capitalize">{passType} Pass</span>
+                                    <div className="flex justify-between items-center pb-4 border-b border-white/5">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Event Pass</label>
+                                        <span className="text-purple-400 font-bold uppercase tracking-wider text-sm">{passType} Pass</span>
                                     </div>
                                     <div className="flex justify-between items-center pt-2">
-                                        <span className="text-gray-400">Payment Status</span>
-                                        <span className="inline-flex py-1 px-3 rounded-full bg-green-500/20 text-green-400 font-medium text-sm border border-green-500/30">
-                                            {standardFeeString === "Free" ? "Free" : "Pending Verification"}
-                                        </span>
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Status</label>
+                                        <div className="flex items-center gap-2 px-3 py-1 bg-green-500/20 text-green-400 rounded-lg border border-green-500/20 text-[10px] font-black uppercase tracking-tighter">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                            Active
+                                        </div>
                                     </div>
                                 </div>
-                                <p className="text-xs text-gray-500 mt-6 text-center">A copy of this receipt has been saved to your dashboard.</p>
+                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-[0.3em]">Confirmation sent to email</p>
                             </div>
 
-                            <div className="text-center relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-                                <button onClick={handleDownloadPDF} disabled={isDownloading} type="button" className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition hover:scale-105 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-wait">
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 w-full">
+                                <button onClick={handleDownloadPDF} disabled={isDownloading} className="group relative w-full sm:w-auto px-10 py-5 bg-white text-slate-950 rounded-[2rem] font-black uppercase tracking-[0.15em] text-xs transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-10 translate-y-full group-hover:translate-y-0 transition-transform duration-300 pointer-events-none" />
                                     {isDownloading ? (
-                                        <>
-                                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            Generating PDF...
-                                        </>
+                                        <svg className="animate-spin h-4 w-4 text-slate-900" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                     ) : (
-                                        <>
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                            Download Receipt
-                                        </>
+                                        <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                     )}
+                                    {isDownloading ? "Preparing Pass..." : "Download Access Pass"}
                                 </button>
-                                <button onClick={onClose} type="button" className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/10 text-white font-bold hover:bg-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition hover:scale-105 active:scale-95 disabled:opacity-50">
-                                    Explore More
+                                <button onClick={onClose} className="w-full sm:w-auto px-10 py-5 bg-white/5 text-white border border-white/10 rounded-[2rem] font-bold uppercase tracking-widest text-xs hover:bg-white/10 transition-all duration-300">
+                                    Back to Home
                                 </button>
                             </div>
                         </motion.div>

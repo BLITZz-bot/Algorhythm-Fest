@@ -7,6 +7,7 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 const ExcelJS = require('exceljs');
 const mongoose = require('mongoose');
+const dns = require('dns'); // Network workaround for restricted SRV DNS queries
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,9 +36,22 @@ const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
     console.error("CRITICAL ERROR: MONGODB_URI is not defined in .env");
 } else {
-    mongoose.connect(MONGODB_URI)
-        .then(() => console.log('Connected to MongoDB Successfully!'))
-        .catch(err => console.error('MongoDB Connection Error:', err));
+    const connectDB = async () => {
+        try {
+            await mongoose.connect(MONGODB_URI);
+            console.log('Connected to MongoDB Successfully!');
+        } catch (err) {
+            console.log('Initial connection failed, likely due to restrictive network DNS. Retrying with public DNS workaround...');
+            try {
+                dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+                await mongoose.connect(MONGODB_URI);
+                console.log('Connected to MongoDB Successfully (Using Public DNS Fallback)!');
+            } catch (errFallback) {
+                console.error('MongoDB Connection Error:', errFallback);
+            }
+        }
+    };
+    connectDB();
 }
 
 // Ensure directories exist for locally stored screenshots
@@ -53,12 +67,14 @@ const registrationSchema = new mongoose.Schema({
     email: { type: String, required: true },
     phone: { type: String, required: true },
     college: { type: String, required: true },
+    teamName: { type: String, default: null },
     teamMembers: [{
         fullName: String,
         email: String,
         phone: String
     }],
     transactionId: { type: String, default: 'N/A' },
+    paymentDate: { type: String, default: 'N/A' },
     screenshotPath: { type: String, default: null }
 });
 
@@ -89,7 +105,7 @@ const upload = multer({
 // Routes
 app.post('/api/register', upload.single('paymentScreenshot'), async (req, res) => {
     try {
-        const { fullName, email, phone, college, transactionId, eventTitle, teamMembers } = req.body;
+        const { fullName, email, phone, college, teamName, transactionId, paymentDate, eventTitle, teamMembers } = req.body;
 
         const newRegistration = new Registration({
             id: Date.now().toString(),
@@ -99,8 +115,10 @@ app.post('/api/register', upload.single('paymentScreenshot'), async (req, res) =
             email,
             phone,
             college,
+            teamName: teamName || null,
             teamMembers: teamMembers ? JSON.parse(teamMembers) : [],
             transactionId: transactionId || "N/A",
+            paymentDate: paymentDate || "N/A",
             screenshotPath: req.file ? req.file.filename : null
         });
 
@@ -226,33 +244,46 @@ app.post('/api/admin/send-report', async (req, res) => {
             const sheetName = eventTitle.substring(0, 31).replace(/[\\\?\*\[\]\/]/g, "");
             const worksheet = workbook.addWorksheet(sheetName);
             worksheet.columns = [
+                { header: 'Team Name', key: 'teamName', width: 25 },
                 { header: 'ID', key: 'id', width: 15 },
-                { header: 'Timestamp', key: 'timestamp', width: 22 },
+                { header: 'Date of Registration', key: 'timestamp', width: 25 },
                 { header: 'Full Name', key: 'fullName', width: 25 },
                 { header: 'Email', key: 'email', width: 30 },
                 { header: 'Phone', key: 'phone', width: 15 },
                 { header: 'College', key: 'college', width: 30 },
                 { header: 'UTR', key: 'transactionId', width: 20 },
-                { header: 'Team Members', key: 'teamMembers', width: 40 },
-                { header: 'Screenshot Proof', key: 'screenshot', width: 50 },
+                { header: 'Date of Payment', key: 'paymentDate', width: 20 },
+                { header: 'Team Members details', key: 'teamMembers', width: 50 },
+                { header: 'Screenshot Proof', key: 'screenshot', width: 40 },
             ];
 
             const headerRow = worksheet.getRow(1);
             headerRow.font = { bold: true, color: { argb: 'FFFFFF' } };
             headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '9333EA' } };
+            headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
             grouped[eventTitle].forEach(reg => {
                 const row = worksheet.addRow({
+                    teamName: reg.teamName || "N/A",
                     id: reg.id,
-                    timestamp: new Date(reg.timestamp).toLocaleString(),
+                    timestamp: new Date(reg.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
                     fullName: reg.fullName,
                     email: reg.email,
                     phone: reg.phone,
                     college: reg.college,
                     transactionId: reg.transactionId,
-                    teamMembers: reg.teamMembers?.map(m => `${m.fullName} (${m.email}, ${m.phone})`).join(" | ") || "N/A",
+                    paymentDate: reg.paymentDate || "N/A",
+                    teamMembers: reg.teamMembers?.length > 0
+                        ? reg.teamMembers.map(m => `Name: ${m.fullName}\nEmail: ${m.email}\nPhone: ${m.phone}`).join("\n\n")
+                        : "N/A",
                     screenshot: reg.screenshotPath ? `http://localhost:5000/uploads/${reg.screenshotPath}` : "N/A"
                 });
+
+                // Enable text wrapping for team members cell to allow multiple lines
+                row.getCell('teamMembers').alignment = { wrapText: true, vertical: 'top' };
+                row.getCell('timestamp').alignment = { vertical: 'top' };
+                row.getCell('fullName').alignment = { vertical: 'top' };
+                row.getCell('college').alignment = { wrapText: true, vertical: 'top' };
 
                 if (reg.screenshotPath) {
                     const linkCell = row.getCell('screenshot');
@@ -280,7 +311,7 @@ app.post('/api/admin/send-report', async (req, res) => {
 
         const mailOptions = {
             from: process.env.SENDER_EMAIL,
-            to: process.env.ADMIN_RECEIVER_EMAIL,
+            to: process.env.ADMIN_RECEIVER_EMAIL, // nodemailer natively supports comma-separated string like "a@mail.com, b@mail.com"
             subject: `AlgoRhythm Fest 2026 - Master Registration Report (${new Date().toLocaleDateString()})`,
             text: `Hello Admin,\n\nPlease find the attached automated registration report for AlgoRhythm Fest 2026.\n\nTotal Registrations from DB: ${registrations.length}\nGenerated at: ${new Date().toLocaleString()}`,
             attachments: [
