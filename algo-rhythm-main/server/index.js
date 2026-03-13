@@ -26,10 +26,10 @@ app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        
+
         // Cleanup incoming origin for comparison
         const cleanOrigin = origin.replace(/\/$/, "");
-        
+
         if (!process.env.FRONTEND_URL || allowedOrigins.includes(cleanOrigin)) {
             callback(null, true);
         } else {
@@ -345,7 +345,7 @@ app.post('/api/admin/send-report', async (req, res) => {
 
         const mailOptions = {
             from: SENDER_EMAIL,
-            to: ADMIN_RECEIVER_EMAIL, 
+            to: ADMIN_RECEIVER_EMAIL,
             subject: `AlgoRhythm Fest 2026 - Master Registration Report (${new Date().toLocaleDateString()})`,
             text: `Hello Admin,\n\nPlease find the attached automated registration report for AlgoRhythm Fest 2026.\n\nTotal Registrations from DB: ${registrations.length}\nGenerated at: ${new Date().toLocaleString()}`,
             attachments: [
