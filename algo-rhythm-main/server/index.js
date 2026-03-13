@@ -200,6 +200,32 @@ app.get('/api/admin/registrations', async (req, res) => {
     }
 });
 
+// Admin Delete Single Registration (New Route)
+app.delete('/api/admin/registrations/:id', async (req, res) => {
+    try {
+        const password = req.headers['x-admin-password'];
+        if (password !== 'algorhythm@admin2026') {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const { id } = req.params;
+        const registration = await Registration.findOneAndDelete({ id: id });
+
+        if (!registration) {
+            return res.status(404).json({ success: false, message: 'Registration not found' });
+        }
+
+        console.log(`🗑 Admin Deleted Registration: ${id} (${registration.fullName})`);
+        res.status(200).json({
+            success: true,
+            message: `Registration for ${registration.fullName} deleted successfully.`
+        });
+    } catch (error) {
+        console.error("Admin Single Delete Error:", error);
+        res.status(500).json({ success: false, message: 'Server error during registration deletion' });
+    }
+});
+
 // Get all event statuses (Public)
 app.get('/api/events/status', async (req, res) => {
     try {

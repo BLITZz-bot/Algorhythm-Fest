@@ -16,8 +16,14 @@ export default function AdminDashboard({ isOpen, onClose }) {
     const [emailing, setEmailing] = useState(false);
     const [emailStatus, setEmailStatus] = useState("");
     const [countdown, setCountdown] = useState(30);
-    const [activeTab, setActiveTab] = useState("registrations");
     const [eventStatuses, setEventStatuses] = useState([]);
+    const [deleteTargetId, setDeleteTargetId] = useState(null); // null for 'all', or specific id
+    const [deleteTargetName, setDeleteTargetName] = useState("");
+    const [isClearModalOpen, setIsClearModalOpen] = useState(false);
+    const [clearPassword, setClearPassword] = useState("");
+    const [clearConfirm, setClearConfirm] = useState(false);
+    const [clearing, setClearing] = useState(false);
+    const [clearError, setClearError] = useState("");
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -79,6 +85,69 @@ export default function AdminDashboard({ isOpen, onClose }) {
         } catch (err) {
             console.error("Toggle failed", err);
             fetchEventStatuses(); // revert on error
+        }
+    };
+
+    const sendToAdminEmail = async () => {
+        setEmailing(true);
+        setEmailStatus("");
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/send-report`, {
+                method: 'POST',
+                headers: { 'x-admin-password': password }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setEmailStatus("Report Emailed Successfully!");
+                setTimeout(() => setEmailStatus(""), 5000);
+            } else {
+                setEmailStatus(data.message || "Email Failed");
+            }
+        } catch (err) {
+            setEmailStatus("Server Error - check credentials");
+        } finally {
+            setEmailing(false);
+        }
+    };
+
+    const handleClearRegistrations = async () => {
+        if (clearPassword !== "algorhythm@admin2026") {
+            setClearError("Incorrect password");
+            return;
+        }
+        if (!clearConfirm) {
+            setClearConfirm(true);
+            setClearError("");
+            return;
+        }
+
+        setClearing(true);
+        setClearError("");
+        try {
+            const url = deleteTargetId
+                ? `${import.meta.env.VITE_API_URL}/api/admin/registrations/${deleteTargetId}`
+                : `${import.meta.env.VITE_API_URL}/api/admin/registrations/clear`;
+
+            const res = await fetch(url, {
+                method: 'DELETE',
+                headers: { 'x-admin-password': clearPassword }
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                setIsClearModalOpen(false);
+                setClearPassword("");
+                setClearConfirm(false);
+                setDeleteTargetId(null);
+                setDeleteTargetName("");
+                fetchRegistrations(); // Refresh data
+            } else {
+                setClearError(data.message || "Action Failed");
+            }
+        } catch (err) {
+            setClearError("Server Error during operation");
+        } finally {
+            setClearing(false);
         }
     };
 
@@ -219,27 +288,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
         saveAs(blob, `AlgoRhythm_2026_Master_Report_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`);
     };
 
-    const sendToAdminEmail = async () => {
-        setEmailing(true);
-        setEmailStatus("");
-        try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/send-report`, {
-                method: 'POST',
-                headers: { 'x-admin-password': password }
-            });
-            const data = await res.json();
-            if (data.success) {
-                setEmailStatus("Report Emailed Successfully!");
-                setTimeout(() => setEmailStatus(""), 5000);
-            } else {
-                setEmailStatus(data.message || "Email Failed");
-            }
-        } catch (err) {
-            setEmailStatus("Server Error - check credentials");
-        } finally {
-            setEmailing(false);
-        }
-    };
+
 
     const uniqueEvents = ["All", ...new Set(registrations.map(r => r.eventTitle))];
 
@@ -335,6 +384,12 @@ export default function AdminDashboard({ isOpen, onClose }) {
                             >
                                 Event Settings (Open/Close)
                             </button>
+                            <button
+                                onClick={() => setActiveTab("manage")}
+                                className={`text-sm font-bold pb-3 px-2 transition-colors ${activeTab === "manage" ? "text-purple-400 border-b-2 border-purple-500" : "text-gray-500 hover:text-gray-300"}`}
+                            >
+                                Handle Registrations
+                            </button>
                         </div>
 
                         {activeTab === "registrations" ? (
@@ -427,7 +482,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     )}
                                 </div>
                             </>
-                        ) : (
+                        ) : activeTab === "controls" ? (
                             <div className="flex-1 overflow-auto rounded-2xl border border-white/10 bg-black/20 p-6">
                                 <h3 className="text-xl font-bold text-white mb-6">Event Registerations Control</h3>
                                 <p className="text-gray-400 text-sm mb-8">Use this section to control the registration status of events.</p>
@@ -450,8 +505,72 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     })}
                                 </div>
                             </div>
+                        ) : (
+                            <div className="flex-1 overflow-auto rounded-2xl border border-white/10 bg-black/20 p-6">
+                                <div className="flex justify-between items-center mb-8">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white mb-2">Handle Registrations</h3>
+                                        <p className="text-gray-400 text-sm">Manage individual records or clear the entire database.</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => { setIsClearModalOpen(true); setClearError(""); setClearPassword(""); setClearConfirm(false); }}
+                                        className="px-8 py-3 bg-red-500/10 border border-red-500/50 text-red-500 rounded-xl text-sm font-bold hover:bg-red-500 hover:text-white transition-all shadow-lg"
+                                    >
+                                        CLEAR ALL REGISTRATIONS
+                                    </button>
+                                </div>
+                            </div>
                         )}
                     </motion.div>
+                )}
+
+                {/* CLEAR CONFIRMATION MODAL */}
+                {isClearModalOpen && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-[#1a1c2e] border border-red-500/30 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center"
+                        >
+                            <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-2">{clearConfirm ? "FINAL WARNING!" : "Administrative Action"}</h3>
+                            <p className="text-gray-400 text-sm mb-6">
+                                {clearConfirm 
+                                    ? "This is your last chance. Are you absolutely sure you want to delete EVERY registration record?" 
+                                    : "To clear all registrations, please enter the admin password to verify your identity."}
+                            </p>
+
+                            {!clearConfirm && (
+                                <input
+                                    type="password"
+                                    value={clearPassword}
+                                    onChange={(e) => setClearPassword(e.target.value)}
+                                    placeholder="Admin Password"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white mb-4 focus:outline-none focus:border-red-500 transition"
+                                />
+                            )}
+
+                            {clearError && <p className="text-red-400 text-xs mb-4">{clearError}</p>}
+
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={() => setIsClearModalOpen(false)}
+                                    className="flex-1 px-4 py-3 bg-white/5 text-gray-300 rounded-xl font-bold hover:bg-white/10 transition"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={handleClearRegistrations}
+                                    disabled={clearing}
+                                    className={`flex-1 px-4 py-3 rounded-xl font-bold transition shadow-lg ${clearConfirm ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-white text-[#1a1c2e] hover:bg-gray-200'}`}
+                                >
+                                    {clearing ? "Processing..." : (clearConfirm ? "DELETE ALL" : "Verify")}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
                 )}
             </div>
         </AnimatePresence>
