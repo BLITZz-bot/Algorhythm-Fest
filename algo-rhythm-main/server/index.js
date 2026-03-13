@@ -329,8 +329,19 @@ app.post('/api/admin/send-report', async (req, res) => {
             auth: {
                 user: SENDER_EMAIL,
                 pass: SENDER_PASSWORD
-            }
+            },
+            logger: true, // Enable nodemailer logs
+            debug: true // Show SMTP traffic
         });
+
+        // Verify connection on-the-fly
+        try {
+            await transporter.verify();
+            console.log("Nodemailer Transporter is ready to take our messages");
+        } catch (verifyErr) {
+            console.error("SMTP Connection Error during verify:", verifyErr);
+            return res.status(500).json({ success: false, message: `SMTP Connection Failed: ${verifyErr.message}` });
+        }
 
         const mailOptions = {
             from: SENDER_EMAIL,

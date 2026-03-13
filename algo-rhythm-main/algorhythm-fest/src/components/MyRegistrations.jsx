@@ -81,16 +81,16 @@ export default function MyRegistrations({ isOpen, onClose }) {
             // Squared off bottom of header
             doc.rect(8, 25, 164, 33, 'F');
 
-            // Header Text (ALIGNED CENTER)
+            // Header Text (ALIGNED CENTER - Fixed charSpace)
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(22);
-            doc.text("A L G O R H Y T H M  3 . 0", 90, 25, { align: "center", charSpace: 1.5 });
+            doc.setFontSize(24);
+            doc.text("ALGORHYTHM 3.0", 90, 25, { align: "center", charSpace: 1 });
 
-            doc.setFontSize(11);
+            doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(255, 255, 255);
-            doc.text("O F F I C I A L   A C C E S S   P A S S", 90, 38, { align: "center", charSpace: 2 });
+            doc.text("OFFICIAL ACCESS PASS", 90, 38, { align: "center", charSpace: 2.5 });
 
             // 5. Tear Line (Dashed)
             doc.setDrawColor(71, 85, 105);
@@ -202,12 +202,19 @@ export default function MyRegistrations({ isOpen, onClose }) {
 
             // Barcode (SMALLER & CENTERED)
             doc.setFillColor(148, 163, 184); 
-            const barcodeBars = 50;
-            const barcodeWidth = barcodeBars * 2.2;
+            const barcodeBars = 40;
+            const barcodeWidth = barcodeBars * 2;
             const startX = (180 - barcodeWidth) / 2;
             for (let i = 0; i < barcodeBars; i++) {
-                const width = Math.random() * 1.2 + 0.3;
-                doc.rect(startX + (i * 2.2), 246, width, 8, 'F');
+                const width = Math.random() * 1 + 0.3;
+                doc.rect(startX + (i * 2), 246, width, 8, 'F');
+            }
+
+            // QR Code (Optional/Placeholder)
+            try {
+                doc.addImage('/scan-me.png', 'PNG', 140, 180, 25, 25);
+            } catch (qrErr) {
+                // Silent fail
             }
 
             // Footer Text
