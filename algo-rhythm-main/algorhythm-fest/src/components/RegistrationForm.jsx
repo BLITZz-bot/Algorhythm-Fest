@@ -262,6 +262,13 @@ export default function RegistrationForm({ event, onClose }) {
             let feeText = (passType === 'combo' && comboPassDetails) ? comboPassDetails : standardFeeString;
             doc.text(feeText.toString().replace(/₹/g, "Rs. "), 20, 238);
 
+            // // QR Code (Optional/Placeholder)
+            // try {
+            //     doc.addImage('/scan-me.jpeg', 'JPEG', 140, 180, 25, 25);
+            // } catch (qrErr) {
+            //     // Silent fail if image not found
+            // }
+
             // PAGE 2 (TEAM MEMBERS)
             if (teamMembers && teamMembers.length > 0) {
                 doc.addPage([180, 260], 'portrait');

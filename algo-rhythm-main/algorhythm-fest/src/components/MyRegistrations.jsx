@@ -209,6 +209,13 @@ export default function MyRegistrations({ isOpen, onClose }) {
             let feeText = registration.amountPaid ? registration.amountPaid.toString().replace(/₹/g, "Rs. ") : "Free";
             doc.text(feeText, 20, 238);
 
+            // QR Code (Optional/Placeholder)
+            try {
+                doc.addImage('/scan-me.jpeg', 'JPEG', 140, 180, 25, 25);
+            } catch (qrErr) {
+                // Silent fail
+            }
+
             // PAGE 2 (TEAM MEMBERS)
             const teamMembers = registration.teamMembers || [];
             if (teamMembers.length > 0) {
