@@ -199,7 +199,7 @@ export const eventsDay1 = [
     time: "01:30 PM",
     title: "CODE SPRINT",
     location: "LAB 3, 4th Floor,GCEM Campus",
-    description: "Participants race against the clock to solve algorithmic challenges.",
+    description: "Test your coding and problem-solving skills in this competitive programming event conducted on HackerRank. Participants will compete through elimination rounds to solve challenging problems and prove their programming expertise.",
     category: "Tech",
     prize: "₹6,000",
     minTeamSize: 1,
@@ -330,7 +330,7 @@ export const eventsDay2 = [
   {
     time: "09:30 AM",
     title: "TECH DEBATE COMPETITION",
-    location: "1st Floor, GCEM Bl ock",
+    location: "1st Floor, GCEM Campus",
     description: "A knockout-style technical debate competition focusing on emerging technologies like AI, Cybersecurity, Blockchain, Quantum Computing & Digital Ethics.",
     category: "Tech",
     prize: "₹4,500",
@@ -648,6 +648,12 @@ const IconPhone = () => (
 function EventModal({ event, isEventOpen, onClose }) {
   const [showRegistration, setShowRegistration] = useState(false)
   const [activeTab, setActiveTab] = useState("about")
+
+  // Reset modal state when event changes (fixes tab persistence bug)
+  useEffect(() => {
+    setActiveTab("about");
+    setShowRegistration(false);
+  }, [event]);
 
   if (!event) return null
 

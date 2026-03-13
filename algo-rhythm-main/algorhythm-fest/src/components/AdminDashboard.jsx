@@ -261,6 +261,12 @@ export default function AdminDashboard({ isOpen, onClose }) {
                         animate={{ scale: 1, opacity: 1 }}
                         className="relative w-full max-w-md bg-[#1a1c2e] border border-white/10 rounded-3xl p-8 shadow-2xl"
                     >
+                        <button 
+                            onClick={onClose}
+                            className="absolute top-4 right-4 p-2 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white transition"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                         <h2 className="text-2xl font-bold text-white mb-6 text-center underline decoration-purple-500 underline-offset-8">Admin Access</h2>
                         <form onSubmit={handleLogin} className="space-y-4">
                             <div>

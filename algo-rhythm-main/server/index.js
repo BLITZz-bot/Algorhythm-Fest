@@ -23,10 +23,10 @@ app.use(cors({
         // Cleanup incoming origin for comparison
         const cleanOrigin = origin.replace(/\/$/, "");
         
-        if (allowedOrigins.includes(cleanOrigin) || !process.env.FRONTEND_URL) {
+        if (!process.env.FRONTEND_URL || allowedOrigins.includes(cleanOrigin)) {
             callback(null, true);
         } else {
-            console.log(`CORS Blocked Origin: ${origin}`);
+            console.log(`CORS Blocked Origin: ${origin}. Allowed: ${allowedOrigins}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
@@ -106,6 +106,11 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+// Root Route for Health Checks (Render Compatibility)
+app.get('/', (req, res) => {
+    res.status(200).send('AlgoRhythm Fest API is Online 🚀');
 });
 
 // Routes
@@ -282,7 +287,7 @@ app.post('/api/admin/send-report', async (req, res) => {
                     teamMembers: reg.teamMembers?.length > 0
                         ? reg.teamMembers.map(m => `Name: ${m.fullName}\nEmail: ${m.email}\nPhone: ${m.phone}`).join("\n\n")
                         : "N/A",
-                    screenshot: reg.screenshotPath ? `${baseUrl}/uploads/${reg.screenshotPath}` : "N/A"
+                    screenshot: reg.screenshotPath ? `${process.env.BASE_URL || 'http://localhost:5000'}/uploads/${reg.screenshotPath}` : "N/A"
                 });
 
                 // Enable text wrapping for team members cell to allow multiple lines

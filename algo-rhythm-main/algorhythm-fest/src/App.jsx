@@ -2,7 +2,7 @@ import { motion, useScroll, useTransform } from "framer-motion"
 
 import Navbar from "./components/Navbar"
 import Schedule from "./components/Schedule"
-import Countdown from "./components/Countdown"
+// import Countdown from "./components/Countdown"
 import Venue from "./components/Venue"
 import Footer from "./components/Footer"
 import ParticlesBg from "./components/ParticlesBg"

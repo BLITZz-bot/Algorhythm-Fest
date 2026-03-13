@@ -25,7 +25,7 @@ export default function CountdownSciFi() {
   const Box = ({ v, l, highlight }) => (
     <div
       className={`
-        w-20 h-24 md:w-24 md:h-28
+        w-16 h-20 sm:w-20 sm:h-24 md:w-24 md:h-28
         rounded-xl border
         backdrop-blur-xl
         flex flex-col items-center justify-center
@@ -34,17 +34,17 @@ export default function CountdownSciFi() {
           : "border-blue-400/40 text-blue-200"}
       `}
     >
-      <span className="text-3xl md:text-4xl font-mono font-bold">
+      <span className="text-2xl sm:text-3xl md:text-4xl font-mono font-bold">
         {String(v).padStart(2, "0")}
       </span>
-      <span className="text-[10px] tracking-widest opacity-70 mt-1">
+      <span className="text-[9px] sm:text-[10px] tracking-widest opacity-70 mt-1">
         {l}
       </span>
     </div>
   )
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-2 sm:gap-4 justify-center">
       <Box v={t.d} l="DAYS" />
       <Box v={t.h} l="HOURS" />
       <Box v={t.m} l="MINS" />
