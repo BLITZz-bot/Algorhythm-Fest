@@ -12,6 +12,13 @@ const dns = require('dns'); // Network workaround for restricted SRV DNS queries
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trim config values to prevent hidden character issues
+const SENDER_EMAIL = (process.env.SENDER_EMAIL || "").trim();
+const SENDER_PASSWORD = (process.env.SENDER_PASSWORD || "").trim();
+const ADMIN_RECEIVER_EMAIL = (process.env.ADMIN_RECEIVER_EMAIL || "").trim();
+const BASE_URL = (process.env.BASE_URL || "").trim().replace(/\/$/, "");
+const FRONTEND_URL = (process.env.FRONTEND_URL || "").trim().replace(/\/$/, "");
+
 // Middleware
 const allowedOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',').map(o => o.trim().replace(/\/$/, "")) : ['http://localhost:5173', 'http://localhost:3000'];
 
@@ -311,18 +318,23 @@ app.post('/api/admin/send-report', async (req, res) => {
 
         const buffer = await workbook.xlsx.writeBuffer();
 
+        if (!SENDER_EMAIL || !SENDER_PASSWORD || !ADMIN_RECEIVER_EMAIL) {
+            console.error("CRITICAL: Email credentials missing in environment variables!");
+            return res.status(500).json({ success: false, message: 'Server configuration error (Email Credentials).' });
+        }
+
         // 2. Setup Transporter
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: process.env.SENDER_EMAIL,
-                pass: process.env.SENDER_PASSWORD
+                user: SENDER_EMAIL,
+                pass: SENDER_PASSWORD
             }
         });
 
         const mailOptions = {
-            from: process.env.SENDER_EMAIL,
-            to: process.env.ADMIN_RECEIVER_EMAIL, // nodemailer natively supports comma-separated string like "a@mail.com, b@mail.com"
+            from: SENDER_EMAIL,
+            to: ADMIN_RECEIVER_EMAIL, 
             subject: `AlgoRhythm Fest 2026 - Master Registration Report (${new Date().toLocaleDateString()})`,
             text: `Hello Admin,\n\nPlease find the attached automated registration report for AlgoRhythm Fest 2026.\n\nTotal Registrations from DB: ${registrations.length}\nGenerated at: ${new Date().toLocaleString()}`,
             attachments: [
@@ -334,11 +346,12 @@ app.post('/api/admin/send-report', async (req, res) => {
         };
 
         await transporter.sendMail(mailOptions);
+        console.log(`✅ Automated Report Emailed successfully to: ${ADMIN_RECEIVER_EMAIL}`);
         res.status(200).json({ success: true, message: 'Report emailed successfully!' });
 
     } catch (error) {
         console.error("Email Automation Error:", error);
-        res.status(500).json({ success: false, message: 'Failed to send email.' });
+        res.status(500).json({ success: false, message: `Failed to send email: ${error.message || 'Unknown error'}` });
     }
 });
 

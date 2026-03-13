@@ -128,22 +128,22 @@ export default function RegistrationForm({ event, onClose }) {
             doc.setFillColor(30, 41, 59); 
             doc.roundedRect(8, 8, 164, 244, 15, 15, 'F');
 
-            // 4. PINK HEADER BANNER (Top rounded corners)
-            doc.setFillColor(216, 30, 91); // Vibrant Pink
+            // 4. RED HEADER BANNER (Top rounded corners) - Changed from Pink to Red
+            doc.setFillColor(225, 29, 72); // Red 600
             doc.roundedRect(8, 8, 164, 50, 15, 15, 'F');
             // Squared off bottom of header
             doc.rect(8, 25, 164, 33, 'F');
 
-            // Header Text
+            // Header Text (ALIGNED CENTER)
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(26);
-            doc.text("A L G O R H Y T H M  3 . 0", 90, 25, { align: "center", charSpace: 2 });
+            doc.setFontSize(22); // Reduced from 26 to avoid clipping
+            doc.text("A L G O R H Y T H M  3 . 0", 90, 25, { align: "center", charSpace: 1.5 });
 
-            doc.setFontSize(12);
+            doc.setFontSize(11);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(255, 255, 255);
-            doc.text("O F F I C I A L   A C C E S S   P A S S", 90, 40, { align: "center", charSpace: 3 });
+            doc.text("O F F I C I A L   A C C E S S   P A S S", 90, 38, { align: "center", charSpace: 2 });
 
             // 5. Tear Line (Dashed)
             doc.setDrawColor(71, 85, 105);
@@ -154,7 +154,7 @@ export default function RegistrationForm({ event, onClose }) {
             // 6. UTR & VERIFIED Badge
             doc.setFont("helvetica", "bold");
             doc.setFontSize(9);
-            doc.setTextColor(148, 163, 184); // Slate 400
+            doc.setTextColor(148, 163, 184); 
             doc.text("UTR NO:", 20, 80);
 
             doc.setFont("helvetica", "normal");
@@ -218,7 +218,7 @@ export default function RegistrationForm({ event, onClose }) {
             currentY += 7;
             doc.text(`Phone: ${formData.phone}`, 20, currentY);
             
-            // Team logic if needed
+            // Team logic (FIXED: Now includes team members)
             if (teamMembers && teamMembers.length > 0) {
                 currentY += 10;
                 doc.setFont("helvetica", "bold");
@@ -228,8 +228,10 @@ export default function RegistrationForm({ event, onClose }) {
                 currentY += 7;
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(8);
+                doc.setTextColor(203, 213, 225);
                 teamMembers.forEach((m, i) => {
-                    doc.text(`${i + 1}. ${m.fullName}`, 20, currentY);
+                    const memberText = `${i + 1}. ${m.fullName} | ${m.phone}`;
+                    doc.text(memberText, 20, currentY);
                     currentY += 5;
                 });
             }
@@ -244,26 +246,37 @@ export default function RegistrationForm({ event, onClose }) {
             let feeText = (passType === 'combo' && comboPassDetails) ? comboPassDetails : standardFeeString;
             doc.text(feeText.toString().replace(/₹/g, "Rs. "), 20, 238);
 
-            // Barcode
+            // Registration Desk Instruction (ABOVE BARCODE)
+            doc.setFont("helvetica", "italic");
+            doc.setFontSize(7);
+            doc.setTextColor(148, 163, 184);
+            doc.text("SHOW AT THE REGISTRATION DESK", 90, 243, { align: "center" });
+
+            // Barcode (SMALLER & CENTERED)
             doc.setFillColor(148, 163, 184); 
-            for (let i = 0; i < 60; i++) {
-                const width = Math.random() * 1.5 + 0.5;
-                doc.rect(15 + (i * 2.5), 245, width, 10, 'F');
+            const barcodeBars = 50;
+            const barcodeWidth = barcodeBars * 2.2;
+            const startX = (180 - barcodeWidth) / 2;
+            for (let i = 0; i < barcodeBars; i++) {
+                const width = Math.random() * 1.2 + 0.3;
+                doc.rect(startX + (i * 2.2), 246, width, 8, 'F');
             }
 
             // Footer Text
+            doc.setFont("helvetica", "bold");
             doc.setCharSpace(2);
             doc.setFontSize(8);
             doc.setTextColor(255, 255, 255);
             doc.text("THANKS FOR REGISTERING!", 90, 259, { align: "center" });
             doc.setCharSpace(0);
 
-            // Vertical Watermark
+            // Vertical Watermark (Refined)
             doc.setFontSize(7);
             doc.setTextColor(51, 65, 85);
-            doc.text("DESIGNED BY GRAFIK", 173, 230, { angle: 90 });
+            doc.text("DESIGNED BY GRAFIK", 173, 235, { angle: 90 });
 
             doc.save(`Access_Pass_${safeName}.pdf`);
+
 
         } catch (err) {
             console.error("PDF generation failed:", err);
