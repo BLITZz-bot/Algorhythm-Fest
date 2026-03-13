@@ -16,6 +16,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
     const [emailing, setEmailing] = useState(false);
     const [emailStatus, setEmailStatus] = useState("");
     const [countdown, setCountdown] = useState(30);
+    const [activeTab, setActiveTab] = useState("registrations");
     const [eventStatuses, setEventStatuses] = useState([]);
     const [deleteTargetId, setDeleteTargetId] = useState(null); // null for 'all', or specific id
     const [deleteTargetName, setDeleteTargetName] = useState("");
@@ -126,7 +127,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
         try {
             const url = deleteTargetId
                 ? `${import.meta.env.VITE_API_URL}/api/admin/registrations/${deleteTargetId}`
-                : `${import.meta.env.VITE_API_URL}/api/admin/registrations/clear`;
+                : `${import.meta.env.VITE_API_URL}/api/admin/registrations-all`;
 
             const res = await fetch(url, {
                 method: 'DELETE',
@@ -232,15 +233,17 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
             // Define columns
             worksheet.columns = [
+                { header: 'TEAM NAME', key: 'teamName', width: 20 },
                 { header: 'ID', key: 'id', width: 15 },
-                { header: 'Timestamp', key: 'timestamp', width: 22 },
-                { header: 'Full Name', key: 'fullName', width: 25 },
-                { header: 'Email', key: 'email', width: 30 },
-                { header: 'Phone', key: 'phone', width: 15 },
-                { header: 'College', key: 'college', width: 30 },
+                { header: 'TIMESTAMP', key: 'timestamp', width: 22 },
+                { header: 'FULL NAME', key: 'fullName', width: 25 },
+                { header: 'EMAIL', key: 'email', width: 30 },
+                { header: 'PHONE', key: 'phone', width: 15 },
+                { header: 'COLLEGE', key: 'college', width: 30 },
                 { header: 'UTR', key: 'transactionId', width: 20 },
-                { header: 'Team Members', key: 'teamMembers', width: 40 },
-                { header: 'Screenshot Proof', key: 'screenshot', width: 50 },
+                { header: 'DATE OF PAYMENT', key: 'paymentDate', width: 20 },
+                { header: 'TEAM MEMBERS', key: 'teamMembers', width: 40 },
+                { header: 'PROOF LINK', key: 'screenshot', width: 50 },
             ];
 
             // Style headers
@@ -256,17 +259,23 @@ export default function AdminDashboard({ isOpen, onClose }) {
             // Add data
             grouped[eventTitle].forEach(reg => {
                 const rowValue = {
+                    teamName: reg.teamName || "N/A",
                     id: reg.id,
-                    timestamp: new Date(reg.timestamp).toLocaleString(),
+                    timestamp: new Date(reg.timestamp).toLocaleString('en-IN'),
                     fullName: reg.fullName,
                     email: reg.email,
                     phone: reg.phone,
                     college: reg.college,
                     transactionId: reg.transactionId,
-                    teamMembers: reg.teamMembers?.map(m => `${m.fullName} (${m.email}, ${m.phone})`).join(" | ") || "N/A",
+                    paymentDate: reg.paymentDate || "N/A",
+                    teamMembers: reg.teamMembers?.map(m => `• ${m.fullName} (${m.email})`).join("\n") || "N/A",
                     screenshot: reg.screenshotPath ? `${import.meta.env.VITE_API_URL}/uploads/${reg.screenshotPath}` : "N/A"
                 };
                 const row = worksheet.addRow(rowValue);
+
+                // Add formatting for better readability
+                row.getCell('teamMembers').alignment = { wrapText: true, vertical: 'top' };
+                row.getCell('college').alignment = { wrapText: true, vertical: 'top' };
 
                 // Style link cell
                 if (reg.screenshotPath) {
@@ -513,11 +522,44 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                         <p className="text-gray-400 text-sm">Manage individual records or clear the entire database.</p>
                                     </div>
                                     <button 
-                                        onClick={() => { setIsClearModalOpen(true); setClearError(""); setClearPassword(""); setClearConfirm(false); }}
-                                        className="px-8 py-3 bg-red-500/10 border border-red-500/50 text-red-500 rounded-xl text-sm font-bold hover:bg-red-500 hover:text-white transition-all shadow-lg"
+                                        onClick={() => { 
+                                            setDeleteTargetId(null);
+                                            setDeleteTargetName("ALL REGISTRATIONS");
+                                            setIsClearModalOpen(true); 
+                                            setClearError(""); 
+                                            setClearPassword(""); 
+                                            setClearConfirm(false); 
+                                        }}
+                                        className="px-6 py-2.5 bg-red-600/20 border border-red-500/50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition-all shadow-lg"
                                     >
-                                        CLEAR ALL REGISTRATIONS
+                                        CLEAR ALL DATA
                                     </button>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {registrations.length > 0 ? registrations.map((reg) => (
+                                        <div key={reg.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between hover:border-white/20 transition-colors">
+                                            <div className="flex flex-col">
+                                                <span className="text-white font-bold text-sm tracking-wide">{reg.fullName.toUpperCase()}</span>
+                                                <span className="text-gray-500 text-[11px] uppercase tracking-wider">{reg.eventTitle} | {reg.college}</span>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    setDeleteTargetId(reg.id);
+                                                    setDeleteTargetName(reg.fullName.toUpperCase());
+                                                    setIsClearModalOpen(true);
+                                                    setClearError("");
+                                                    setClearPassword("");
+                                                    setClearConfirm(false);
+                                                }}
+                                                className="px-5 py-2 bg-red-500/10 border border-red-500/30 text-red-500 rounded-lg text-xs font-bold hover:bg-red-500 hover:text-white transition-all"
+                                            >
+                                                DELETE
+                                            </button>
+                                        </div>
+                                    )) : (
+                                        <div className="text-center py-20 text-gray-500 italic">No registrations to manage.</div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -536,11 +578,11 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                             </div>
                             <h3 className="text-xl font-bold text-white mb-2">{clearConfirm ? "FINAL WARNING!" : "Administrative Action"}</h3>
-                            <p className="text-gray-400 text-sm mb-6">
+                            <div className="text-gray-400 text-sm mb-6">
                                 {clearConfirm 
-                                    ? "This is your last chance. Are you absolutely sure you want to delete EVERY registration record?" 
-                                    : "To clear all registrations, please enter the admin password to verify your identity."}
-                            </p>
+                                    ? <p>You are about to permanently delete <span className="text-red-400 font-bold">{deleteTargetName}</span>. This cannot be undone.</p> 
+                                    : <p>Deleting <span className="text-purple-400 font-bold">{deleteTargetName}</span> requires admin access. Please enter password.</p>}
+                            </div>
 
                             {!clearConfirm && (
                                 <input

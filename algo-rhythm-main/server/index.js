@@ -200,6 +200,28 @@ app.get('/api/admin/registrations', async (req, res) => {
     }
 });
 
+// Admin Bulk Action: Clear All Registrations
+app.delete('/api/admin/registrations-all', async (req, res) => {
+    try {
+        const password = req.headers['x-admin-password'];
+        if (password !== 'algorhythm@admin2026') {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const result = await Registration.deleteMany({});
+        console.log(`🧹 Admin Bulk Wipe: ${result.deletedCount} records removed.`);
+        
+        res.status(200).json({ 
+            success: true, 
+            message: `MASTER RESET SUCCESSFUL! ${result.deletedCount} registrations cleared.`,
+            count: result.deletedCount
+        });
+    } catch (error) {
+        console.error("Admin Bulk Delete Error:", error);
+        res.status(500).json({ success: false, message: 'Server error during master reset' });
+    }
+});
+
 // Admin Delete Single Registration (New Route)
 app.delete('/api/admin/registrations/:id', async (req, res) => {
     try {
