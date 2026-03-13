@@ -62,166 +62,154 @@ export default function MyRegistrations({ isOpen, onClose }) {
                 format: [180, 260]
             });
 
-            // 1. Dark Background (Slate 900)
-            doc.setFillColor(15, 23, 42);
+            // 1. Solid Outside Background (Deep Navy/Black)
+            doc.setFillColor(15, 17, 26);
             doc.rect(0, 0, 180, 260, 'F');
 
-            // 2. Ticket Outline/Container
-            doc.setDrawColor(168, 85, 247); // Purple 500
+            // 2. Main Ticket Container with Rounded Corners
+            doc.setDrawColor(168, 85, 247); // Purple Border
             doc.setLineWidth(1);
-            doc.roundedRect(5, 5, 170, 250, 8, 8, 'D');
+            doc.roundedRect(8, 8, 164, 244, 15, 15, 'D');
 
-            // Inner dark card fill
-            doc.setFillColor(30, 41, 59); // Slate 800
-            doc.roundedRect(5, 5, 170, 250, 8, 8, 'F');
+            // 3. Inner Content Background (Deep slate)
+            doc.setFillColor(30, 41, 59); 
+            doc.roundedRect(8, 8, 164, 244, 15, 15, 'F');
 
-            // 3. Header Banner Block
-            doc.setFillColor(219, 39, 119); // Pink 600
-            doc.roundedRect(5, 5, 170, 45, 8, 8, 'F');
-            doc.rect(5, 20, 170, 30, 'F');
+            // 4. PINK HEADER BANNER (Top rounded corners)
+            doc.setFillColor(216, 30, 91); // Vibrant Pink
+            doc.roundedRect(8, 8, 164, 50, 15, 15, 'F');
+            // Squared off bottom of header
+            doc.rect(8, 25, 164, 33, 'F');
 
             // Header Text
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(22);
-            doc.text("A L G O R H Y T H M  3 . 0", 90, 21, { align: "center" });
+            doc.setFontSize(26);
+            doc.text("A L G O R H Y T H M  3 . 0", 90, 25, { align: "center", charSpace: 2 });
 
             doc.setFontSize(12);
             doc.setFont("helvetica", "normal");
-            doc.setTextColor(253, 164, 175); // Pink 300
-            doc.text("O F F I C I A L   A C C E S S   P A S S", 90, 33, { align: "center" });
+            doc.setTextColor(255, 255, 255);
+            doc.text("O F F I C I A L   A C C E S S   P A S S", 90, 40, { align: "center", charSpace: 3 });
 
-            // 4. Barcode/Ticket Tear Line
-            doc.setDrawColor(71, 85, 105); // Slate 600
-            doc.setLineDash([3, 3], 0);
-            doc.line(10, 60, 170, 60);
+            // 5. Tear Line (Dashed)
+            doc.setDrawColor(71, 85, 105);
+            doc.setLineDash([2, 2], 0);
+            doc.line(15, 65, 165, 65);
             doc.setLineDash([], 0);
 
-            // 5. Registration ID & Status Badge
+            // 6. UTR & VERIFIED Badge
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(10);
+            doc.setFontSize(9);
             doc.setTextColor(148, 163, 184); // Slate 400
-            doc.text("UTR NO:", 15, 75);
+            doc.text("UTR NO:", 20, 80);
 
             doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);
             doc.setTextColor(255, 255, 255);
-            const ticketId = registration.transactionId ? registration.transactionId.substring(0, 16).toUpperCase() : `ALG-${Math.floor(Math.random() * 1000000)}`;
-            doc.text(ticketId, 15, 81);
+            const ticketId = registration.transactionId || `ALG-${Math.floor(Math.random() * 1000000)}`;
+            doc.text(ticketId, 20, 88);
 
-            // Status Badge
+            // Status Badge (Green Pill)
             doc.setFillColor(16, 185, 129); // Emerald 500
-            doc.roundedRect(140, 71, 30, 12, 6, 6, 'F');
+            doc.roundedRect(135, 76, 30, 12, 6, 6, 'F');
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
             doc.setTextColor(255, 255, 255);
-            const isFree = event.prize === "Participation";
-            doc.text(isFree ? "FREE" : "VERIFIED", 155, 79, { align: "center" });
+            doc.text("VERIFIED", 150, 84, { align: "center" });
 
-            // 6. MAIN EVENT DETAILS
+            // 7. EVENT TITLE (Big Purple/Pink)
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(22);
-            doc.setTextColor(168, 85, 247); // Purple 500
-            doc.text(event.title.toUpperCase(), 90, 105, { align: "center" });
+            doc.setFontSize(30);
+            doc.setTextColor(168, 85, 247); // Purple
+            doc.text(event.title.toUpperCase(), 90, 115, { align: "center" });
 
-            // Time & Location Box
+            // 8. TIME & VENUE BOX (Dark Card)
             doc.setFillColor(15, 23, 42); 
-            doc.roundedRect(15, 115, 150, 24, 4, 4, 'F');
+            doc.roundedRect(20, 125, 140, 28, 6, 6, 'F');
 
             doc.setFont("helvetica", "bold");
             doc.setFontSize(11);
             doc.setTextColor(255, 255, 255);
-            doc.text("TIME:", 25, 125);
-            doc.text("VENUE:", 85, 125);
+            doc.text("TIME:", 30, 137);
+            doc.text("VENUE:", 85, 137);
 
             doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
-            doc.setTextColor(203, 213, 225); // slate 300
-            doc.text(event.time, 25, 133);
+            doc.setTextColor(148, 163, 184);
+            doc.text(event.time, 30, 146);
 
-            const venueLines = doc.splitTextToSize(event.location, 75);
-            doc.text(venueLines, 85, 133);
+            const venueLines = doc.splitTextToSize(event.location, 70);
+            doc.text(venueLines, 85, 146);
 
-            // 7. ATTENDEE DATA
-            let currentY = 160;
+            // 9. PARTICIPANT DATA
+            let currentY = 175;
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
             doc.setTextColor(253, 164, 175); // Pink 300
-            doc.text("PARTICIPANTS DETAILS", 15, currentY);
-            currentY += 8;
+            doc.text("PARTICIPANTS DETAILS", 20, currentY);
+            currentY += 10;
 
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(15);
+            doc.setFontSize(18);
             doc.setTextColor(255, 255, 255);
-            doc.text(registration.fullName.toUpperCase(), 15, currentY);
-            currentY += 8;
+            doc.text(registration.fullName.toUpperCase(), 20, currentY);
+            currentY += 10;
 
             doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
-            doc.setTextColor(148, 163, 184); // slate 400
-            doc.text(`College: ${registration.college}`, 15, currentY);
-            currentY += 6;
-            doc.text(`Email: ${registration.email}`, 15, currentY);
-            currentY += 6;
-            doc.text(`Phone: ${registration.phone}`, 15, currentY);
-            currentY += 12;
-
-            // 8. TEAM MODULE
+            doc.setTextColor(148, 163, 184);
+            doc.text(`College: ${registration.college}`, 20, currentY);
+            currentY += 7;
+            doc.text(`Email: ${registration.email}`, 20, currentY);
+            currentY += 7;
+            doc.text(`Phone: ${registration.phone}`, 20, currentY);
+            
+            // Team members
             const teamMembers = registration.teamMembers || [];
             if (teamMembers.length > 0) {
-                if (registration.teamName) {
-                    doc.setFont("helvetica", "bold");
-                    doc.setFontSize(10);
-                    doc.setTextColor(168, 85, 247); // purple 500
-                    doc.text(`TEAM: ${registration.teamName.toUpperCase()}`, 15, currentY);
-                    currentY += 6;
-                }
-
+                currentY += 10;
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(10);
+                doc.setTextColor(168, 85, 247);
+                doc.text(registration.teamName ? `TEAM: ${registration.teamName.toUpperCase()}` : "TEAM MEMBERS:", 20, currentY);
+                currentY += 7;
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(8);
-                doc.setTextColor(203, 213, 225); // slate 300
-
                 teamMembers.forEach((m, i) => {
-                    const memberLine = `${i + 1}. ${m.fullName} | ${m.email} | ${m.phone}`;
-                    const textLines = doc.splitTextToSize(memberLine, 150);
-                    doc.text(textLines, 15, currentY);
-                    currentY += (textLines.length * 4);
+                    doc.text(`${i + 1}. ${m.fullName}`, 20, currentY);
+                    currentY += 5;
                 });
             }
 
-            // 9. FINANCIALS
-            let pdfFeeText = registration.amountPaid ? registration.amountPaid.toString().replace(/₹/g, "Rs. ") : "Free";
-            
+            // 10. FINANCIALS & BARCODE AT BOTTOM
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.setTextColor(253, 164, 175); // Pink 300
-            doc.text(registration.passType || "REGISTRATION FEE", 15, 232);
-
+            doc.setTextColor(253, 164, 175);
+            doc.text("STANDARD FEE", 20, 230);
             doc.setFontSize(14);
             doc.setTextColor(255, 255, 255);
-            doc.text(pdfFeeText, 15, 238);
+            let feeText = registration.amountPaid ? registration.amountPaid.toString().replace(/₹/g, "Rs. ") : "Free";
+            doc.text(feeText, 20, 238);
 
-            // 10. FOOTER
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(8);
-            doc.setTextColor(100, 116, 139); // Slate 500
-            doc.text("Present this digital pass at the registration desk for entry.", 90, 242, { align: "center" });
-
-            // Visual flair
+            // Barcode
             doc.setFillColor(148, 163, 184); 
-            for (let i = 0; i < 45; i++) {
-                const width = Math.random() * 2 + 0.3;
-                doc.rect(12 + (i * 3.5), 244, width, 8, 'F');
+            for (let i = 0; i < 60; i++) {
+                const width = Math.random() * 1.5 + 0.5;
+                doc.rect(15 + (i * 2.5), 245, width, 10, 'F');
             }
 
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(7)
+            // Footer Text
+            doc.setCharSpace(2);
+            doc.setFontSize(8);
             doc.setTextColor(255, 255, 255);
-            doc.text("THANKS FOR REGISTERING!", 78, 259, { align: "center", charSpace: 1 });
+            doc.text("THANKS FOR REGISTERING!", 90, 259, { align: "center" });
+            doc.setCharSpace(0);
 
-            doc.setFont("helvetica", "bold");
+            // Vertical Watermark
             doc.setFontSize(7);
-            doc.setTextColor(51, 65, 85); 
-            doc.text("DESIGNED BY GRAFIK", 173, 248, { angle: 90 });
+            doc.setTextColor(51, 65, 85);
+            doc.text("DESIGNED BY GRAFIK", 173, 230, { angle: 90 });
 
             doc.save(`Access_Pass_${safeName}.pdf`);
         } catch (err) {
