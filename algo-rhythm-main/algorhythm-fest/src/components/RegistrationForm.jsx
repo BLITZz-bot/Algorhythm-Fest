@@ -115,41 +115,75 @@ export default function RegistrationForm({ event, onClose }) {
                 format: [180, 260]
             });
 
-            // 1. Solid Outside Background (Deep Navy/Black)
-            doc.setFillColor(15, 17, 26);
-            doc.rect(0, 0, 180, 260, 'F');
+            // Helper function to draw the common background, header, barcode and footer
+            const drawTicketBase = (pageDoc) => {
+                // 1. Solid Outside Background (Deep Navy/Black)
+                pageDoc.setFillColor(15, 17, 26);
+                pageDoc.rect(0, 0, 180, 260, 'F');
 
-            // 2. Main Ticket Container with Rounded Corners
-            doc.setDrawColor(168, 85, 247); // Purple Border
-            doc.setLineWidth(1);
-            doc.roundedRect(8, 8, 164, 244, 15, 15, 'D');
+                // 2. Main Ticket Container with Rounded Corners
+                pageDoc.setDrawColor(168, 85, 247); // Purple Border
+                pageDoc.setLineWidth(1);
+                pageDoc.roundedRect(8, 8, 164, 244, 15, 15, 'D');
 
-            // 3. Inner Content Background (Deep slate)
-            doc.setFillColor(30, 41, 59); 
-            doc.roundedRect(8, 8, 164, 244, 15, 15, 'F');
+                // 3. Inner Content Background (Deep slate)
+                pageDoc.setFillColor(30, 41, 59); 
+                pageDoc.roundedRect(8, 8, 164, 244, 15, 15, 'F');
 
-            // 4. RED HEADER BANNER (Top rounded corners) - Changed from Pink to Red
-            doc.setFillColor(225, 29, 72); // Red 600
-            doc.roundedRect(8, 8, 164, 50, 15, 15, 'F');
-            // Squared off bottom of header
-            doc.rect(8, 25, 164, 33, 'F');
+                // 4. RED HEADER BANNER 
+                pageDoc.setFillColor(225, 29, 72); // Red 600
+                pageDoc.roundedRect(8, 8, 164, 50, 15, 15, 'F');
+                pageDoc.rect(8, 25, 164, 33, 'F');
 
-            // Header Text (ALIGNED CENTER - Fixed charSpace)
-            doc.setTextColor(255, 255, 255);
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(24);
-            doc.text("ALGORHYTHM 3.0", 90, 25, { align: "center", charSpace: 1 });
+                // Header Text (PRESERVING COORDINATES)
+                pageDoc.setTextColor(255, 255, 255);
+                pageDoc.setFont("helvetica", "bold");
+                pageDoc.setFontSize(24);
+                pageDoc.text("ALGORHYTHM 3.0", 83, 25, { align: "center", charSpace: 1 });
 
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(255, 255, 255);
-            doc.text("OFFICIAL ACCESS PASS", 90, 38, { align: "center", charSpace: 2.5 });
+                pageDoc.setFontSize(10);
+                pageDoc.setFont("helvetica", "normal");
+                pageDoc.setTextColor(255, 255, 255);
+                pageDoc.text("OFFICIAL ACCESS PASS", 65.9, 38, { align: "center", charSpace: 2.5 });
 
-            // 5. Tear Line (Dashed)
-            doc.setDrawColor(71, 85, 105);
-            doc.setLineDash([2, 2], 0);
-            doc.line(15, 65, 165, 65);
-            doc.setLineDash([], 0);
+                // 5. Tear Line (Dashed)
+                pageDoc.setDrawColor(71, 85, 105);
+                pageDoc.setLineDash([2, 2], 0);
+                pageDoc.line(15, 65, 165, 65);
+                pageDoc.setLineDash([], 0);
+
+                // Registration Desk Instruction (PRESERVING COORDINATES)
+                pageDoc.setFont("helvetica", "italic");
+                pageDoc.setFontSize(7);
+                pageDoc.setTextColor(148, 163, 184);
+                pageDoc.text("PRESENT THIS PASS AT THE REGISTRATION DESK", 90, 240, { align: "center" });
+
+                // Barcode (PRESERVING COORDINATES)
+                pageDoc.setFillColor(140, 130, 140); 
+                const barcodeBars = 40;
+                const barcodeWidth = barcodeBars * 2;
+                const startXPos = (180 - barcodeWidth) / 2;
+                for (let i = 0; i < barcodeBars; i++) {
+                    const widthLimit = Math.random() * 1 + 0.3;
+                    pageDoc.rect(startXPos + (i * 2), 242, widthLimit, 8, 'F');
+                }
+
+                // Footer Text (PRESERVING COORDINATES)
+                pageDoc.setFont("helvetica", "bold");
+                pageDoc.setCharSpace(2);
+                pageDoc.setFontSize(8);
+                pageDoc.setTextColor(255, 255, 255);
+                pageDoc.text("THANKS FOR REGISTERING!", 67, 259, { align: "center" });
+                pageDoc.setCharSpace(0);
+
+                // Vertical Watermark (PRESERVING COORDINATES)
+                pageDoc.setFontSize(7);
+                pageDoc.setTextColor(51, 65, 85);
+                pageDoc.text("DESIGNED BY GRAFIK", 173, 235, { angle: 90 });
+            };
+
+            // START PAGE 1
+            drawTicketBase(doc);
 
             // 6. UTR & VERIFIED Badge
             doc.setFont("helvetica", "bold");
@@ -195,7 +229,7 @@ export default function RegistrationForm({ event, onClose }) {
             const venueLines = doc.splitTextToSize(event.location, 70);
             doc.text(venueLines, 85, 146);
 
-            // 9. PARTICIPANT DATA
+            // 9. LEADER DATA ONLY ON PAGE 1
             let currentY = 175;
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
@@ -217,26 +251,8 @@ export default function RegistrationForm({ event, onClose }) {
             doc.text(`Email: ${formData.email}`, 20, currentY);
             currentY += 7;
             doc.text(`Phone: ${formData.phone}`, 20, currentY);
-            
-            // Team logic (FIXED: Now includes team members)
-            if (teamMembers && teamMembers.length > 0) {
-                currentY += 10;
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(10);
-                doc.setTextColor(168, 85, 247);
-                doc.text(formData.teamName ? `TEAM: ${formData.teamName.toUpperCase()}` : "TEAM MEMBERS:", 20, currentY);
-                currentY += 7;
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(8);
-                doc.setTextColor(203, 213, 225);
-                teamMembers.forEach((m, i) => {
-                    const memberText = `${i + 1}. ${m.fullName} | ${m.phone}`;
-                    doc.text(memberText, 20, currentY);
-                    currentY += 5;
-                });
-            }
 
-            // 10. FINANCIALS & BARCODE AT BOTTOM
+            // 10. FINANCIALS 
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
             doc.setTextColor(253, 164, 175);
@@ -246,42 +262,38 @@ export default function RegistrationForm({ event, onClose }) {
             let feeText = (passType === 'combo' && comboPassDetails) ? comboPassDetails : standardFeeString;
             doc.text(feeText.toString().replace(/₹/g, "Rs. "), 20, 238);
 
-            // Registration Desk Instruction (ABOVE BARCODE)
-            doc.setFont("helvetica", "italic");
-            doc.setFontSize(7);
-            doc.setTextColor(148, 163, 184);
-            doc.text("SHOW AT THE REGISTRATION DESK", 90, 243, { align: "center" });
+            // PAGE 2 (TEAM MEMBERS)
+            if (teamMembers && teamMembers.length > 0) {
+                doc.addPage([180, 260], 'portrait');
+                drawTicketBase(doc); // Re-draw branding
 
-            // Barcode (SMALLER & CENTERED)
-            doc.setFillColor(148, 163, 184); 
-            const barcodeBars = 40;
-            const barcodeWidth = barcodeBars * 2;
-            const startX = (180 - barcodeWidth) / 2;
-            for (let i = 0; i < barcodeBars; i++) {
-                const width = Math.random() * 1 + 0.3;
-                doc.rect(startX + (i * 2), 246, width, 8, 'F');
+                let teamY = 80;
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(16);
+                doc.setTextColor(168, 85, 247);
+                doc.text(formData.teamName ? `TEAM: ${formData.teamName.toUpperCase()}` : "TEAM MEMBERS", 90, teamY, { align: "center" });
+                teamY += 15;
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.setTextColor(203, 213, 225);
+                
+                teamMembers.forEach((m, i) => {
+                    if (teamY > 220) { // Safety check to prevent running off bottom
+                        doc.addPage([180, 260], 'portrait');
+                        drawTicketBase(doc);
+                        teamY = 80;
+                    }
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(255, 255, 255);
+                    doc.text(`${i + 1}. ${m.fullName.toUpperCase()}`, 20, teamY);
+                    teamY += 6;
+                    doc.setFont("helvetica", "normal");
+                    doc.setTextColor(148, 163, 184);
+                    doc.text(`   ${m.phone} | ${m.email}`, 20, teamY);
+                    teamY += 10;
+                });
             }
-
-            // QR Code (Optional/Placeholder)
-            try {
-                // If you put scan-me.png in /public folder, use this:
-                doc.addImage('/scan-me.jpeg', 'PNG', 140, 180, 25, 25);
-            } catch (qrErr) {
-                // Silent fail if image not found
-            }
-
-            // Footer Text
-            doc.setFont("helvetica", "bold");
-            doc.setCharSpace(2);
-            doc.setFontSize(8);
-            doc.setTextColor(255, 255, 255);
-            doc.text("THANKS FOR REGISTERING!", 69, 259, { align: "center" });
-            doc.setCharSpace(0);
-
-            // Vertical Watermark (Refined)
-            doc.setFontSize(7);
-            doc.setTextColor(51, 65, 85);
-            doc.text("DESIGNED BY GRAFIK", 173, 235, { angle: 90 });
 
             doc.save(`Access_Pass_${safeName}.pdf`);
 
@@ -692,11 +704,11 @@ export default function RegistrationForm({ event, onClose }) {
                                         <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Status</label>
                                         <div className="flex items-center gap-2 px-3 py-1 bg-green-500/20 text-green-400 rounded-lg border border-green-500/20 text-[10px] font-black uppercase tracking-tighter">
                                             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                                            Active
+                                            S E C U R E D
                                         </div>
                                     </div>
                                 </div>
-                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-[0.3em]">Confirmation sent to email</p>
+                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-[0.3em]">NOW YOU CAN DOWNLOAD ACCESS PASS IN DASHBOARD</p>
                             </div>
 
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 w-full">
