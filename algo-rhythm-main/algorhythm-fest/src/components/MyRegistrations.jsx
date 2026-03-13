@@ -212,7 +212,7 @@ export default function MyRegistrations({ isOpen, onClose }) {
 
             // QR Code (Optional/Placeholder)
             try {
-                doc.addImage('/scan-me.png', 'PNG', 140, 180, 25, 25);
+                doc.addImage('/scan-me.jpeg', 'PNG', 140, 180, 25, 25);
             } catch (qrErr) {
                 // Silent fail
             }

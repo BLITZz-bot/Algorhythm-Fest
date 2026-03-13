@@ -265,7 +265,7 @@ export default function RegistrationForm({ event, onClose }) {
             // QR Code (Optional/Placeholder)
             try {
                 // If you put scan-me.png in /public folder, use this:
-                doc.addImage('/scan-me.png', 'PNG', 140, 180, 25, 25);
+                doc.addImage('/scan-me.jpeg', 'PNG', 140, 180, 25, 25);
             } catch (qrErr) {
                 // Silent fail if image not found
             }
@@ -275,7 +275,7 @@ export default function RegistrationForm({ event, onClose }) {
             doc.setCharSpace(2);
             doc.setFontSize(8);
             doc.setTextColor(255, 255, 255);
-            doc.text("THANKS FOR REGISTERING!", 90, 259, { align: "center" });
+            doc.text("THANKS FOR REGISTERING!", 69, 259, { align: "center" });
             doc.setCharSpace(0);
 
             // Vertical Watermark (Refined)
