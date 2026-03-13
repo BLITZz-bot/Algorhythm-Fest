@@ -156,7 +156,7 @@ export default function RegistrationForm({ event, onClose }) {
                 pageDoc.setFont("helvetica", "italic");
                 pageDoc.setFontSize(7);
                 pageDoc.setTextColor(148, 163, 184);
-                pageDoc.text("PRESENT THIS PASS AT THE REGISTRATION DESK", 90, 240, { align: "center" });
+                pageDoc.text("SUBMIT THIS PASS AT THE REGISTRATION DESK", 90, 240, { align: "center" });
 
                 // Barcode (PRESERVING COORDINATES)
                 pageDoc.setFillColor(140, 130, 140); 
@@ -173,7 +173,7 @@ export default function RegistrationForm({ event, onClose }) {
                 pageDoc.setCharSpace(2);
                 pageDoc.setFontSize(8);
                 pageDoc.setTextColor(255, 255, 255);
-                pageDoc.text("THANKS FOR REGISTERING!", 67, 259, { align: "center" });
+                pageDoc.text("THANKS FOR REGISTERING!", 67, 257, { align: "center" });
                 pageDoc.setCharSpace(0);
 
                 // Vertical Watermark (PRESERVING COORDINATES)
@@ -582,7 +582,7 @@ export default function RegistrationForm({ event, onClose }) {
                                 <div className="relative mx-auto w-56 h-56 group/qr transition-transform duration-500 hover:scale-105">
                                     <div className="absolute -inset-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-[2.5rem] opacity-20 blur-2xl group-hover/qr:opacity-40 transition-opacity" />
                                     <div className="relative h-full bg-white rounded-[2rem] p-4 flex items-center justify-center border border-white/20 shadow-2xl">
-                                        <img src="my-qr-code.png" alt="Payment QR" className="w-[180px] h-[180px] object-contain" />
+                                        <img src="/scan-me.jpeg" alt="Payment QR" className="w-[180px] h-[180px] object-contain" />
                                     </div>
                                 </div>
 
@@ -693,7 +693,7 @@ export default function RegistrationForm({ event, onClose }) {
 
                                 <div className="bg-black/30 rounded-3xl p-8 border border-white/5 backdrop-blur-md space-y-4 mb-10 text-left">
                                     <div className="flex justify-between items-center pb-4 border-b border-white/5">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Attendee</label>
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">LEADER NAME</label>
                                         <span className="text-white font-bold">{formData.fullName}</span>
                                     </div>
                                     <div className="flex justify-between items-center pb-4 border-b border-white/5">
