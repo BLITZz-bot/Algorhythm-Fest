@@ -375,6 +375,15 @@ app.post('/api/admin/send-report', async (req, res) => {
         }
 
         const registrations = await Registration.find().lean().sort({ eventTitle: 1 });
+        
+        if (registrations.length > 0) {
+            console.log("DEBUG: First Registration Check:", {
+                fullName: registrations[0].fullName,
+                paymentDate: registrations[0].paymentDate,
+                teamMembers: registrations[0].teamMembers,
+                isTeamMembersArray: Array.isArray(registrations[0].teamMembers)
+            });
+        }
 
         if (registrations.length === 0) {
             return res.status(404).json({ success: false, message: 'No data to send' });

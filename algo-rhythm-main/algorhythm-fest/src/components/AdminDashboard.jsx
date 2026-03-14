@@ -247,17 +247,19 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
             // Define columns
             worksheet.columns = [
-                { header: 'TEAM NAME', key: 'teamName', width: 20 },
-                { header: 'ID', key: 'id', width: 15 },
-                { header: 'TIMESTAMP', key: 'timestamp', width: 22 },
-                { header: 'FULL NAME', key: 'fullName', width: 25 },
-                { header: 'EMAIL', key: 'email', width: 30 },
-                { header: 'PHONE', key: 'phone', width: 15 },
-                { header: 'COLLEGE', key: 'college', width: 30 },
-                { header: 'UTR', key: 'transactionId', width: 20 },
-                { header: 'DATE OF PAYMENT', key: 'paymentDate', width: 20 },
-                { header: 'TEAM MEMBERS', key: 'teamMembers', width: 40 },
-                { header: 'PROOF LINK', key: 'screenshot', width: 50 },
+                { header: 'Pass Type', key: 'passType', width: 20 },
+                { header: 'Amount Paid', key: 'amountPaid', width: 20 },
+                { header: 'Team Name', key: 'teamName', width: 25 },
+                { header: 'Booking ID', key: 'id', width: 15 },
+                { header: 'Registration Time', key: 'timestamp', width: 25 },
+                { header: 'Full Name', key: 'fullName', width: 25 },
+                { header: 'Email', key: 'email', width: 30 },
+                { header: 'Phone', key: 'phone', width: 15 },
+                { header: 'College', key: 'college', width: 30 },
+                { header: 'UTR (Transaction ID)', key: 'transactionId', width: 25 },
+                { header: 'Date of Payment', key: 'paymentDate', width: 20 },
+                { header: 'Team Members details', key: 'teamMembers', width: 60 },
+                { header: 'Screenshot Proof', key: 'screenshot', width: 40 },
             ];
 
             // Style headers
@@ -272,7 +274,9 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
             // Add data
             grouped[eventTitle].forEach(reg => {
-                const rowValue = {
+                const row = worksheet.addRow({
+                    passType: reg.passType || "Standard Pass",
+                    amountPaid: reg.amountPaid || "N/A",
                     teamName: reg.teamName || "N/A",
                     id: reg.id,
                     timestamp: new Date(reg.timestamp).toLocaleString('en-IN'),
@@ -280,12 +284,14 @@ export default function AdminDashboard({ isOpen, onClose }) {
                     email: reg.email,
                     phone: reg.phone,
                     college: reg.college,
-                    passType: reg.passType || "Standard Pass",
-                    amountPaid: reg.amountPaid || "N/A",
-                    transactionId: reg.transactionId,
+                    transactionId: reg.transactionId || "N/A",
+                    paymentDate: reg.paymentDate || "N/A",
+                    teamMembers: (reg.teamMembers && Array.isArray(reg.teamMembers) && reg.teamMembers.length > 0)
+                        ? `Member 1 (Leader): ${reg.fullName}\nEmail: ${reg.email}\nPhone: ${reg.phone}\n\n` + 
+                          reg.teamMembers.map((m, idx) => `Member ${idx + 2}: ${m.fullName}\nEmail: ${m.email}\nPhone: ${m.phone}`).join("\n\n")
+                        : "N/A",
                     screenshot: reg.screenshotPath || "N/A"
-                };
-                const row = worksheet.addRow(rowValue);
+                });
 
                 // Add formatting for better readability
                 row.getCell('teamMembers').alignment = { wrapText: true, vertical: 'top' };
@@ -449,6 +455,8 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Student</th>
                                                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Contact Info</th>
                                                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Event Details</th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Team</th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Payment Date</th>
                                                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Pass Type</th>
                                                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Amount</th>
                                                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">UTR No</th>
@@ -471,14 +479,21 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                         </td>
                                                         <td className="px-6 py-5">
                                                             <div className="text-sm font-semibold text-white">{reg.eventTitle}</div>
-                                                            <div className="text-xs text-gray-500 mt-1">{new Date(reg.timestamp).toLocaleString()}</div>
-                                                            {reg.teamMembers?.length > 0 && (
-                                                                <div className="mt-2 flex flex-wrap gap-1">
+                                                            <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-tighter">Reg: {new Date(reg.timestamp).toLocaleString()}</div>
+                                                        </td>
+                                                        <td className="px-6 py-5">
+                                                            {reg.teamMembers?.length > 0 ? (
+                                                                <div className="flex flex-wrap gap-1 max-w-[150px]">
                                                                     {reg.teamMembers.map((m, idx) => (
-                                                                        <span key={idx} className="text-[10px] bg-white/5 px-2 py-0.5 rounded-full text-gray-400 border border-white/10">{m.fullName.split(' ')[0]}</span>
+                                                                        <span key={idx} className="text-[9px] bg-purple-500/10 px-2 py-0.5 rounded-md text-purple-300 border border-purple-500/20 whitespace-nowrap">
+                                                                            {m.fullName.split(' ')[0]}
+                                                                        </span>
                                                                     ))}
                                                                 </div>
-                                                            )}
+                                                            ) : <span className="text-gray-600 text-[10px]">Individual</span>}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-300 font-bold">
+                                                            {reg.paymentDate || "N/A"}
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                             <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${reg.passType === 'Combo Pass' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-blue-500/10 text-blue-300'}`}>
@@ -507,7 +522,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                     </tr>
                                                 )) : (
                                                     <tr>
-                                                        <td colSpan="5" className="px-6 py-20 text-center text-gray-500 italic">No registrations found for this selection.</td>
+                                                        <td colSpan="9" className="px-6 py-20 text-center text-gray-500 italic">No registrations found for this selection.</td>
                                                     </tr>
                                                 )}
                                             </tbody>
