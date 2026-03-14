@@ -66,7 +66,7 @@ const WelcomeAnimation = ({ onComplete }) => {
                     <div className="overflow-hidden mb-2">
                         <motion.h1
                             initial={{ y: 80, opacity: 0 }}
-                            animate={{ y: -10, opacity: 1 }}
+                            animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.6, duration: 0.7, ease: "easeOut" }}
                             className="text-4xl md:text-7xl font-black tracking-tighter"
                         >
