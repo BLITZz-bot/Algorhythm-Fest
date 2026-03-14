@@ -374,7 +374,7 @@ app.post('/api/admin/send-report', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Unauthorized' });
         }
 
-        const registrations = await Registration.find().sort({ eventTitle: 1 });
+        const registrations = await Registration.find().lean().sort({ eventTitle: 1 });
 
         if (registrations.length === 0) {
             return res.status(404).json({ success: false, message: 'No data to send' });
@@ -393,16 +393,18 @@ app.post('/api/admin/send-report', async (req, res) => {
             const sheetName = eventTitle.substring(0, 31).replace(/[\\\?\*\[\]\/]/g, "");
             const worksheet = workbook.addWorksheet(sheetName);
             worksheet.columns = [
+                { header: 'Pass Type', key: 'passType', width: 20 },
+                { header: 'Amount Paid', key: 'amountPaid', width: 20 },
                 { header: 'Team Name', key: 'teamName', width: 25 },
-                { header: 'ID', key: 'id', width: 15 },
-                { header: 'Date of Registration', key: 'timestamp', width: 25 },
+                { header: 'Booking ID', key: 'id', width: 15 },
+                { header: 'Registration Time', key: 'timestamp', width: 25 },
                 { header: 'Full Name', key: 'fullName', width: 25 },
                 { header: 'Email', key: 'email', width: 30 },
                 { header: 'Phone', key: 'phone', width: 15 },
                 { header: 'College', key: 'college', width: 30 },
-                { header: 'UTR', key: 'transactionId', width: 20 },
+                { header: 'UTR (Transaction ID)', key: 'transactionId', width: 25 },
                 { header: 'Date of Payment', key: 'paymentDate', width: 20 },
-                { header: 'Team Members details', key: 'teamMembers', width: 50 },
+                { header: 'Team Members details', key: 'teamMembers', width: 60 },
                 { header: 'Screenshot Proof', key: 'screenshot', width: 40 },
             ];
 
@@ -413,17 +415,20 @@ app.post('/api/admin/send-report', async (req, res) => {
 
             grouped[eventTitle].forEach(reg => {
                 const row = worksheet.addRow({
+                    passType: reg.passType || "Standard Pass",
+                    amountPaid: reg.amountPaid || "N/A",
                     teamName: reg.teamName || "N/A",
                     id: reg.id,
-                    timestamp: new Date(reg.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+                    timestamp: reg.timestamp ? new Date(reg.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : "N/A",
                     fullName: reg.fullName,
                     email: reg.email,
                     phone: reg.phone,
                     college: reg.college,
-                    transactionId: reg.transactionId,
+                    transactionId: reg.transactionId || "N/A",
                     paymentDate: reg.paymentDate || "N/A",
-                    teamMembers: reg.teamMembers?.length > 0
-                        ? reg.teamMembers.map(m => `Name: ${m.fullName}\nEmail: ${m.email}\nPhone: ${m.phone}`).join("\n\n")
+                    teamMembers: (reg.teamMembers && Array.isArray(reg.teamMembers) && reg.teamMembers.length > 0)
+                        ? `Member 1 (Leader): ${reg.fullName}\nEmail: ${reg.email}\nPhone: ${reg.phone}\n\n` + 
+                          reg.teamMembers.map((m, idx) => `Member ${idx + 2}: ${m.fullName}\nEmail: ${m.email}\nPhone: ${m.phone}`).join("\n\n")
                         : "N/A",
                     screenshot: reg.screenshotPath ? reg.screenshotPath : "N/A"
                 });
