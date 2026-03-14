@@ -21,6 +21,18 @@ export default function RegistrationForm({ event, onClose }) {
         paymentScreenshot: null
     })
 
+    const cat = event?.category || "Tech"
+    const buttonGradients = {
+        Tech: "from-cyan-500 to-blue-600",
+        Fun: "from-purple-600 to-pink-600",
+        Workshop: "from-emerald-600 to-teal-600",
+    }
+    const buttonShadows = {
+        Tech: "hover:shadow-cyan-500/40",
+        Fun: "hover:shadow-pink-500/40",
+        Workshop: "hover:shadow-emerald-500/40",
+    }
+
     const comboPassDetails = event?.comboPass || event?.ComboPass;
     const standardFeeString = event?.fee || event?.fees || (event?.prize === "Participation" ? "Free" : "₹150");
 
@@ -31,6 +43,7 @@ export default function RegistrationForm({ event, onClose }) {
             setTeamMembers([]);
         }
     }, [event]);
+
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
@@ -115,6 +128,28 @@ export default function RegistrationForm({ event, onClose }) {
                 format: [180, 260]
             });
 
+            const pdfColors = {
+                Tech: {
+                    banner: [14, 116, 144], // Cyan 700
+                    border: [6, 182, 212], // Cyan 500
+                    accent: [34, 211, 238],  // Cyan 400
+                    label: [103, 232, 249]   // Cyan 300
+                },
+                Fun: {
+                    banner: [225, 29, 72],  // Rose 600
+                    border: [168, 85, 247], // Purple 500
+                    accent: [232, 121, 249],  // Fuchsia 400
+                    label: [253, 164, 175]   // Pink 300
+                },
+                Workshop: {
+                    banner: [5, 150, 105],  // Emerald 600
+                    border: [20, 184, 166], // Teal 500
+                    accent: [45, 212, 191],   // Teal 400
+                    label: [110, 231, 183]    // Emerald 300
+                }
+            }
+            const colors = pdfColors[cat] || pdfColors.Tech;
+
             // Helper function to draw the common background, header, barcode and footer
             const drawTicketBase = (pageDoc) => {
                 // 1. Solid Outside Background (Deep Navy/Black)
@@ -122,7 +157,7 @@ export default function RegistrationForm({ event, onClose }) {
                 pageDoc.rect(0, 0, 180, 260, 'F');
 
                 // 2. Main Ticket Container with Rounded Corners
-                pageDoc.setDrawColor(168, 85, 247); // Purple Border
+                pageDoc.setDrawColor(...colors.border); 
                 pageDoc.setLineWidth(1);
                 pageDoc.roundedRect(8, 8, 164, 244, 15, 15, 'D');
 
@@ -130,8 +165,8 @@ export default function RegistrationForm({ event, onClose }) {
                 pageDoc.setFillColor(30, 41, 59); 
                 pageDoc.roundedRect(8, 8, 164, 244, 15, 15, 'F');
 
-                // 4. RED HEADER BANNER 
-                pageDoc.setFillColor(225, 29, 72); // Red 600
+                // 4. HEADER BANNER (DYNAMIC COLOR)
+                pageDoc.setFillColor(...colors.banner); 
                 pageDoc.roundedRect(8, 8, 164, 50, 15, 15, 'F');
                 pageDoc.rect(8, 25, 164, 33, 'F');
 
@@ -205,10 +240,10 @@ export default function RegistrationForm({ event, onClose }) {
             doc.setTextColor(255, 255, 255);
             doc.text("VERIFIED", 150, 84, { align: "center" });
 
-            // 7. EVENT TITLE (Big Purple/Pink)
+            // 7. EVENT TITLE
             doc.setFont("helvetica", "bold");
             doc.setFontSize(30);
-            doc.setTextColor(168, 85, 247); // Purple
+            doc.setTextColor(...colors.border);
             doc.text(event.title.toUpperCase(), 90, 115, { align: "center" });
 
             // 8. TIME & VENUE BOX (Dark Card)
@@ -233,9 +268,17 @@ export default function RegistrationForm({ event, onClose }) {
             let currentY = 175;
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.setTextColor(253, 164, 175); // Pink 300
+            doc.setTextColor(...(colors.label || [253, 164, 175])); // Dynamic Label
             doc.text("PARTICIPANTS DETAILS", 20, currentY);
             currentY += 10;
+
+            if (isTeamEvent && formData.teamName) {
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(12);
+                doc.setTextColor(...colors.border);
+                doc.text(`TEAM: ${formData.teamName.toUpperCase()}`, 20, currentY);
+                currentY += 8;
+            }
 
             doc.setFont("helvetica", "bold");
             doc.setFontSize(18);
@@ -255,19 +298,13 @@ export default function RegistrationForm({ event, onClose }) {
             // 10. FINANCIALS 
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.setTextColor(253, 164, 175);
-            doc.text("STANDARD FEE", 20, 230);
+            doc.setTextColor(...(colors.label || [253, 164, 175]));
+            doc.text(passType === 'combo' ? "COMBO PASS FEE" : "STANDARD FEE", 20, 230);
             doc.setFontSize(14);
             doc.setTextColor(255, 255, 255);
             let feeText = (passType === 'combo' && comboPassDetails) ? comboPassDetails : standardFeeString;
             doc.text(feeText.toString().replace(/₹/g, "Rs. "), 20, 238);
 
-            // // QR Code (Optional/Placeholder)
-            // try {
-            //     doc.addImage('/scan-me.jpeg', 'JPEG', 140, 180, 25, 25);
-            // } catch (qrErr) {
-            //     // Silent fail if image not found
-            // }
 
             // PAGE 2 (TEAM MEMBERS)
             if (teamMembers && teamMembers.length > 0) {
@@ -277,7 +314,7 @@ export default function RegistrationForm({ event, onClose }) {
                 let teamY = 80;
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(16);
-                doc.setTextColor(168, 85, 247);
+                doc.setTextColor(...colors.border);
                 doc.text(formData.teamName ? `TEAM: ${formData.teamName.toUpperCase()}` : "TEAM MEMBERS", 90, teamY, { align: "center" });
                 teamY += 15;
 
@@ -333,13 +370,13 @@ export default function RegistrationForm({ event, onClose }) {
     };
 
     return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[60] bg-[#020617] flex flex-col overflow-y-auto w-full min-h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-            >
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-[#020617] flex flex-col overflow-y-auto w-full min-h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
+            {/* ... rest of the component content ... */}
                 {/* Animated Background Energy */}
                 <div className="fixed inset-0 overflow-hidden pointer-events-none">
                     <motion.div
@@ -438,23 +475,23 @@ export default function RegistrationForm({ event, onClose }) {
                                 
                                 <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <div className="space-y-2">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Team Leader Full Name <span className="text-pink-500">*</span></label>
-                                        <input required type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="M.M.Bharath" />
+                                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">{isTeamEvent ? "Team Leader Full Name" : "Enter your name"} <span className="text-pink-500">*</span></label>
+                                        <input required type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="M.M.Bharath" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Email <span className="text-pink-500">*</span></label>
-                                        <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="cse@example.com" />
+                                        <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="cse@example.com" />
                                     </div>
                                 </div>
 
                                 <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Phone <span className="text-pink-500">*</span></label>
-                                        <input required type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" maxLength="10" name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="987*****10" />
+                                        <input required type="tel" pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" maxLength="10" name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="987*****10" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">College <span className="text-pink-500">*</span></label>
-                                        <input required type="text" name="college" value={formData.college} onChange={handleChange} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="Your College Name" />
+                                        <input required type="text" name="college" value={formData.college} onChange={handleChange} className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="Your College Name" />
                                     </div>
                                 </div>
                             </div>
@@ -465,7 +502,7 @@ export default function RegistrationForm({ event, onClose }) {
                                     
                                     <div className="relative z-10 mb-8 space-y-2">
                                         <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Team Name <span className="text-pink-500">*</span></label>
-                                        <input required type="text" name="teamName" value={formData.teamName} onChange={handleChange} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="Your Team Name" />
+                                        <input required type="text" name="teamName" value={formData.teamName} onChange={handleChange} className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all duration-300" placeholder="Your Team Name" />
                                     </div>
                                     
                                     <div className="flex items-center justify-between mb-6">
@@ -559,7 +596,7 @@ export default function RegistrationForm({ event, onClose }) {
                             )}
 
                             <div className="pt-4 flex justify-center sm:justify-end mb-10 sm:mb-0">
-                                <button type="submit" className="group relative w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-[2rem] text-white font-black uppercase tracking-widest text-sm hover:shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden">
+                                <button type="submit" className={`group relative w-full sm:w-auto px-10 py-5 bg-gradient-to-r ${buttonGradients[cat] || buttonGradients.Tech} rounded-[2rem] text-white font-black uppercase tracking-widest text-sm ${buttonShadows[cat] || buttonShadows.Tech} transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden`}>
                                     <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg] pointer-events-none" />
                                     <span className="relative flex items-center justify-center gap-2">
                                         Continue to Payment
@@ -658,7 +695,7 @@ export default function RegistrationForm({ event, onClose }) {
                                 <button type="button" onClick={() => setStep(1)} disabled={isSubmitting} className="px-8 py-4 rounded-2xl text-slate-500 font-bold hover:text-white transition-colors">
                                     ← Edit Details
                                 </button>
-                                <button type="submit" disabled={isSubmitting} className="group relative px-10 py-5 bg-gradient-to-r from-emerald-600 to-green-600 rounded-[2rem] text-white font-black uppercase tracking-widest text-sm hover:shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-3">
+                                <button type="submit" disabled={isSubmitting} className={`group relative px-10 py-5 bg-gradient-to-r ${buttonGradients[cat] || buttonGradients.Tech} rounded-[2rem] text-white font-black uppercase tracking-widest text-sm ${buttonShadows[cat] || buttonShadows.Tech} transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-3`}>
                                     {isSubmitting ? (
                                         <div className="flex items-center gap-2">
                                             <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -719,7 +756,7 @@ export default function RegistrationForm({ event, onClose }) {
                             </div>
 
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 w-full">
-                                <button onClick={handleDownloadPDF} disabled={isDownloading} className="group relative w-full sm:w-auto px-10 py-5 bg-white text-slate-950 rounded-[2rem] font-black uppercase tracking-[0.15em] text-xs transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 overflow-hidden">
+                                <button onClick={handleDownloadPDF} disabled={isDownloading} className={`group relative w-full sm:w-auto px-10 py-5 bg-gradient-to-r ${buttonGradients[cat] || buttonGradients.Tech} text-white rounded-[2rem] font-black uppercase tracking-[0.15em] text-xs transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 overflow-hidden ${buttonShadows[cat] || buttonShadows.Tech}`}>
                                     <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-10 translate-y-full group-hover:translate-y-0 transition-transform duration-300 pointer-events-none" />
                                     {isDownloading ? (
                                         <svg className="animate-spin h-4 w-4 text-slate-900" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -736,6 +773,5 @@ export default function RegistrationForm({ event, onClose }) {
                     )}
                 </div>
             </motion.div>
-        </AnimatePresence>
-    )
-}
+        )
+    }

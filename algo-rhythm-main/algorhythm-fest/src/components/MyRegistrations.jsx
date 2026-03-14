@@ -12,7 +12,21 @@ export default function MyRegistrations({ isOpen, onClose }) {
     const allEvents = [...eventsDay1, ...eventsDay2];
 
     useEffect(() => {
-        if (!isOpen) {
+        if (isOpen) {
+            window.history.pushState({ modal: "registrations" }, "");
+            const handlePopState = (e) => {
+                if (!e.state || e.state.modal !== "registrations") {
+                    onClose();
+                }
+            };
+            window.addEventListener("popstate", handlePopState);
+            return () => {
+                window.removeEventListener("popstate", handlePopState);
+                if (window.history.state?.modal === "registrations") {
+                    window.history.back();
+                }
+            };
+        } else {
             setSearchEmail("");
             setResults([]);
             setError("");
@@ -62,6 +76,29 @@ export default function MyRegistrations({ isOpen, onClose }) {
                 format: [180, 260]
             });
 
+            const cat = event.category || "Tech";
+            const pdfColors = {
+                Tech: {
+                    banner: [14, 116, 144], // Cyan 700
+                    border: [6, 182, 212], // Cyan 500
+                    accent: [34, 211, 238],  // Cyan 400
+                    label: [103, 232, 249]   // Cyan 300
+                },
+                Fun: {
+                    banner: [225, 29, 72],  // Rose 600
+                    border: [168, 85, 247], // Purple 500
+                    accent: [232, 121, 249],  // Fuchsia 400
+                    label: [253, 164, 175]   // Pink 300
+                },
+                Workshop: {
+                    banner: [5, 150, 105],  // Emerald 600
+                    border: [20, 184, 166], // Teal 500
+                    accent: [45, 212, 191],   // Teal 400
+                    label: [110, 231, 183]    // Emerald 300
+                }
+            }
+            const colors = pdfColors[cat] || pdfColors.Tech;
+
             // Helper function to draw the common background, header, barcode and footer
             const drawTicketBase = (pageDoc) => {
                 // 1. Solid Outside Background
@@ -69,7 +106,7 @@ export default function MyRegistrations({ isOpen, onClose }) {
                 pageDoc.rect(0, 0, 180, 260, 'F');
 
                 // 2. Main Ticket Container
-                pageDoc.setDrawColor(168, 85, 247); 
+                pageDoc.setDrawColor(...colors.border); 
                 pageDoc.setLineWidth(1);
                 pageDoc.roundedRect(8, 8, 164, 244, 15, 15, 'D');
 
@@ -77,8 +114,8 @@ export default function MyRegistrations({ isOpen, onClose }) {
                 pageDoc.setFillColor(30, 41, 59); 
                 pageDoc.roundedRect(8, 8, 164, 244, 15, 15, 'F');
 
-                // 4. RED HEADER BANNER
-                pageDoc.setFillColor(225, 29, 72); 
+                // 4. HEADER BANNER (DYNAMIC)
+                pageDoc.setFillColor(...colors.banner); 
                 pageDoc.roundedRect(8, 8, 164, 50, 15, 15, 'F');
                 pageDoc.rect(8, 25, 164, 33, 'F');
 
@@ -155,7 +192,7 @@ export default function MyRegistrations({ isOpen, onClose }) {
             // 7. EVENT TITLE
             doc.setFont("helvetica", "bold");
             doc.setFontSize(30);
-            doc.setTextColor(168, 85, 247); // Purple
+            doc.setTextColor(...colors.border); 
             doc.text(event.title.toUpperCase(), 90, 115, { align: "center" });
 
             // 8. TIME & VENUE BOX
@@ -180,9 +217,17 @@ export default function MyRegistrations({ isOpen, onClose }) {
             let currentY = 175;
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.setTextColor(253, 164, 175); // Pink 300
+            doc.setTextColor(...(colors.label || [253, 164, 175])); 
             doc.text("PARTICIPANTS DETAILS", 20, currentY);
             currentY += 10;
+
+            if (registration.teamName) {
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(12);
+                doc.setTextColor(...colors.border);
+                doc.text(`TEAM: ${registration.teamName.toUpperCase()}`, 20, currentY);
+                currentY += 8;
+            }
 
             doc.setFont("helvetica", "bold");
             doc.setFontSize(18);
@@ -202,19 +247,13 @@ export default function MyRegistrations({ isOpen, onClose }) {
             // 10. FINANCIALS
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
-            doc.setTextColor(253, 164, 175);
-            doc.text("STANDARD FEE", 20, 230);
+            doc.setTextColor(...(colors.label || [253, 164, 175]));
+            doc.text(registration.passType === 'Combo Pass' ? "COMBO PASS FEE" : "STANDARD FEE", 20, 230);
             doc.setFontSize(14);
             doc.setTextColor(255, 255, 255);
             let feeText = registration.amountPaid ? registration.amountPaid.toString().replace(/₹/g, "Rs. ") : "Free";
             doc.text(feeText, 20, 238);
 
-            // QR Code (Optional/Placeholder)
-            try {
-                doc.addImage('/scan-me.jpeg', 'JPEG', 140, 180, 25, 25);
-            } catch (qrErr) {
-                // Silent fail
-            }
 
             // PAGE 2 (TEAM MEMBERS)
             const teamMembers = registration.teamMembers || [];
@@ -225,7 +264,7 @@ export default function MyRegistrations({ isOpen, onClose }) {
                 let teamY = 80;
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(16);
-                doc.setTextColor(168, 85, 247);
+                doc.setTextColor(...colors.border);
                 doc.text(registration.teamName ? `TEAM: ${registration.teamName.toUpperCase()}` : "TEAM MEMBERS", 90, teamY, { align: "center" });
                 teamY += 15;
 

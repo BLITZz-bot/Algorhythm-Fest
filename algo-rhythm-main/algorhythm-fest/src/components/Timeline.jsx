@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion"
 
 const timelineData = {
   "APR 10": [
-    { time: "09:00 AM – 10:30 AM", title: "INARGUATION", type: "Ceremony" },
+    { time: "09:00 AM – 10:30 AM", title: "INAUGURATION", type: "Ceremony" },
     { time: "10:30 AM – 01:30 PM", title: "ESCAPE ROOM", type: "Fun" },
     { time: "10:30 AM – 02:00 PM(second day)", title: "HIGHLIGHT REEL", type: "Reel Making" },
     { time: "10:30 AM – 02:30 PM", title: "CHESS", type: "Board Game" },

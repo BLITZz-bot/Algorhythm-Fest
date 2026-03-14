@@ -7,7 +7,9 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 const ExcelJS = require('exceljs');
 const mongoose = require('mongoose');
-const dns = require('dns'); // Network workaround for restricted SRV DNS queries
+const dns = require('dns');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,20 +22,27 @@ const BASE_URL = (process.env.BASE_URL || "").trim().replace(/\/$/, "");
 const FRONTEND_URL = (process.env.FRONTEND_URL || "").trim().replace(/\/$/, "");
 
 // Middleware
-const allowedOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',').map(o => o.trim().replace(/\/$/, "")) : ['http://localhost:5173', 'http://localhost:3000'];
+const allowedOrigins = process.env.FRONTEND_URL 
+    ? process.env.FRONTEND_URL.split(',').map(o => o.trim().replace(/\/$/, "")) 
+    : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5174'];
+
+console.log("✅ Allowed CORS Origins:", allowedOrigins);
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-
-        // Cleanup incoming origin for comparison
+        
         const cleanOrigin = origin.replace(/\/$/, "");
+        
+        // Allow all localhost for easier development
+        if (cleanOrigin.startsWith('http://localhost:')) {
+            return callback(null, true);
+        }
 
         if (!process.env.FRONTEND_URL || allowedOrigins.includes(cleanOrigin)) {
             callback(null, true);
         } else {
-            console.log(`CORS Blocked Origin: ${origin}. Allowed: ${allowedOrigins}`);
+            console.warn(`❌ CORS Blocked: ${origin}. Not in: ${allowedOrigins}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
@@ -88,6 +97,8 @@ const registrationSchema = new mongoose.Schema({
     }],
     transactionId: { type: String, default: 'N/A' },
     paymentDate: { type: String, default: 'N/A' },
+    amountPaid: { type: String, default: 'N/A' },
+    passType: { type: String, default: 'Standard Pass' },
     screenshotPath: { type: String, default: null }
 });
 
@@ -99,14 +110,24 @@ const eventStatusSchema = new mongoose.Schema({
     isOpen: { type: Boolean, default: true }
 });
 const EventStatus = mongoose.model('EventStatus', eventStatusSchema);
-// Multer setup for file uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'screenshot-' + uniqueSuffix + path.extname(file.originalname));
+
+// Cloudinary Configuration
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configure Cloudinary Storage for Multer
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'algorhythm-registrations',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'pdf'],
+        public_id: (req, file) => {
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            return 'screenshot-' + uniqueSuffix;
+        }
     }
 });
 
@@ -114,6 +135,27 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
+
+// Helper to extract Cloudinary public_id from URL
+const extractPublicId = (url) => {
+    if (!url) return null;
+    const parts = url.split('/');
+    const uploadIndex = parts.indexOf('upload');
+    if (uploadIndex === -1) return null; // Not a Cloudinary URL
+    
+    let startIndex = uploadIndex + 1;
+    // Skip any parts that are likely transformations (e.g. c_fill, w_300) 
+    // or version strings (e.g. v1234567)
+    while (startIndex < parts.length - 1 && 
+          (parts[startIndex].includes(',') || 
+           (parts[startIndex].startsWith('v') && !isNaN(parts[startIndex].substring(1))))) {
+        startIndex++;
+    }
+    
+    const publicIdWithExtension = parts.slice(startIndex).join('/');
+    // Remove extension but keep path (folder/public_id)
+    return publicIdWithExtension.replace(/\.[^/.]+$/, "");
+};
 
 // Root Route for Health Checks (Render Compatibility)
 app.get('/', (req, res) => {
@@ -123,7 +165,7 @@ app.get('/', (req, res) => {
 // Routes
 app.post('/api/register', upload.single('paymentScreenshot'), async (req, res) => {
     try {
-        const { fullName, email, phone, college, teamName, transactionId, paymentDate, eventTitle, teamMembers } = req.body;
+        const { fullName, email, phone, college, teamName, transactionId, paymentDate, eventTitle, teamMembers, amountPaid, passType } = req.body;
 
         const newRegistration = new Registration({
             id: Date.now().toString(),
@@ -137,7 +179,9 @@ app.post('/api/register', upload.single('paymentScreenshot'), async (req, res) =
             teamMembers: teamMembers ? JSON.parse(teamMembers) : [],
             transactionId: transactionId || "N/A",
             paymentDate: paymentDate || "N/A",
-            screenshotPath: req.file ? req.file.filename : null
+            amountPaid: amountPaid || "N/A",
+            passType: passType || "Standard Pass",
+            screenshotPath: req.file ? req.file.path : null
         });
 
         await newRegistration.save();
@@ -208,6 +252,22 @@ app.delete('/api/admin/registrations-all', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Unauthorized' });
         }
 
+        // 1. Find all registrations to get their screenshot public_ids
+        const registrations = await Registration.find({ screenshotPath: { $ne: null } });
+        const publicIds = registrations
+            .map(r => extractPublicId(r.screenshotPath))
+            .filter(id => id !== null);
+
+        // 2. Delete all screenshots from Cloudinary in bulk
+        if (publicIds.length > 0) {
+            try {
+                await cloudinary.api.delete_resources(publicIds);
+                console.log(`☁️ Cloudinary: Wiped ${publicIds.length} images.`);
+            } catch (err) {
+                console.error("Cloudinary Bulk Wipe Error:", err);
+            }
+        }
+
         const result = await Registration.deleteMany({});
         console.log(`🧹 Admin Bulk Wipe: ${result.deletedCount} records removed.`);
         
@@ -231,11 +291,34 @@ app.delete('/api/admin/registrations/:id', async (req, res) => {
         }
 
         const { id } = req.params;
-        const registration = await Registration.findOneAndDelete({ id: id });
+        const registration = await Registration.findOne({ id: id });
 
         if (!registration) {
             return res.status(404).json({ success: false, message: 'Registration not found' });
         }
+
+        // Delete screenshot if exists
+        if (registration.screenshotPath) {
+            const publicId = extractPublicId(registration.screenshotPath);
+            if (publicId) {
+                // It's a Cloudinary image
+                try {
+                    await cloudinary.uploader.destroy(publicId);
+                    console.log(`☁️ Cloudinary: Screenshot deleted (${publicId})`);
+                } catch (err) {
+                    console.error("Cloudinary Cleanup Error:", err);
+                }
+            } else {
+                // It might be a local file path
+                const localPath = path.join(uploadDir, registration.screenshotPath);
+                if (fs.existsSync(localPath)) {
+                    fs.unlinkSync(localPath);
+                    console.log(`📁 Local: File deleted (${registration.screenshotPath})`);
+                }
+            }
+        }
+
+        await Registration.deleteOne({ id: id });
 
         console.log(`🗑 Admin Deleted Registration: ${id} (${registration.fullName})`);
         res.status(200).json({
@@ -342,7 +425,7 @@ app.post('/api/admin/send-report', async (req, res) => {
                     teamMembers: reg.teamMembers?.length > 0
                         ? reg.teamMembers.map(m => `Name: ${m.fullName}\nEmail: ${m.email}\nPhone: ${m.phone}`).join("\n\n")
                         : "N/A",
-                    screenshot: reg.screenshotPath ? `${process.env.BASE_URL || 'http://localhost:5000'}/uploads/${reg.screenshotPath}` : "N/A"
+                    screenshot: reg.screenshotPath ? reg.screenshotPath : "N/A"
                 });
 
                 // Enable text wrapping for team members cell to allow multiple lines
@@ -353,11 +436,9 @@ app.post('/api/admin/send-report', async (req, res) => {
 
                 if (reg.screenshotPath) {
                     const linkCell = row.getCell('screenshot');
-                    // In production, localhost should be replaced with the actual domain link
-                    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
                     linkCell.value = {
                         text: 'Link to Screenshot',
-                        hyperlink: `${baseUrl}/uploads/${reg.screenshotPath}`
+                        hyperlink: reg.screenshotPath
                     };
                     linkCell.font = { color: { argb: '2563EB' }, underline: true };
                 }

@@ -173,9 +173,23 @@ export default function AdminDashboard({ isOpen, onClose }) {
         }
     };
 
-    // Reset password on close
+    // Reset password on close and handle back button
     useEffect(() => {
-        if (!isOpen) {
+        if (isOpen) {
+            window.history.pushState({ modal: "admin" }, "");
+            const handlePopState = (e) => {
+                if (!e.state || e.state.modal !== "admin") {
+                    onClose();
+                }
+            };
+            window.addEventListener("popstate", handlePopState);
+            return () => {
+                window.removeEventListener("popstate", handlePopState);
+                if (window.history.state?.modal === "admin") {
+                    window.history.back();
+                }
+            };
+        } else {
             setIsAuthenticated(false);
             setPassword("");
             setLoginError("");
@@ -266,10 +280,10 @@ export default function AdminDashboard({ isOpen, onClose }) {
                     email: reg.email,
                     phone: reg.phone,
                     college: reg.college,
+                    passType: reg.passType || "Standard Pass",
+                    amountPaid: reg.amountPaid || "N/A",
                     transactionId: reg.transactionId,
-                    paymentDate: reg.paymentDate || "N/A",
-                    teamMembers: reg.teamMembers?.map(m => `• ${m.fullName} (${m.email})`).join("\n") || "N/A",
-                    screenshot: reg.screenshotPath ? `${import.meta.env.VITE_API_URL}/uploads/${reg.screenshotPath}` : "N/A"
+                    screenshot: reg.screenshotPath || "N/A"
                 };
                 const row = worksheet.addRow(rowValue);
 
@@ -282,7 +296,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                     const linkCell = row.getCell('screenshot');
                     linkCell.value = {
                         text: 'Link to Screenshot',
-                        hyperlink: `${import.meta.env.VITE_API_URL}/uploads/${reg.screenshotPath}`
+                        hyperlink: reg.screenshotPath
                     };
                     linkCell.font = { color: { argb: '2563EB' }, underline: true };
                 }
@@ -435,7 +449,9 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Student</th>
                                                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Contact Info</th>
                                                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Event Details</th>
-                                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Payment / UTR</th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Pass Type</th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Amount</th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">UTR No</th>
                                                     <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Proof</th>
                                                 </tr>
                                             </thead>
@@ -464,13 +480,21 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-6 py-5 font-mono text-sm text-amber-400">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${reg.passType === 'Combo Pass' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-blue-500/10 text-blue-300'}`}>
+                                                                {reg.passType || "Standard"}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
+                                                            {reg.amountPaid || "N/A"}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
                                                             {reg.transactionId}
                                                         </td>
                                                         <td className="px-6 py-5">
                                                             {reg.screenshotPath ? (
                                                                 <a
-                                                                    href={`${import.meta.env.VITE_API_URL}/uploads/${reg.screenshotPath}`}
+                                                                    href={reg.screenshotPath}
                                                                     target="_blank"
                                                                     rel="noreferrer"
                                                                     className="text-xs text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 group"

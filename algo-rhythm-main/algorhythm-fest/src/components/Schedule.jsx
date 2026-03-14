@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useTransform } from "framer-motion"
+import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion"
 import { useRef, useState, useEffect } from "react"
 import StarBackground from "./StarBackground"
 import RegistrationForm from "./RegistrationForm"
@@ -29,7 +29,8 @@ export const eventsDay1 = [
       "13. Specific instructions and login credentials will be provided at the venue before the event begins.",
       "14. Prizes will be awarded based on final rankings.",
       "15. Please check the event schedule before registering multiple events. Participants are responsible for checking the event schedule. The MANAGEMENT is not responsible for clashes with other events, and no refund will be provided in case of overlap.The participants from GCEM contact the respective event coordinator before registering",
-      "16. Report to the coordinator 30 minutes before the event starts.",],
+      "16. Report to the coordinator 30 minutes before the event starts.",
+      "17.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",],
     coordinators: ["Jyesht M – 8951323830",
       "Vivek Kashyap – 8850623515",
       "Thanishka Reddy – 9449119449"],
@@ -70,9 +71,10 @@ export const eventsDay1 = [
       "10. Authority & ID: The arbiter’s decision will be final, and players must carry their college ID cards.",
       "11. Please check the schedule for overlapping events before registering for multiple events.",
       "12. If you have registered for overlapping events, management will not be responsible and no refund will be initiated. The participants from GCEM contact the respective event coordinators before registering.",
-      "13. Participants must report to the coordinator 30 minutes before the event starts."
+      "13. Participants must report to the coordinator 30 minutes before the event starts.",
+      "14.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",
     ],
-    coordinators: ["Saravanan M – 8618648916", "Nithesh - 8431648766"],
+    coordinators: ["Saravanan M – 8618648916", "Nithesh – 8431648766"],
     registerLink: "#",
     fee: "₹250"
   },
@@ -101,7 +103,8 @@ export const eventsDay1 = [
       "10. The originality of the edit will be verified by reviewing the project timeline/history in the editing software used by the participants.",
       "11. Please check the schedule for overlapping events before registering  multiple events",
       "12. If you have registered for overlapping events, management is not responsible, no refund will be initiated.13. The participants from GCEM contact the respective event coordinators before registering.",
-      "13. Report to the coordinator 30 minutes before the event starts."],
+      "13. Report to the coordinator 30 minutes before the event starts.",
+      "Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",],
     coordinators: ["Abdul Shuaib – 7892698624", "Veeresh Viraktamath – 9380022929"],
     registerLink: "#",
     fee: "₹300",
@@ -166,8 +169,9 @@ export const eventsDay1 = [
 
       "19. Official observer records and organizer decisions will be final in case of any disputes.",
       "20. Please check the event schedule before registering multiple events. Participants are responsible for checking the event schedule. The MANAGEMENT is not responsible for clashes with other events, and no refund will be provided in case of overlap.The participants from GCEM contact the respective event coordinator before registering",
-      "21. Report to the coordinator 30 minutes before the event starts."],
-    coordinators: ["Rajesh – 8073439040", "Pavan - 8073083421", "Darshan A- 7760055444"],
+      "21. Report to the coordinator 30 minutes before the event starts.",
+      "22.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show)."],
+    coordinators: ["Rajesh – 8073439040", "Pavan - 8073083421", "Darshan R- 7760055444"],
     registerLink: "#",
     fee: "₹600",
   },
@@ -189,7 +193,8 @@ export const eventsDay1 = [
       "7.  Specific instructions will be provided before the start of the event. ",
       "8.  Please check the schedule for overlapping events before registering for multiple events.",
       "9.  If you have registered for overlapping events, MANAGEMENT is not responsible, no refund will be initiated.10. The participants from GCEM contact the respective event coordinators before registering.",
-      "11. Report to the coordinator 30 minutes before the event starts."
+      "11. Report to the coordinator 30 minutes before the event starts.",
+      "Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",
     ],
     coordinators: ["Nithelan Jayakumar – 9952738262", "Bushra M – 8310084375"],
     registerLink: "#",
@@ -227,7 +232,9 @@ export const eventsDay1 = [
       "11. Please check the schedule for overlapping events before registering for multiple events. ",
 
       "12. If you have registered for overlapping events, MANAGEMENT is not responsible and no refund will be initiated.The participants from GCEM contact the respective event coordinators before registering",
-      "13. Report to the coordinator 30 minutes before the event starts."],
+      "13. Report to the coordinator 30 minutes before the event starts.",
+      "14.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",
+    ],
     coordinators: ["M Tarun – 9663053076",
       "Bettina – 7619689937"
     ],
@@ -269,7 +276,8 @@ export const eventsDay1 = [
       "",],
     coordinators: ["Shreeka K - 8861619612", "Vishaka - 8431217851", "Yeshwanth - 8884359993"],
     registerLink: "#",
-    fee: "₹800"
+    fee: "800",
+    theme: "OPEN THEME"
   },
 ]
 
@@ -293,8 +301,9 @@ export const eventsDay2 = [
       "8. The decision of the judges/coordinators will be final and binding.",
       "9. Please check the schedule for overlapping events before registering multiple events",
       "10. If you have registered for overlapping events, MANAGEMENT is not responsible,any such situations no refund will be initiated.The participants from GCEM contact the respective event coordinators before registering",
-  ],
-    coordinators: ["Gagana – 8050859858", "Himashree - 8885392795"],
+      "11.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",
+    ],
+    coordinators: ["Himashree - 8885392795", "Pratiksha – 8867114450"],
     registerLink: "#",
     fee: "₹500"
   },
@@ -322,7 +331,9 @@ export const eventsDay2 = [
       "13. Points will be awarded based on word complexity, correctness, creativity, and task completion as defined by the event rules.",
       "14.  Please check the schedule for overlapping events before registering multiple events.",
       "14. Participants are responsible for checking the event schedule. The Management is not responsible for clashes with other events, and no refund will be provided in case of overlap. The participants from GCEM contact the respective event coordinators before registering",
-      "15. Report to the coordinator 30 minutes before the event starts."],
+      "15. Report to the coordinator 30 minutes before the event starts.",
+      "16.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",
+    ],
     coordinators: ["Charan Kumar – 9482886761", "Vadla Chaturya - 9986070222"],
     registerLink: "#",
     fee: "₹200"
@@ -346,7 +357,9 @@ export const eventsDay2 = [
       "8. Time limit strictly followed.",
       "9. Judges decision will be final.",
       "10. Please check the schedule for overlapping events before registering multiple events.",
-      "11. Participants are responsible for checking the event schedule. The Management is not responsible for clashes with other events, and no refund will be provided in case of overlap. The participants from GCEM contact the respective event coordinators before registering"],
+      "11. Participants are responsible for checking the event schedule. The Management is not responsible for clashes with other events, and no refund will be provided in case of overlap. The participants from GCEM contact the respective event coordinators before registering",
+      "12.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",
+    ],
     coordinators: ["Prince Kumar – 7277402658",
       "Tarun Kumar Pathak – 8073165834"],
     registerLink: "#",
@@ -398,6 +411,7 @@ export const eventsDay2 = [
       ".",
       "SAFETY",
       "•Participants should ensure their performance is safe and does not pose any risk to themselves or the audience",
+      "13.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",
 
     ],
     coordinators: ["Divyashree RM – 7019691887", "Abhishek R - 7019323085"],
@@ -434,7 +448,9 @@ export const eventsDay2 = [
       "14. Judges Decision: The judges decision will be final.",
       "15. Please check the schedule for overlapping events before registering multiple events",
       "16. If you have registered for overlapping events, MANAGEMENT is not responsible, no refund will be initiated.The participants from GCEM contact the respective event coordinators before registering",
-      "17. Report to the coordinators 30 minutes before the event starts"],
+      "17. Report to the coordinators 30 minutes before the event starts",
+      "18.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",
+    ],
     coordinators: ["Abhishek Mannatharaj - 7483076739", "Veeresh Viraktamath – 9380022929"],
     registerLink: "#",
     fee: "₹300",
@@ -465,7 +481,8 @@ export const eventsDay2 = [
       "15. All participants must respect the competition environment and follow instructions given by the event coordinators.",
       "16. Please check the schedule for overlapping events before registering multiple events",
       "17. If you have registered for overlapping events, management is not responsible, no refund will be initiated.The participants from GCEM contact the respective event coordinators before registering",
-      "18. Report to the coordinators 30 minutes before the event starts"
+      "18. Report to the coordinators 30 minutes before the event starts",
+      "19.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",
     ],
     coordinators: ["P Mohan - 9606629280", "Brunda - 8197283013"],
     registerLink: "#",
@@ -625,6 +642,17 @@ const tabActiveColors = {
   Workshop: "border-emerald-400 text-emerald-300",
 }
 
+const buttonGradients = {
+  Tech: "from-cyan-500 to-blue-600",
+  Fun: "from-pink-500 to-purple-600",
+  Workshop: "from-emerald-500 to-teal-600",
+}
+const buttonShadows = {
+  Tech: "shadow-cyan-700/40 hover:shadow-cyan-500/60",
+  Fun: "shadow-purple-700/40 hover:shadow-purple-500/60",
+  Workshop: "shadow-emerald-700/40 hover:shadow-emerald-500/60",
+}
+
 /* ─── SMALL ICON COMPONENTS ─── */
 const IconClock = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
@@ -645,14 +673,12 @@ const IconPhone = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
 )
 
-function EventModal({ event, isEventOpen, onClose }) {
-  const [showRegistration, setShowRegistration] = useState(false)
+function EventModal({ event, isEventOpen, onClose, onRegister }) {
   const [activeTab, setActiveTab] = useState("about")
 
   // Reset modal state when event changes (fixes tab persistence bug)
   useEffect(() => {
     setActiveTab("about");
-    setShowRegistration(false);
   }, [event]);
 
   if (!event) return null
@@ -661,6 +687,8 @@ function EventModal({ event, isEventOpen, onClose }) {
   const teamText = event.minTeamSize === event.maxTeamSize
     ? `${event.minTeamSize}`
     : `${event.minTeamSize || "?"} – ${event.maxTeamSize || "?"}`
+
+  // Back button handling removed from here to parent
 
   const tabs = [
     { id: "about", label: "📋 About" },
@@ -751,6 +779,12 @@ function EventModal({ event, isEventOpen, onClose }) {
             <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300">
               <IconUsers /> Team: {teamText}
             </span>
+            {/* Theme Chip */}
+            {event.theme && (
+              <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-400/20 text-indigo-300 font-medium">
+                ✨ Theme: {event.theme}
+              </span>
+            )}
             {/* Combo Pass */}
             {event.comboPass && (
               <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-400/20 text-purple-300 font-medium">
@@ -767,8 +801,8 @@ function EventModal({ event, isEventOpen, onClose }) {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`px-4 py-2.5 text-sm font-medium transition-all border-b-2 -mb-px ${activeTab === tab.id
-                      ? (tabActiveColors[cat] || tabActiveColors.Tech)
-                      : "border-transparent text-gray-500 hover:text-gray-300"
+                    ? (tabActiveColors[cat] || tabActiveColors.Tech)
+                    : "border-transparent text-gray-500 hover:text-gray-300"
                     }`}
                 >
                   {tab.label}
@@ -823,10 +857,12 @@ function EventModal({ event, isEventOpen, onClose }) {
                         {c.charAt(0)}
                       </div>
                       <div className="flex-1">
-                        <p className="text-white text-sm font-medium">{c.split("–")[0] || c.split("-")[0]}</p>
+                        <p className="text-white text-sm font-medium">
+                          {c.includes("–") ? c.split("–")[0].trim() : c.split("-")[0].trim()}
+                        </p>
                         {(c.includes("–") || c.includes("-")) && (
                           <p className="text-gray-400 text-xs flex items-center gap-1 mt-0.5">
-                            <IconPhone /> {(c.split("–")[1] || c.split("-")[1] || "").trim()}
+                            <IconPhone /> {(c.includes("–") ? c.split("–")[1] : c.split("-")[1] || "").trim()}
                           </p>
                         )}
                       </div>
@@ -844,8 +880,8 @@ function EventModal({ event, isEventOpen, onClose }) {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowRegistration(true)}
-                  className="w-full text-center px-6 py-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg shadow-purple-700/40 font-semibold text-white hover:shadow-purple-500/60 transition"
+                  onClick={onRegister}
+                  className={`w-full text-center px-6 py-3.5 rounded-xl bg-gradient-to-r ${buttonGradients[cat] || buttonGradients.Tech} shadow-lg ${buttonShadows[cat] || buttonShadows.Tech} font-semibold text-white transition`}
                 >
                   🚀 Register for this Event
                 </motion.button>
@@ -871,18 +907,62 @@ function EventModal({ event, isEventOpen, onClose }) {
         </motion.div>
       </motion.div>
 
-      {showRegistration && (
-        <RegistrationForm event={event} onClose={() => setShowRegistration(false)} />
-      )}
+      {/* RegistrationForm moved to parent */}
     </>
   )
 }
 
-export default function Schedule() {
+export default function Schedule({ onModalToggle }) {
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const [showRegistration, setShowRegistration] = useState(false)
   const [filter, setFilter] = useState("All")
   const [search, setSearch] = useState("")
   const [eventStatuses, setEventStatuses] = useState([])
+
+  // Notify parent of modal state
+  useEffect(() => {
+    onModalToggle && onModalToggle(!!selectedEvent || showRegistration);
+  }, [selectedEvent, showRegistration, onModalToggle]);
+
+  // Consolidated history handling for event details and registration form
+  useEffect(() => {
+    if (selectedEvent) {
+      const currentState = window.history.state;
+
+      if (showRegistration) {
+        if (!currentState || currentState.modal !== "registration") {
+          window.history.pushState({ modal: "registration" }, "");
+        }
+      } else {
+        if (!currentState || (currentState.modal !== "event" && currentState.modal !== "registration")) {
+          window.history.pushState({ modal: "event" }, "");
+        }
+      }
+
+      const handlePopState = (e) => {
+        if (!e.state) {
+          setSelectedEvent(null);
+          setShowRegistration(false);
+        } else if (e.state.modal === "event") {
+          setShowRegistration(false);
+        } else if (e.state.modal === "registration") {
+          setShowRegistration(true);
+        } else {
+          setSelectedEvent(null);
+          setShowRegistration(false);
+        }
+      };
+
+      window.addEventListener("popstate", handlePopState);
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+        // Cleanup: pushState is handled by the effect, so we don't need manual back() here
+        // as popstate will handle the UI state correctly.
+      };
+    } else {
+      if (showRegistration) setShowRegistration(false);
+    }
+  }, [selectedEvent, showRegistration]);
 
   useEffect(() => {
     const fetchStatuses = async () => {
@@ -1018,11 +1098,23 @@ export default function Schedule() {
         </div>
       </motion.section>
 
-      <EventModal
-        event={selectedEvent}
-        isEventOpen={selectedEvent ? (eventStatuses.find(s => s.title === selectedEvent.title)?.isOpen ?? true) : true}
-        onClose={() => setSelectedEvent(null)}
-      />
+      <AnimatePresence>
+        {showRegistration && selectedEvent ? (
+          <RegistrationForm
+            key="registration-form"
+            event={selectedEvent}
+            onClose={() => setShowRegistration(false)}
+          />
+        ) : selectedEvent ? (
+          <EventModal
+            key="event-modal"
+            event={selectedEvent}
+            isEventOpen={(eventStatuses.find(s => s.title === selectedEvent.title)?.isOpen ?? true)}
+            onClose={() => setSelectedEvent(null)}
+            onRegister={() => setShowRegistration(true)}
+          />
+        ) : null}
+      </AnimatePresence>
     </>
   )
 }
