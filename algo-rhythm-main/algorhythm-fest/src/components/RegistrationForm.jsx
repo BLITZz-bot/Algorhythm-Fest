@@ -195,24 +195,17 @@ export default function RegistrationForm({ event, onClose }) {
                 pageDoc.text("SUBMIT THIS PASS AT THE REGISTRATION DESK", 90, 240, { align: "center" });
 
                 // Barcode (REAL SCANNABLE BARCODE)
-                const canvas = document.createElement('canvas');
-                try {
-                    JsBarcode(canvas, "https://algorhythmfest.vercel.app", {
-                        format: "CODE128",
-                        width: 2,
-                        height: 40,
-                        displayValue: false,
-                        margin: 0,
-                        background: "transparent",
-                        lineColor: "#8C828C" // Matching previous decorative color
-                    });
-                    const barcodeImg = canvas.toDataURL("image/png");
-                    const barcodeWidth = 80;
-                    const startXPos = (180 - barcodeWidth) / 2;
-                    pageDoc.addImage(barcodeImg, "PNG", startXPos, 242, barcodeWidth, 8);
-                } catch (e) {
-                    console.error("Barcode generation failed", e);
-                }
+                const canvas = document.createElement("canvas");
+                JsBarcode(canvas, "https://algorhythm-fest.vercel.app", {
+                    format: "CODE128",
+                    displayValue: false,
+                    fontSize: 0,
+                    margin: 0,
+                    background: "transparent",
+                    lineColor: "#8C828C" 
+                });
+                const barcodeData = canvas.toDataURL("image/png");
+                pageDoc.addImage(barcodeData, "PNG", 50, 242, 80, 8);
 
                 // Footer Text (PRESERVING COORDINATES)
                 pageDoc.setFont("helvetica", "bold");
