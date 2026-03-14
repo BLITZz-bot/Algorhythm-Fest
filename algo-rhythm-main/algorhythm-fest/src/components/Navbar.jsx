@@ -90,7 +90,7 @@ export default function Navbar({ onOpenRegistrations, onOpenAdmin }) {
         {/* LOGO AREA */}
         <div className="mb-12 mt-4">
           <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-400 to-cyan-400">
-            AlgoRhythm
+            AlgoRhythm 3.0
           </h2>
           <p className="text-xs text-purple-300 tracking-[0.2em] uppercase mt-1">Techno-Cultural Fest 2026</p>
         </div>
@@ -102,7 +102,7 @@ export default function Navbar({ onOpenRegistrations, onOpenAdmin }) {
           animate={open ? "show" : "hidden"}
           className="flex flex-col flex-1 gap-4 text-lg"
         >
-          {['Home', 'About', 'Schedule', 'Venue', 'Clubs'].map((item) => (
+          {['Home', 'About', 'Events', 'Venue', 'Clubs'].map((item) => (
             <motion.a
               key={item}
               variants={itemVariants}

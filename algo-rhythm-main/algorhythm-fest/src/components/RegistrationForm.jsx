@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { jsPDF } from "jspdf"
+import JsBarcode from "jsbarcode"
 
 export default function RegistrationForm({ event, onClose }) {
     const [step, setStep] = useState(1)
@@ -193,14 +194,24 @@ export default function RegistrationForm({ event, onClose }) {
                 pageDoc.setTextColor(148, 163, 184);
                 pageDoc.text("SUBMIT THIS PASS AT THE REGISTRATION DESK", 90, 240, { align: "center" });
 
-                // Barcode (PRESERVING COORDINATES)
-                pageDoc.setFillColor(140, 130, 140); 
-                const barcodeBars = 40;
-                const barcodeWidth = barcodeBars * 2;
-                const startXPos = (180 - barcodeWidth) / 2;
-                for (let i = 0; i < barcodeBars; i++) {
-                    const widthLimit = Math.random() * 1 + 0.3;
-                    pageDoc.rect(startXPos + (i * 2), 242, widthLimit, 8, 'F');
+                // Barcode (REAL SCANNABLE BARCODE)
+                const canvas = document.createElement('canvas');
+                try {
+                    JsBarcode(canvas, "https://algorhythmfest.vercel.app", {
+                        format: "CODE128",
+                        width: 2,
+                        height: 40,
+                        displayValue: false,
+                        margin: 0,
+                        background: "transparent",
+                        lineColor: "#8C828C" // Matching previous decorative color
+                    });
+                    const barcodeImg = canvas.toDataURL("image/png");
+                    const barcodeWidth = 80;
+                    const startXPos = (180 - barcodeWidth) / 2;
+                    pageDoc.addImage(barcodeImg, "PNG", startXPos, 242, barcodeWidth, 8);
+                } catch (e) {
+                    console.error("Barcode generation failed", e);
                 }
 
                 // Footer Text (PRESERVING COORDINATES)
@@ -213,8 +224,8 @@ export default function RegistrationForm({ event, onClose }) {
 
                 // Vertical Watermark (PRESERVING COORDINATES)
                 pageDoc.setFontSize(7);
-                pageDoc.setTextColor(51, 65, 85);
-                pageDoc.text("DESIGNED BY GRAFIK", 173, 235, { angle: 90 });
+                pageDoc.setTextColor(52, 65, 85);
+                pageDoc.text("DESIGNED BY GRAFIK", 171, 230, { angle: 90 });
             };
 
             // START PAGE 1

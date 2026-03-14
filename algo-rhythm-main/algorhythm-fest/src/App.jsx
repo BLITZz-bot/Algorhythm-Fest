@@ -144,7 +144,7 @@ export default function App() {
 
             <div className="mt-12">
               <a
-                href="#schedule"
+                href="#events"
                 className="px-8 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 font-semibold shadow-lg shadow-purple-700/40 hover:shadow-purple-500/80 hover:scale-105 transition"
               >
                 EXPLORE EVENTS
@@ -164,8 +164,8 @@ export default function App() {
 
         <GalleryPreview />
 
-        {/* ================= SCHEDULE ================= */}
-        <Section id="schedule">
+        {/* ================= EVENTS ================= */}
+        <Section id="events">
           <Schedule onModalToggle={setIsScheduleModalOpen} />
         </Section>
 
