@@ -27,7 +27,7 @@ export default function HeroContent() {
 
         <div className="mt-12 flex gap-4 justify-center flex-wrap">
           <a
-            href="#schedule"
+            href="#events"
             className="px-8 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 font-semibold shadow-lg shadow-purple-700/40 hover:scale-105 transition"
           >
             View Gallery
