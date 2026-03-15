@@ -1,19 +1,13 @@
 import { useState } from "react"
 import GalleryModal from "./GalleryModal"
 import { motion } from "framer-motion"
-import StarBackground from "./StarBackground"
 
 export default function GalleryPreview() {
   const [open, setOpen] = useState(false)
 
   return (
-    <section id="gallery" className="py-28 px-6">
+    <section id="gallery" className="relative py-28 px-6">
       <div className="max-w-6xl mx-auto text-center">
-
-        {/* ⭐ STARS BACKGROUND */}
-        <div className="absolute inset-0 -z-10 pointer-events-none">
-          <StarBackground />
-        </div>
 
         {/* Title */}
         <motion.h2
