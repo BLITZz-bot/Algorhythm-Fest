@@ -82,13 +82,16 @@ export default function Navbar({ onOpenRegistrations, onOpenAdmin }) {
           onClick={() => setOpen(false)}
           whileHover={{ rotate: 90, scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 transition-colors"
+          className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </motion.button>
 
-        {/* LOGO AREA */}
-        <div className="mb-12 mt-4">
+        {/* LOGO AREA - SECRET ADMIN LINK (Hidden) */}
+        <div 
+          className="mb-12 mt-4 cursor-default active:scale-95 transition-transform"
+          onClick={() => { onOpenAdmin(); setOpen(false); }}
+        >
           <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-400 to-cyan-400">
             AlgoRhythm 3.0
           </h2>
@@ -135,24 +138,7 @@ export default function Navbar({ onOpenRegistrations, onOpenAdmin }) {
             </span>
           </motion.button>
 
-          {/* Admin Button */}
-          <motion.button
-            variants={itemVariants}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => { onOpenAdmin(); setOpen(false); }}
-            className="w-full mt-auto relative px-6 py-4 rounded-xl bg-slate-800/50 border border-slate-600/50 hover:border-cyan-500/50 hover:bg-slate-800 transition-all group overflow-hidden"
-          >
-            <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
-            <div className="flex items-center justify-between relative z-10 w-full">
-              <div className="flex items-center gap-3">
-                <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/20 transition-colors">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                </div>
-                <span className="font-bold text-sm text-slate-300 group-hover:text-cyan-300 tracking-wider">ADMIN CONSOLE</span>
-              </div>
-            </div>
-          </motion.button>
+
         </motion.nav>
       </motion.div>
     </>

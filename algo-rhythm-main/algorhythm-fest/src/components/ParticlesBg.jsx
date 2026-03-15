@@ -22,7 +22,9 @@ export default function ParticlesBg() {
               enable: false, // Disabled links to prevent expensive canvas line drawing during scroll
             },
             move: { enable: true, speed: 0.4 },
-            number: { value: 25 }, // Reduced from 40 to 25 to improve FPS
+            number: { 
+              value: typeof window !== 'undefined' && window.innerWidth < 768 ? 12 : 25 
+            }, 
             opacity: { value: 0.3 },
             size: { value: 2 },
           },

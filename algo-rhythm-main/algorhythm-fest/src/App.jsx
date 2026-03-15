@@ -64,19 +64,19 @@ export default function App() {
         {/* Parallax glow center - Replaced blur-3xl with highly performant radial gradient */}
         <motion.div
           style={{ y: ySlow }}
-          className="fixed w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(147,51,234,0.15)_0%,transparent_70%)] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none -z-10 will-change-transform"
+          className="fixed w-[300px] h-[300px] md:w-[700px] md:h-[700px] bg-[radial-gradient(circle,rgba(147,51,234,0.15)_0%,transparent_70%)] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none -z-10 will-change-transform"
         />
 
         {/* Parallax glow top-left - Replaced blur-3xl with performant radial gradient */}
         <motion.div
           style={{ y: yFast }}
-          className="fixed w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(37,99,235,0.15)_0%,transparent_70%)] rounded-full top-[10%] left-[10%] pointer-events-none -z-10 will-change-transform"
+          className="fixed w-[250px] h-[250px] md:w-[500px] md:h-[500px] bg-[radial-gradient(circle,rgba(37,99,235,0.15)_0%,transparent_70%)] rounded-full top-[10%] left-[10%] pointer-events-none -z-10 will-change-transform"
         />
 
         {/* Floating blobs - Removed blur-3xl and localized heavy transitions to GPU */}
         <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden transform-gpu">
-          <div className="absolute w-96 h-96 bg-[radial-gradient(circle,rgba(236,72,153,0.15)_0%,transparent_70%)] rounded-full top-[12%] left-[75%] animate-[float_18s_ease-in-out_infinite] will-change-transform" />
-          <div className="absolute w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(168,85,247,0.15)_0%,transparent_70%)] rounded-full bottom-[8%] left-[8%] animate-[float_22s_ease-in-out_infinite] will-change-transform" />
+          <div className="absolute w-40 h-40 md:w-96 md:h-96 bg-[radial-gradient(circle,rgba(236,72,153,0.15)_0%,transparent_70%)] rounded-full top-[12%] left-[75%] animate-[float_18s_ease-in-out_infinite] will-change-transform" />
+          <div className="absolute w-60 h-60 md:w-[500px] md:h-[500px] bg-[radial-gradient(circle,rgba(168,85,247,0.15)_0%,transparent_70%)] rounded-full bottom-[8%] left-[8%] animate-[float_22s_ease-in-out_infinite] will-change-transform" />
         </div>
 
         <CursorGlow />
@@ -125,7 +125,7 @@ export default function App() {
           >
             {/* TOP SUBTITLE */}
             <p className="tracking-[0.55em] text-blue-300/80 text-sm md:text-base mb-2">
-              GOPALAN COLLEGE OF ENGINEERING AND MANAGEMENT
+              TECHNO - CULTURAL FEST 2026
             </p>
 
             <p className="tracking-widest text-gray-400 text-xs md:text-sm mb-2 mt-3">
