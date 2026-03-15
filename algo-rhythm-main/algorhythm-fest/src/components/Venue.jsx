@@ -52,7 +52,7 @@ export default function Venue() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-120px" }}
           transition={{ duration: 0.55, ease: "easeOut" }}
-          className="w-full h-full min-h-[350px] rounded-2xl overflow-hidden border border-white/10"
+          className="w-full h-full min-h-[350px] rounded-2xl overflow-hidden border border-white/10 relative z-10"
         >
           <iframe
             title="venue-map"

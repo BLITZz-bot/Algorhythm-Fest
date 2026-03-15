@@ -57,25 +57,7 @@ export default function HeroVideo() {
       {/* ===== MOBILE LOGO (REPLACING LAGGY VIDEO) ===== */}
       <div className="md:hidden absolute inset-0 flex flex-col items-center justify-center bg-transparent overflow-hidden">
         
-        {/* Background Layer: Cinematic Energy Pillars */}
-        <div className="absolute inset-0 flex justify-between px-12 opacity-20">
-          <motion.div 
-            animate={{ 
-              height: ['40%', '80%', '40%'],
-              opacity: [0.2, 0.5, 0.2] 
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="w-[2px] bg-gradient-to-b from-transparent via-blue-400 to-transparent self-center" 
-          />
-          <motion.div 
-            animate={{ 
-              height: ['60%', '30%', '60%'],
-              opacity: [0.3, 0.6, 0.3] 
-            }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="w-[2px] bg-gradient-to-b from-transparent via-purple-400 to-transparent self-center" 
-          />
-        </div>
+
 
 
         <motion.div

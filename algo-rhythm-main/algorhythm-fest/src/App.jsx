@@ -109,49 +109,50 @@ export default function App() {
 
 
         {/* ================= HERO ================= */}
-        <section
-          id="home"
-          className="relative min-h-screen flex items-center justify-center px-6 text-center overflow-hidden"
-        >
-
-          <FestivalHero />
-
-          <motion.div
-            style={{ y: yTitle }}
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="relative z-20 flex flex-col items-center mt-28 md:mt-66 will-change-transform"
+        <Section id="home">
+          <section
+            className="relative min-h-screen flex items-center justify-center px-6 text-center overflow-hidden"
           >
-            {/* TOP SUBTITLE */}
-            <p className="tracking-[0.55em] text-blue-300/80 text-sm md:text-base mb-2">
-              TECHNO - CULTURAL FEST 2026
-            </p>
 
-            <p className="tracking-widest text-gray-400 text-xs md:text-sm mb-2 mt-3">
-              DEPARTMENT OF CSE & CSE(AI&ML)
-            </p>
-            <h1 className="text-5xl md:text-7xl font-extrabold 
-      bg-gradient-to-b from-white via-blue-200 to-blue-400
-      bg-clip-text text-transparent tracking-wide">
-              ALGO-RHYTHM 3.0
-            </h1>
+            <FestivalHero />
+
+            <motion.div
+              style={{ y: yTitle }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1 }}
+              className="relative z-20 flex flex-col items-center mt-28 md:mt-66 will-change-transform"
+            >
+              {/* TOP SUBTITLE */}
+              <p className="tracking-[0.55em] text-blue-300/80 text-sm md:text-base mb-2">
+                TECHNO - CULTURAL FEST 2026
+              </p>
+
+              <p className="tracking-widest text-gray-400 text-xs md:text-sm mb-2 mt-3">
+                DEPARTMENT OF CSE & CSE(AI&ML)
+              </p>
+              <h1 className="text-5xl md:text-7xl font-extrabold 
+        bg-gradient-to-b from-white via-blue-200 to-blue-400
+        bg-clip-text text-transparent tracking-wide">
+                ALGO-RHYTHM 3.0
+              </h1>
 
 
-            <div className="mt-6">
-              <CountdownSciFi />
-            </div>
+              <div className="mt-6">
+                <CountdownSciFi />
+              </div>
 
-            <div className="mt-12">
-              <a
-                href="#events"
-                className="px-8 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 font-semibold shadow-lg shadow-purple-700/40 hover:shadow-purple-500/80 hover:scale-105 transition"
-              >
-                EXPLORE EVENTS
-              </a>
-            </div>
-          </motion.div>
-        </section>
+              <div className="mt-12">
+                <a
+                  href="#events"
+                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 font-semibold shadow-lg shadow-purple-700/40 hover:shadow-purple-500/80 hover:scale-105 transition"
+                >
+                  EXPLORE EVENTS
+                </a>
+              </div>
+            </motion.div>
+          </section>
+        </Section>
 
 
 

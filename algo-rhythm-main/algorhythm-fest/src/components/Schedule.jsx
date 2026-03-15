@@ -1,5 +1,6 @@
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion"
 import { useRef, useState, useEffect } from "react"
+import StarBackground from "./StarBackground"
 import RegistrationForm from "./RegistrationForm"
 
 

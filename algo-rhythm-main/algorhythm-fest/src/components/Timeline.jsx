@@ -5,7 +5,7 @@ const timelineData = {
   "APR 10": [
     { time: "09:00 AM – 10:30 AM", title: "INAUGURATION", type: "Ceremony" },
     { time: "10:30 AM – 01:30 PM", title: "ESCAPE ROOM", type: "Fun" },
-    { time: "10:30 AM – 02:00 PM(second day)", title: "HIGHLIGHT REEL", type: "Reel Making" },
+    { time: "10:30 AM(APR 10) – 02:00 PM(APR 11)", title: "HIGHLIGHT REEL", type: "Reel Making" },
     { time: "10:30 AM – 02:30 PM", title: "CHESS", type: "Board Game" },
     { time: "11:30 AM – 03:30 PM", title: "CAMPUS CARNAGE", type: "Gaming" },
     { time: "12:30 PM – 02:30 PM", title: "CANVISTA", type: "Poster Making" },
