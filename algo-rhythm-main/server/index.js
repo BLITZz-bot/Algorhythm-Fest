@@ -22,9 +22,9 @@ const ADMIN_RECEIVER_EMAIL = (process.env.ADMIN_RECEIVER_EMAIL || "").trim();
 const BASE_URL = (process.env.BASE_URL || "").trim().replace(/\/$/, "");
 const FRONTEND_URL = (process.env.FRONTEND_URL || "").trim().replace(/\/$/, "");
 
-// Global Nodemailer Transporter - Using Port 587 (STARTTLS) and FORCED IPv4
+// Global Nodemailer Transporter - Using Direct IPv4 (192.178.211.108) to bypass all DNS/IPv6 issues on Render
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: '192.178.211.108', // Native IPv4 address for smtp.gmail.com
     port: 587,
     secure: false, 
     auth: {
@@ -32,15 +32,12 @@ const transporter = nodemailer.createTransport({
         pass: SENDER_PASSWORD
     },
     tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        servername: 'smtp.gmail.com' // Crucial: tell SSL to expect gmail name
     },
     connectionTimeout: 10000,
     greetingTimeout: 10000,
-    socketTimeout: 10000,
-    // THE NUCLEAR FIX: Force DNS resolution to IPv4 ONLY
-    lookup: (hostname, options, callback) => {
-        dns.lookup(hostname, { family: 4 }, callback);
-    }
+    socketTimeout: 10000
 });
 
 // Verify SMTP Connection on Startup
