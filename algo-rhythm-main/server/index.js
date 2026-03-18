@@ -371,10 +371,13 @@ const sendConfirmationEmail = async (reg) => {
                 }
             ]
         };
-        await transporter.sendMail(mailOptions);
-        console.log(`📧 Clean Confirmation email with Deep Link sent to: ${reg.email}`);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`📧 Confirmation email sent! MessageID: ${info.messageId} | Recipient: ${reg.email}`);
     } catch (err) {
-        console.error(`❌ Failed to send confirmation email to ${reg.email}:`, err);
+        console.error(`❌ SMTP Error for ${reg.email}:`, err.message);
+        if (err.code === 'EENVELOPE') {
+            console.error("DEBUG: Invalid recipient email address.");
+        }
     }
 };
 
@@ -404,13 +407,16 @@ app.post('/api/register', upload.single('paymentScreenshot'), async (req, res) =
         await newRegistration.save();
         console.log(`New registration received (DB) for ${eventTitle} by ${fullName} [Category: ${category || 'Tech'}]`);
 
-        // Trigger automated confirmation email (AWAIT to ensure it finishes before response)
-        await sendConfirmationEmail(newRegistration);
-
+        // Send success response IMMEDIATELY to frontend for 1-second "Success" screen
         res.status(201).json({
             success: true,
             message: 'Registration successful',
             data: newRegistration
+        });
+
+        // Trigger automated confirmation email in the background (no AWAIT so frontend doesn't hang)
+        sendConfirmationEmail(newRegistration).catch(err => {
+            console.error("Delayed email error:", err);
         });
     } catch (error) {
         console.error("Registration error:", error);
@@ -585,7 +591,24 @@ app.post('/api/admin/events/toggle', async (req, res) => {
     }
 });
 
-// Automated Email Report Endpoint
+// 7. Manual Email Test Route (For Debugging)
+app.get('/api/admin/test-email', async (req, res) => {
+    console.log("--- Manual SMTP Test Request ---");
+    try {
+        const info = await transporter.sendMail({
+            from: SENDER_EMAIL,
+            to: SENDER_EMAIL, // Send it to self
+            subject: "ALGORHYTHM SMTP TEST 🚀",
+            text: "If you see this, your SMTP configuration is 100% correct!"
+        });
+        console.log("✅ Test email sent successfully! MessageID:", info.messageId);
+        res.status(200).json({ success: true, message: "Test email sent!", messageId: info.messageId });
+    } catch (err) {
+        console.error("❌ SMTP Test Failed:", err);
+        res.status(500).json({ success: false, message: "SMTP Test Failed", error: err.message });
+    }
+});
+
 app.post('/api/admin/send-report', async (req, res) => {
     console.log("--- New Email Report Request Received ---");
     try {
