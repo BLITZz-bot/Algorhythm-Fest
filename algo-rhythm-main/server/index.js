@@ -77,6 +77,30 @@ app.use(express.json());
 // Persistent Storage Confirmation
 console.log(`📁 Persistent screenshot storage initialized at: ${path.join(__dirname, 'uploads')}`);
 
+// --- DIAGNOSTICS & CORE ROUTES (TOP PRIORITY) ---
+app.get('/api/ping', (req, res) => res.json({ status: 'online', time: new Date().toISOString() }));
+
+app.get('/api/admin/test-email', async (req, res) => {
+    console.log("--- Manual SMTP Test Request ---");
+    try {
+        if (!SENDER_EMAIL || !SENDER_PASSWORD) {
+            throw new Error("Missing SENDER_EMAIL or SENDER_PASSWORD in environment.");
+        }
+        const info = await transporter.sendMail({
+            from: SENDER_EMAIL,
+            to: SENDER_EMAIL,
+            subject: "ALGORHYTHM SMTP TEST 🚀",
+            text: `SMTP Configuration is working!\nSender: ${SENDER_EMAIL}\nTime: ${new Date().toLocaleString()}`
+        });
+        console.log("✅ Test email handoff successful! ID:", info.messageId);
+        res.status(200).json({ success: true, messageId: info.messageId });
+    } catch (err) {
+        console.error("❌ SMTP Technical Failure:", err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+// ----------------------------------------------
+
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
@@ -591,23 +615,7 @@ app.post('/api/admin/events/toggle', async (req, res) => {
     }
 });
 
-// 7. Manual Email Test Route (For Debugging)
-app.get('/api/admin/test-email', async (req, res) => {
-    console.log("--- Manual SMTP Test Request ---");
-    try {
-        const info = await transporter.sendMail({
-            from: SENDER_EMAIL,
-            to: SENDER_EMAIL, // Send it to self
-            subject: "ALGORHYTHM SMTP TEST 🚀",
-            text: "If you see this, your SMTP configuration is 100% correct!"
-        });
-        console.log("✅ Test email sent successfully! MessageID:", info.messageId);
-        res.status(200).json({ success: true, message: "Test email sent!", messageId: info.messageId });
-    } catch (err) {
-        console.error("❌ SMTP Test Failed:", err);
-        res.status(500).json({ success: false, message: "SMTP Test Failed", error: err.message });
-    }
-});
+// --- ROUTE REGISTRATION ENDS ---
 
 app.post('/api/admin/send-report', async (req, res) => {
     console.log("--- New Email Report Request Received ---");
