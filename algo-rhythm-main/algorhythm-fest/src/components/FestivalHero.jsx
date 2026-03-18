@@ -39,8 +39,8 @@ export default function FestivalHero() {
 }
 
 
-      {/* ===== MAIN TITLE ABOVE ===== */}
-      {/* <motion.div
+{/* ===== MAIN TITLE ABOVE ===== */ }
+{/* <motion.div
         initial={{  x: -500,y: 180, opacity: 0}}
         animate={{  x: -255 , y: 180, opacity: 1}}
         transition={{ duration: 1.2, ease: "easeOut" }}
@@ -75,6 +75,6 @@ export default function FestivalHero() {
       </motion.div> */}
 
 
-    // </div>
+// </div>
 //   )
 // }

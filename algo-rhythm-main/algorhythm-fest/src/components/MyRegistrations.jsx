@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import jsPDF from "jspdf";
 import { eventsDay1, eventsDay2 } from "./Schedule";
 
-export default function MyRegistrations({ isOpen, onClose }) {
+export default function MyRegistrations({ isOpen, onClose, initialEmail, autoDownload }) {
     const [searchEmail, setSearchEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -58,6 +58,34 @@ export default function MyRegistrations({ isOpen, onClose }) {
             setLoading(false);
         }
     };
+
+    // Auto-search if initialEmail is provided (deep link)
+    useEffect(() => {
+        if (isOpen && initialEmail && results.length === 0) {
+            setSearchEmail(initialEmail);
+            const triggerSearch = async () => {
+                setLoading(true);
+                try {
+                    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/registrations/${encodeURIComponent(initialEmail)}`);
+                    const data = await res.json();
+                    if (data.success) {
+                        setResults(data.data);
+                        // Auto-download IF we have exactly one result and flag is set
+                        if (autoDownload && data.data.length === 1) {
+                            setTimeout(() => {
+                                handleDownloadReceipt(data.data[0]);
+                            }, 500); // Small delay to ensure allEvents is ready
+                        }
+                    }
+                } catch (err) {
+                    console.error("Auto-search failed", err);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            triggerSearch();
+        }
+    }, [isOpen, initialEmail]);
 
     const handleDownloadReceipt = (registration) => {
         // Find the full event details to rebuild the receipt

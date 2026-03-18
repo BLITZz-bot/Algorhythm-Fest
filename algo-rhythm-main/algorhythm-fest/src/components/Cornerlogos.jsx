@@ -13,20 +13,20 @@ export default function CornerLogos() {
 
   return (
     <div className="fixed top-3 right-3 flex flex-col gap-2 z-50 pointer-events-auto">
-      
+
       {/* Logo 1 */}
       <motion.img
         src="/logo1.png"
         alt="Logo 1"
         initial={{ opacity: 0, y: -15, scale: 0.9 }}
-        animate={{ 
-          opacity: 1, 
+        animate={{
+          opacity: 1,
           scale: 1,
-          
+
           // --- CHANGE POSITION HERE (Mobile : Desktop) ---
-          x: isMobile ? 0 : 0, 
-          y: isMobile ? 0 : 0, 
-          z: isMobile ? 0 : 0  
+          x: isMobile ? 0 : 0,
+          y: isMobile ? 0 : 0,
+          z: isMobile ? 0 : 0
           // ----------------------------------------------
         }}
         transition={{ duration: 0.4 }}
@@ -42,14 +42,14 @@ export default function CornerLogos() {
         src="/logo2.png"
         alt="Logo 2"
         initial={{ opacity: 0, y: -15, scale: 0.9 }}
-        animate={{ 
-          opacity: 1, 
+        animate={{
+          opacity: 1,
           scale: 1,
 
           // --- CHANGE POSITION HERE (Mobile : Desktop) ---
-          x: isMobile ? 1.8 : 2.2, 
-          y: isMobile ? 0 : 0, 
-          z: isMobile ? 0 : 0  
+          x: isMobile ? 1.8 : 2.2,
+          y: isMobile ? 0 : 0,
+          z: isMobile ? 0 : 0
           // ----------------------------------------------
         }}
         transition={{ duration: 0.5 }}

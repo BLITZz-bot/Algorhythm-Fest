@@ -23,7 +23,8 @@ import MyRegistrations from "./components/MyRegistrations"
 import AdminDashboard from "./components/AdminDashboard"
 import FixedWatermark from "./components/FixedWatermark"
 import WelcomeAnimation from "./components/WelcomeAnimation"
-import { useState } from "react"
+import PrizePool from "./components/PrizePool"
+import { useState, useEffect } from "react"
 
 export default function App() {
   const [isRegistrationsOpen, setIsRegistrationsOpen] = useState(false);
@@ -40,6 +41,22 @@ export default function App() {
   const ySlow = useTransform(scrollY, [0, 2000], [0, -200])
   const yFast = useTransform(scrollY, [0, 2000], [0, -400])
   const yTitle = useTransform(scrollY, [0, 800], [0, -120])
+
+  /* ===== URL Deep-Linking for Pass Downloads ===== */
+  const [initialRegEmail, setInitialRegEmail] = useState("");
+  const [autoDownload, setAutoDownload] = useState(false);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('openPass') === 'true' && params.get('email')) {
+      const email = params.get('email');
+      setInitialRegEmail(email);
+      setAutoDownload(params.get('autoDownload') === 'true');
+      setIsRegistrationsOpen(true);
+      // Clean up URL without refreshing
+      const newUrl = window.location.origin + window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, []);
 
   return (
     <>
@@ -86,7 +103,12 @@ export default function App() {
           onOpenAdmin={() => setIsAdminOpen(true)}
         />
 
-        <MyRegistrations isOpen={isRegistrationsOpen} onClose={() => setIsRegistrationsOpen(false)} />
+        <MyRegistrations 
+          isOpen={isRegistrationsOpen} 
+          onClose={() => { setIsRegistrationsOpen(false); setInitialRegEmail(""); setAutoDownload(false); }} 
+          initialEmail={initialRegEmail}
+          autoDownload={autoDownload}
+        />
         <AdminDashboard isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
 
         <CornerLogos
@@ -154,14 +176,12 @@ export default function App() {
           </section>
         </Section>
 
-
+        <PrizePool />
 
         {/* ================= ABOUT ================= */}
         <Section id="about">
           <About />
         </Section>
-
-
 
         <GalleryPreview />
 

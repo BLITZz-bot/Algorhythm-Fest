@@ -52,8 +52,23 @@ export default function Venue() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-120px" }}
           transition={{ duration: 0.55, ease: "easeOut" }}
-          className="w-full h-full min-h-[350px] rounded-2xl overflow-hidden border border-white/10 relative z-10"
+          className="w-full h-full min-h-[350px] rounded-2xl overflow-hidden border border-white/10 relative group z-10"
         >
+          {/* Floating Expand Button (Always visible on mobile, hover on desktop) */}
+          <a
+            href="https://maps.google.com/?q=Gopalan+College+of+Engineering+and+Management"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute top-4 right-4 z-30 px-4 py-2 bg-black/70 backdrop-blur-md rounded-xl text-white text-xs font-bold 
+                 border border-white/20 shadow-xl hover:bg-purple-600 transition-all flex items-center gap-2
+                 md:opacity-0 md:group-hover:opacity-100"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            Expand Map
+          </a>
+
           <iframe
             title="venue-map"
             src="https://www.google.com/maps?q=Gopalan+College+of+Engineering+and+Management&output=embed"
