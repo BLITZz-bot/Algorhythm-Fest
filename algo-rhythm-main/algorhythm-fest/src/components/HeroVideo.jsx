@@ -11,7 +11,7 @@ export default function HeroVideo() {
         muted
         playsInline
         preload="auto"
-        poster="/hero-poster.jpg"
+        poster="/enry.jpeg"
         className="
           hidden md:block
           absolute inset-0

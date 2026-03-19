@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
+    "@tsparticles/react": "^3.0.0",
+    "@tsparticles/slim": "^3.9.1",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.34.0",
@@ -20,7 +22,6 @@
     "jspdf": "^4.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-tsparticles": "^2.12.2",
     "tsparticles": "^3.9.1"
   },
   "devDependencies": {

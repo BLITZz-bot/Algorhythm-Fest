@@ -1,10 +1,19 @@
-import Particles from "react-tsparticles"
-import { loadFull } from "tsparticles"
+import Particles, { initParticlesEngine } from "@tsparticles/react"
+import { loadSlim } from "@tsparticles/slim"
+import { useEffect, useState } from "react"
 
 export default function ParticlesBg() {
-  const particlesInit = async (main) => {
-    await loadFull(main)
-  }
+  const [init, setInit] = useState(false)
+
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine)
+    }).then(() => {
+      setInit(true)
+    })
+  }, [])
+
+  if (!init) return null
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
@@ -12,7 +21,6 @@ export default function ParticlesBg() {
       {/* Particles */}
       <Particles
         id="tsparticles"
-        init={particlesInit}
         options={{
           background: { color: "transparent" },
           fpsLimit: 60,
