@@ -56,10 +56,9 @@ export default function PrizePool() {
           Grand Prize Pool
         </motion.span>
 
-        <div className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
-          <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-[0_4px_10px_rgba(34,211,238,0.3)]">
+        <div className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight relative group">
+          <span className="bg-gradient-to-r from-cyan-300 via-blue-500 to-indigo-600 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]">
             <Counter value="100000" />
-            <span className="ml-1">+</span>
           </span>
         </div>
 
@@ -69,7 +68,7 @@ export default function PrizePool() {
           transition={{ delay: 0.5 }}
           className="text-gray-400 text-sm md:text-base max-w-md mx-auto leading-relaxed font-medium"
         >
-        
+          
         </motion.p>
 
         {/* Elegant Animated Divider */}

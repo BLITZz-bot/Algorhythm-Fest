@@ -54,13 +54,16 @@ export default function HeroVideo() {
         />
       </motion.div>
 
-      {/* ===== MOBILE LOGO (REPLACING LAGGY VIDEO) ===== */}
-      <div 
-        className="md:hidden absolute inset-0 flex flex-col items-center justify-center overflow-hidden bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/enry.jpeg')" }}
+      {/* ===== MOBILE VIDEO BACKGROUND ===== */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="md:hidden absolute inset-0 w-full h-full object-cover pointer-events-none"
       >
-        {/* Mobile content removed as per user request to keep mobile view clean */}
-      </div>
+        <source src="/hero2.mp4" type="video/mp4" />
+      </video>
 
       {/* ===== MOBILE TOP LEFT LOGO (Next to Navbar) ===== */}
       <motion.div
