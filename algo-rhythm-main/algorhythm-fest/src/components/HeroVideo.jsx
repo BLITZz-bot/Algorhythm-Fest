@@ -62,31 +62,27 @@ export default function HeroVideo() {
         playsInline
         className="md:hidden absolute inset-0 w-full h-full object-cover pointer-events-none"
       >
-        <source src="/hero2.mp4" type="video/mp4" />
+        <source src="/hero5.mp4" type="video/mp4" />
       </video>
 
       {/* ===== MOBILE TOP LEFT LOGO (Next to Navbar) ===== */}
       <motion.div
-         initial={{ opacity: 0, x: -20 }}
-         animate={{ 
-           opacity: 1, 
-           // --- ADJUST MOBILE LOGO POSITION HERE ---
-           x: 100, 
-           y: 28,
-           // ------------------------------------------
-         }}
-         transition={{
+        initial={{ opacity: 0, x: -20 }}
+        animate={{
+          opacity: 1,
+          x: 100,
+          y: 28,
+        }}
+        transition={{
           opacity: { duration: 1.5, ease: "easeOut" },
           filter: { duration: 1.5, ease: "easeOut" },
         }}
-         className="md:hidden absolute top-0 left-0 pointer-events-none"
+        className="md:hidden absolute top-0 left-0 pointer-events-none"
       >
-        <img 
-          src="/gopalanlogo.png" 
-          alt="Gopalan Logo" 
-          // --- ADJUST MOBILE LOGO SIZE HERE ---
+        <img
+          src="/gopalanlogo.png"
+          alt="Gopalan Logo"
           className="w-30 h-auto drop-shadow-lg"
-          // ----------------------------------------------
         />
       </motion.div>
 
