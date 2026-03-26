@@ -70,8 +70,10 @@ export default function HeroVideo() {
         initial={{ opacity: 0, x: -20 }}
         animate={{
           opacity: 1,
+          // --- ADJUST MOBILE LOGO POSITION HERE ---
           x: 100,
           y: 28,
+          // ------------------------------------------
         }}
         transition={{
           opacity: { duration: 1.5, ease: "easeOut" },
@@ -82,7 +84,9 @@ export default function HeroVideo() {
         <img
           src="/gopalanlogo.png"
           alt="Gopalan Logo"
+          // --- ADJUST MOBILE LOGO SIZE HERE ---
           className="w-30 h-auto drop-shadow-lg"
+        // ----------------------------------------------
         />
       </motion.div>
 
