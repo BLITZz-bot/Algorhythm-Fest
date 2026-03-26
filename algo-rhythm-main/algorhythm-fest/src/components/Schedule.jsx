@@ -98,7 +98,7 @@ export const eventsDay1 = [
       "8. Participation as a group of 3(Min=2, Max=3)",
       "9. The originality of the edit will be verified by reviewing the project timeline/history in the editing software used by the participants.",
       "10. Please check the schedule for overlapping events before registering  multiple events",
-      "11. If you have registered for overlapping events, management is not responsible, no refund will be initiated.13. The participants from Gopalan Group of Institutions should contact the respective event coordinators before registering.",
+      "11. If you have registered for overlapping events, management is not responsible, no refund will be initiated. The participants from Gopalan Group of Institutions should contact the respective event coordinators before registering.",
       "12. Report to the coordinator 30 minutes before the event starts.",
       "13.Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",],
     coordinators: ["Abdul Shuaib – 7892698624", "Veeresh Viraktamath – 9380022929"],
