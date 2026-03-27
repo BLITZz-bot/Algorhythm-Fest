@@ -1,6 +1,6 @@
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion"
 import { useRef, useState, useEffect } from "react"
-import StarBackground from "./StarBackground"
+// import StarBackground from "./StarBackground"
 import RegistrationForm from "./RegistrationForm"
 
 
@@ -194,7 +194,7 @@ export const eventsDay1 = [
       
 
     ],
-    coordinators: ["Nithelan Jayakumar – 9952738262", "Bushra M – 8310084375"],
+    coordinators: ["Nithelan Jayakumar – 8904572607", "Bushra M – 8310084375"],
     registerLink: "#",
     fee: "₹200",
   },

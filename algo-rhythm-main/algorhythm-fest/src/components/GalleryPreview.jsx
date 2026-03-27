@@ -10,10 +10,7 @@ export default function GalleryPreview() {
     <section id="gallery" className="py-28 px-6">
       <div className="max-w-6xl mx-auto text-center">
 
-        {/* ⭐ STARS BACKGROUND */}
-        <div className="absolute inset-0 -z-10 pointer-events-none">
-          <StarBackground />
-        </div>
+        {/* ⭐ STARS BACKGROUND - Handled globally in App.jsx */}
 
         {/* Title */}
         <motion.h2

@@ -72,9 +72,6 @@ export default function App() {
 
         {/* <ScanLine /> */}
 
-        {/* Noise - Optimized by avoiding mix-blend and forcing absolute positioning bounds */}
-        <div className="pointer-events-none fixed inset-0 opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat transform-gpu will-change-transform" />
-
         {/* Vignette - Hardware accelerated */}
         <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_center,transparent_60%,black_95%)] opacity-40 transform-gpu will-change-transform" />
 
