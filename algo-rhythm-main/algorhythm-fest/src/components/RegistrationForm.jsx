@@ -121,7 +121,7 @@ export default function RegistrationForm({ event, onClose }) {
             setStep(3)
         } catch (error) {
             console.error("Error submitting registration:", error)
-            alert("There was an error submitting your registration. Please try again.")
+            alert("There was an error submitting your registration. Please try again. If the issue persists, contact us at bharatha9483@gmail.com or 7975871167.")
         } finally {
             setIsSubmitting(false)
         }
@@ -599,6 +599,15 @@ export default function RegistrationForm({ event, onClose }) {
                             </div>
                         )}
 
+                        <div className="text-center space-y-2 mt-4">
+                            <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] opacity-80">
+                                Need assistance? Any issue with registration? Contact(Bharath)
+                            </p>
+                            <a href="tel:7975871167" className="text-[11px] font-bold text-purple-400 tracking-wider hover:text-purple-300 transition-colors">
+                                7975871167
+                            </a>
+                        </div>
+
                         <div className="pt-4 flex justify-center sm:justify-end mb-10 sm:mb-0">
                             <button type="submit" className={`group relative w-full sm:w-auto px-10 py-5 bg-gradient-to-r ${buttonGradients[cat] || buttonGradients.Tech} rounded-[2rem] text-white font-black uppercase tracking-widest text-sm ${buttonShadows[cat] || buttonShadows.Tech} transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden`}>
                                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg] pointer-events-none" />
@@ -693,6 +702,17 @@ export default function RegistrationForm({ event, onClose }) {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="text-center space-y-3">
+                             <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] opacity-80">
+                                Technical Support: <span className="text-white font-bold ml-1">Bharath</span>
+                            </p>
+                             <p className="text-[11px] font-bold text-slate-400 flex items-center justify-center gap-4">
+                                <a href="tel:7975871167" className="text-purple-400 hover:text-purple-300 transition-colors">7975871167</a>
+                                <span className="w-1 h-1 rounded-full bg-slate-700" />
+                                <span className="text-pink-400">@bharatha01</span>
+                            </p>
                         </div>
 
                         <div className="pt-4 flex justify-between items-center">
