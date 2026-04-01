@@ -371,7 +371,7 @@ export const eventsDay2 = [
     category: "Fun",
     prize: "₹12,000",
     minTeamSize: 2,
-    maxTeamSize: 10,
+    maxTeamSize: 15,
     rules: ["*Duration: 6-8 minutes per team for their performance*",
       "All participants should arrive at the venue 1 hour prior to the event.",
       "1. Music",
