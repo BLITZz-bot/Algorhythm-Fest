@@ -100,9 +100,9 @@ export default function App() {
           onOpenAdmin={() => setIsAdminOpen(true)}
         />
 
-        <MyRegistrations 
-          isOpen={isRegistrationsOpen} 
-          onClose={() => { setIsRegistrationsOpen(false); setInitialRegEmail(""); setAutoDownload(false); }} 
+        <MyRegistrations
+          isOpen={isRegistrationsOpen}
+          onClose={() => { setIsRegistrationsOpen(false); setInitialRegEmail(""); setAutoDownload(false); }}
           initialEmail={initialRegEmail}
           autoDownload={autoDownload}
         />

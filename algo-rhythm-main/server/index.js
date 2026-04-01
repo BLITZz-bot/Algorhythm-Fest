@@ -374,7 +374,7 @@ const sendConfirmationEmail = async (reg) => {
                            DOWNLOAD OFFICIAL PDF PASS
                         </a>
                         <p style="color: #a0aec0; font-size: 12px; margin-top: 15px;">
-                            Access your pass anytime using <strong>USED DURING THE REGISTRATION OR TEAM LEADER GMAIL</strong> on our website.
+                            Access your pass anytime using <strong>TEAM LEADER GMAIL OR GMAIL USED DURING REGISTRATION</strong> on our website.
                         </p>
                     </div>
 
