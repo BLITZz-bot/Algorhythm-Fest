@@ -353,7 +353,7 @@ const sendConfirmationEmail = async (reg) => {
                     </div>
                     
                     <p style="font-size: 16px; line-height: 1.6;">Hello <strong>${reg.fullName}</strong>,</p>
-                    <p style="font-size: 16px; line-height: 1.6;">Your spot for <strong>${reg.eventTitle}</strong> at Gopalan College of Engineering and Management has been officially reserved! We are excited to see you there.</p>
+                    <p style="font-size: 16px; line-height: 1.6;">Your spot for <strong>${reg.eventTitle}</strong> at ALGO-RHYTHM 3.0 has been officially reserved! We are excited to see you there.</p>
                     
                     <div style="background: #f7fafc; border: 1px solid #edf2f7; padding: 25px; border-radius: 16px; margin: 30px 0;">
                         <table style="width: 100%; border-collapse: collapse;">
