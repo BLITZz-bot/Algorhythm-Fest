@@ -62,7 +62,7 @@ export default function HeroVideo() {
         playsInline
         className="md:hidden absolute inset-0 w-full h-full object-cover pointer-events-none"
       >
-        <source src="/hero5.mp4" type="video/mp4" />
+        <source src="/hero2.mp4" type="video/mp4" />
       </video>
 
       {/* ===== MOBILE TOP LEFT LOGO (Next to Navbar) ===== */}
