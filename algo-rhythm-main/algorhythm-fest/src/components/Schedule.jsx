@@ -413,7 +413,7 @@ export const eventsDay2 = [
     ],
     coordinators: ["Divyashree RM – 7019691887", "Abhishek R - 7019323085"],
     registerLink: "#",
-    fee: "₹600",
+    fee: "₹700",
   },
   {
     time: "10:30 AM",
