@@ -22,9 +22,9 @@ const ADMIN_RECEIVER_EMAIL = (process.env.ADMIN_RECEIVER_EMAIL || "").trim();
 const BASE_URL = (process.env.BASE_URL || "").trim().replace(/\/$/, "");
 const FRONTEND_URL = (process.env.FRONTEND_URL || "").trim().replace(/\/$/, "");
 
-// Global Nodemailer Transporter - Using Direct IPv4 (192.178.211.108) to bypass all DNS/IPv6 issues on Render
+// Global Nodemailer Transporter - Using smtp.gmail.com hostname for cloud compatibility
 const transporter = nodemailer.createTransport({
-    host: '192.178.211.108', // Native IPv4 address for smtp.gmail.com
+    host: 'smtp.gmail.com',
     port: 587,
     secure: false, 
     auth: {
@@ -32,12 +32,11 @@ const transporter = nodemailer.createTransport({
         pass: SENDER_PASSWORD
     },
     tls: {
-        rejectUnauthorized: false,
-        servername: 'smtp.gmail.com' // Crucial: tell SSL to expect gmail name
+        rejectUnauthorized: false
     },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 15000
 });
 
 // Verify SMTP Connection on Startup
@@ -616,6 +615,49 @@ app.post('/api/admin/events/toggle', async (req, res) => {
     } catch (error) {
         console.error("Toggle Error:", error);
         res.status(500).json({ success: false, message: 'Server error toggling event' });
+    }
+});
+
+// --- ADMIN: Resend Confirmation Emails to ALL existing registrations ---
+app.post('/api/admin/resend-all-confirmations', async (req, res) => {
+    console.log("--- Bulk Resend Confirmation Emails Request ---");
+    try {
+        const password = req.headers['x-admin-password'];
+        if (password !== 'algorhythm@admin2026') {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const registrations = await Registration.find().lean();
+        if (registrations.length === 0) {
+            return res.status(404).json({ success: false, message: 'No registrations found.' });
+        }
+
+        // Respond immediately so the admin UI doesn't hang
+        res.status(200).json({ 
+            success: true, 
+            message: `Sending confirmation emails to ${registrations.length} registrations in background. This may take a few minutes.`,
+            total: registrations.length 
+        });
+
+        // Process emails in background with delay to avoid Gmail rate limits
+        let sent = 0;
+        let failed = 0;
+        for (const reg of registrations) {
+            try {
+                await sendConfirmationEmail(reg);
+                sent++;
+                console.log(`📧 Bulk Resend [${sent}/${registrations.length}] - Sent to: ${reg.email}`);
+            } catch (err) {
+                failed++;
+                console.error(`❌ Bulk Resend Failed for ${reg.email}:`, err.message);
+            }
+            // 3-second delay between emails to respect Gmail rate limits
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+        console.log(`✅ Bulk Resend Complete! Sent: ${sent}, Failed: ${failed}, Total: ${registrations.length}`);
+    } catch (error) {
+        console.error("Bulk Resend Error:", error);
+        // Response may already be sent, so just log
     }
 });
 

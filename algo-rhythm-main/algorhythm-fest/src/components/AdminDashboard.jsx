@@ -25,6 +25,12 @@ export default function AdminDashboard({ isOpen, onClose }) {
     const [clearConfirm, setClearConfirm] = useState(false);
     const [clearing, setClearing] = useState(false);
     const [clearError, setClearError] = useState("");
+    const [resending, setResending] = useState(false);
+    const [resendStatus, setResendStatus] = useState("");
+    const [isResendModalOpen, setIsResendModalOpen] = useState(false);
+    const [resendPassword, setResendPassword] = useState("");
+    const [resendConfirm, setResendConfirm] = useState(false);
+    const [resendError, setResendError] = useState("");
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -108,6 +114,41 @@ export default function AdminDashboard({ isOpen, onClose }) {
             setEmailStatus("Server Error - check credentials");
         } finally {
             setEmailing(false);
+        }
+    };
+
+    const resendAllConfirmations = async () => {
+        if (resendPassword !== "algorhythm@admin2026") {
+            setResendError("Incorrect password");
+            return;
+        }
+        if (!resendConfirm) {
+            setResendConfirm(true);
+            setResendError("");
+            return;
+        }
+
+        setResending(true);
+        setResendError("");
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/resend-all-confirmations`, {
+                method: 'POST',
+                headers: { 'x-admin-password': resendPassword }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setResendStatus(`✅ ${data.message}`);
+                setTimeout(() => setResendStatus(""), 10000);
+                setIsResendModalOpen(false);
+                setResendPassword("");
+                setResendConfirm(false);
+            } else {
+                setResendError(data.message || "Failed");
+            }
+        } catch (err) {
+            setResendError("Server Error - check connection");
+        } finally {
+            setResending(false);
         }
     };
 
@@ -393,6 +434,21 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     <svg className={`w-4 h-4 ${emailing ? 'animate-pulse' : ''}`} fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" /></svg>
                                     {emailing ? 'Sending...' : 'GMAIL'}
                                 </button>
+                                <button
+                                    onClick={() => {
+                                        setIsResendModalOpen(true);
+                                        setResendError("");
+                                        setResendPassword("");
+                                        setResendConfirm(false);
+                                    }}
+                                    disabled={resending}
+                                    className={`px-4 py-2 border rounded-xl text-sm transition flex items-center gap-2 font-semibold ${
+                                        resending ? 'bg-gray-600/20 border-gray-500/30 text-gray-500' : 'bg-amber-600/20 border-amber-500/30 text-amber-400 hover:bg-amber-600/30'
+                                    }`}
+                                >
+                                    <svg className={`w-4 h-4 ${resending ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                    {resending ? 'Sending All...' : 'RESEND EMAILS'}
+                                </button>
                                 <button onClick={onClose} className="p-2 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white transition">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
@@ -436,6 +492,11 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     {emailStatus && (
                                         <span className={`text-sm font-bold ${emailStatus.includes("Success") ? 'text-emerald-400' : 'text-pink-400'}`}>
                                             {emailStatus}
+                                        </span>
+                                    )}
+                                    {resendStatus && (
+                                        <span className={`text-sm font-bold ${resendStatus.includes("✅") ? 'text-amber-400' : 'text-pink-400'}`}>
+                                            {resendStatus}
                                         </span>
                                     )}
                                     <span className="ml-auto text-purple-400 font-bold">{filteredData.length} records found</span>
@@ -486,7 +547,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                                 <div className="flex flex-wrap gap-1 max-w-[150px]">
                                                                     {reg.teamMembers.map((m, idx) => (
                                                                         <span key={idx} className="text-[9px] bg-purple-500/10 px-2 py-0.5 rounded-md text-purple-300 border border-purple-500/20 whitespace-nowrap">
-                                                                            {m.fullName.split(' ')[0]}
+                                                                            {m.fullName}
                                                                         </span>
                                                                     ))}
                                                                 </div>
@@ -648,6 +709,55 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     className={`flex-1 px-4 py-3 rounded-xl font-bold transition shadow-lg ${clearConfirm ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-white text-[#1a1c2e] hover:bg-gray-200'}`}
                                 >
                                     {clearing ? "Processing..." : (clearConfirm ? "DELETE ALL" : "Verify")}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+
+                {/* RESEND CONFIRMATION MODAL */}
+                {isResendModalOpen && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-[#1a1c2e] border border-amber-500/30 rounded-3xl p-8 max-w-sm w-full shadow-[0_0_30px_rgba(245,158,11,0.15)] text-center"
+                        >
+                            <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-500">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-2">{resendConfirm ? "FINAL WARNING!" : "Administrative Action"}</h3>
+                            <div className="text-gray-400 text-sm mb-6">
+                                {resendConfirm 
+                                    ? <p>You are about to resend confirmation emails to <span className="text-amber-400 font-bold">ALL REGISTERED LEADERS</span>. This will take a few minutes.</p> 
+                                    : <p>Resending bulk emails requires admin verification. Please enter password.</p>}
+                            </div>
+
+                            {!resendConfirm && (
+                                <input
+                                    type="password"
+                                    value={resendPassword}
+                                    onChange={(e) => setResendPassword(e.target.value)}
+                                    placeholder="Admin Password"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white mb-4 focus:outline-none focus:border-amber-500 transition"
+                                />
+                            )}
+
+                            {resendError && <p className="text-pink-400 text-xs mb-4">{resendError}</p>}
+
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={() => setIsResendModalOpen(false)}
+                                    className="flex-1 px-4 py-3 bg-white/5 text-gray-300 rounded-xl font-bold hover:bg-white/10 transition"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={resendAllConfirmations}
+                                    disabled={resending}
+                                    className={`flex-1 px-4 py-3 rounded-xl font-bold transition shadow-lg ${resendConfirm ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-white text-[#1a1c2e] hover:bg-gray-200'}`}
+                                >
+                                    {resending ? "Processing..." : (resendConfirm ? "RESEND ALL" : "Verify")}
                                 </button>
                             </div>
                         </motion.div>

@@ -142,22 +142,7 @@ export default function App() {
               transition={{ duration: 1 }}
               className="relative z-20 flex flex-col items-center mt-28 md:mt-66 will-change-transform"
             >
-              {/* TOP SUBTITLE */}
-              <p className="tracking-[0.55em] text-blue-300/80 text-sm md:text-base mb-2">
-                TECHNO - CULTURAL FEST 2026
-              </p>
-
-              <p className="tracking-widest text-gray-400 text-xs md:text-sm mb-2 mt-3">
-                DEPARTMENT OF CSE & CSE(AI&ML)
-              </p>
-              <h1 className="text-5xl md:text-7xl font-extrabold 
-        bg-gradient-to-b from-white via-blue-200 to-blue-400
-        bg-clip-text text-transparent tracking-wide">
-                ALGO-RHYTHM 3.0
-              </h1>
-
-
-              <div className="mt-6">
+              <div className="mt-6 flex flex-col items-center">
                 <CountdownSciFi />
               </div>
 

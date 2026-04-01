@@ -402,6 +402,7 @@ export default function MyRegistrations({ isOpen, onClose, initialEmail, autoDow
                                     >
                                         <div>
                                             <h4 className="font-bold text-xl text-white mb-1">{reg.eventTitle}</h4>
+                                            <p className="text-sm font-semibold text-purple-400 mb-1">{reg.fullName.toUpperCase()} <span className="text-gray-500 font-normal">| {reg.passType || "Standard Pass"}</span></p>
                                             <p className="text-sm text-gray-400">Registered on: {new Date(reg.timestamp).toLocaleDateString()}</p>
                                             <p className="text-sm text-gray-400 mt-1">
                                                 Status: <span className="text-emerald-400 font-medium">Successful</span>

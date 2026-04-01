@@ -191,7 +191,7 @@ export const eventsDay1 = [
       "9.  If you have registered for overlapping events, MANAGEMENT is not responsible, no refund will be initiated.10. The participants from Gopalan Group of Institutions should contact the respective event coordinators before registering.",
       "11. Report to the coordinator 30 minutes before the event starts.",
       "12. Participants of other events will get a complimentary audience pass for VINTARA (Fashion Show).",
-      
+
 
     ],
     coordinators: ["Nithelan Jayakumar – 8904572607", "Bushra M – 8310084375"],
