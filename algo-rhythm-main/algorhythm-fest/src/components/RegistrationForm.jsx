@@ -639,7 +639,7 @@ export default function RegistrationForm({ event, onClose }) {
                             <div className="relative mx-auto w-56 h-56 group/qr transition-transform duration-500 hover:scale-105">
                                 <div className="absolute -inset-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-[2.5rem] opacity-20 blur-2xl group-hover/qr:opacity-40 transition-opacity" />
                                 <div className="relative h-full bg-white rounded-[2rem] p-4 flex items-center justify-center border border-white/20 shadow-2xl">
-                                    <img src="/scan-me.jpeg" alt="Payment QR" className="w-[180px] h-[180px] object-contain" />
+                                    <img src="./scan-me.jpeg" alt="Payment QR" className="w-[180px] h-[180px] object-contain" />
                                 </div>
                             </div>
 

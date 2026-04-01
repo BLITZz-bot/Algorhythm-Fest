@@ -43,9 +43,9 @@ export default function GalleryPreview() {
 
         {/* Preview images */}
         <div className="grid md:grid-cols-3 gap-6">
-          <img src="/Gallery/img1.JPG" className="rounded-2xl h-60 w-full object-cover shadow-[0_0_15px_rgba(255,255,255,0.05)]" />
-          <img src="/Gallery/img2.JPG" className="rounded-2xl h-60 w-full object-cover shadow-[0_0_15px_rgba(255,255,255,0.05)]" />
-          <img src="/Gallery/img3.JPG" className="rounded-2xl h-60 w-full object-cover shadow-[0_0_15px_rgba(255,255,255,0.05)]" />
+          <img src="./Gallery/img1.JPG" className="rounded-2xl h-60 w-full object-cover shadow-[0_0_15px_rgba(255,255,255,0.05)]" />
+          <img src="./Gallery/img2.JPG" className="rounded-2xl h-60 w-full object-cover shadow-[0_0_15px_rgba(255,255,255,0.05)]" />
+          <img src="./Gallery/img3.JPG" className="rounded-2xl h-60 w-full object-cover shadow-[0_0_15px_rgba(255,255,255,0.05)]" />
         </div>
 
         {/* Button */}

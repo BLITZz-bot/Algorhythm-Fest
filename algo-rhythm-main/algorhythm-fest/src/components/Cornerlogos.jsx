@@ -16,7 +16,7 @@ export default function CornerLogos() {
 
       {/* Logo 1 */}
       <motion.img
-        src="/logo1.png"
+        src="./logo1.png"
         alt="Logo 1"
         initial={{ opacity: 0, y: -15, scale: 0.9 }}
         animate={{
@@ -39,7 +39,7 @@ export default function CornerLogos() {
 
       {/* Logo 2 */}
       <motion.img
-        src="/logo2.png"
+        src="./logo2.png"
         alt="Logo 2"
         initial={{ opacity: 0, y: -15, scale: 0.9 }}
         animate={{
