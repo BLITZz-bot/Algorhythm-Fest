@@ -55,7 +55,7 @@ const WelcomeAnimation = ({ onComplete }) => {
                     >
                         <div className="relative flex flex-row items-center gap-8 md:gap-14 group">
                             <motion.img
-                                src="./algo.png"
+                                src="/algo.png"
                                 alt="Logo 1"
                                 className="w-24 h-24 md:w-70 md:h-70 relative z-10 object-contain"
                             />

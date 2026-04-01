@@ -11,7 +11,7 @@ export default function HeroVideo() {
         muted
         playsInline
         preload="auto"
-        poster="./enry.jpeg"
+        poster="/enry.jpeg"
         className="
           hidden md:block
           absolute inset-0
@@ -21,7 +21,7 @@ export default function HeroVideo() {
           transform-gpu will-change-transform
         "
       >
-        <source src="./hero.mp4" type="video/mp4" />
+        <source src="/hero.mp4" type="video/mp4" />
       </video>
       {/* ===== DESKTOP LOGO (TOP RIGHT) ===== */}
       <motion.div
@@ -48,7 +48,7 @@ export default function HeroVideo() {
         className="hidden md:block absolute top-8 right-8 z-20"
       >
         <img
-          src="./gopalanlogo.png"
+          src="/gopalanlogo.png"
           alt="Gopalan College Logo"
           className="w-48 h-auto drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
         />
@@ -62,7 +62,7 @@ export default function HeroVideo() {
         playsInline
         className="md:hidden absolute inset-0 w-full h-full object-cover pointer-events-none"
       >
-        <source src="./hero5.mp4" type="video/mp4" />
+        <source src="/hero5.mp4" type="video/mp4" />
       </video>
 
       {/* ===== MOBILE TOP LEFT LOGO (Next to Navbar) ===== */}
@@ -82,7 +82,7 @@ export default function HeroVideo() {
         className="md:hidden absolute top-0 left-0 pointer-events-none"
       >
         <img
-          src="./gopalanlogo.png"
+          src="/gopalanlogo.png"
           alt="Gopalan Logo"
           // --- ADJUST MOBILE LOGO SIZE HERE ---
           className="w-30 h-auto drop-shadow-lg"

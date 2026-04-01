@@ -8,7 +8,7 @@ export default function VideoHeroSection() {
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
       >
-        <source src="./ALGO TESTT.mp4" type="video/mp4" />
+        <source src="/ALGO TESTT.mp4" type="video/mp4" />
       </video>
 
       {/* dark overlay for readability */}
