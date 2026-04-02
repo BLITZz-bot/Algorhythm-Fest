@@ -134,18 +134,11 @@ export default function CountdownSciFi() {
       ? "border-pink-500/60 text-pink-400 shadow-[0_0_20px_rgba(236,72,153,0.4)]"
       : "border-blue-400/40 text-blue-200";
 
-    // Progressively apply the warning blinking effect as the event gets closer:
+    // User requested all boxes to be static red only when 3 days left.
+    // Above 3 days, the SECS box returns to its original pink color (via highlight prop).
     let shouldFlash = false;
-    if (isBlinking && !t.finished) {
-      if (t.d <= 5) {
-        shouldFlash = true;
-      } else if (t.d <= 6) {
-        shouldFlash = l === "SECS" || l === "MINS" || l === "HOURS";
-      } else if (t.d <= 7) {
-        shouldFlash = l === "SECS" || l === "MINS";
-      } else if (t.d <= 10) {
-        shouldFlash = l === "SECS";
-      }
+    if (!t.finished && t.d <= 3) {
+      shouldFlash = true; // All boxes red only in the final 3 days
     }
 
     const finishedStyle = "border-yellow-400 bg-yellow-900/30 text-yellow-300 shadow-[0_0_35px_rgba(250,204,21,0.6)] animate-pulse";
