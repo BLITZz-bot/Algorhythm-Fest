@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 5000;
 
 // Trim config values to prevent hidden character issues
 const SENDER_EMAIL = (process.env.SENDER_EMAIL || "").trim();
-const SENDER_PASSWORD = (process.env.SENDER_PASSWORD || "").trim();
+const SENDER_PASSWORD = (process.env.SENDER_PASSWORD || "").replace(/\s+/g, "");
 const ADMIN_RECEIVER_EMAIL = (process.env.ADMIN_RECEIVER_EMAIL || "").trim();
 const BASE_URL = (process.env.BASE_URL || "").trim().replace(/\/$/, "");
 const FRONTEND_URL = (process.env.FRONTEND_URL || "").trim().replace(/\/$/, "");

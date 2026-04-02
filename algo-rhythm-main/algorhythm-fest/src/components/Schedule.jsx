@@ -8,7 +8,7 @@ export const eventsDay1 = [
   {
     time: "10:30 AM",
     title: "ESCAPE ROOM",
-    location: "Lab 2 & 4, 4th Floor,GCEM Campus",
+    location: "Lab 3 & 4, 4th Floor,GCEM Campus",
     description: "This is a web-based technical escape room competition conducted in a controlled lab environment. Teams will solve a series of logical, programming, and cybersecurity-based challenges across four progressive levels. Each level contains multiple puzzles that must be solved to obtain a key and unlock the next stage.",
     category: "Tech",
     prize: "₹7,500",
@@ -307,7 +307,7 @@ export const eventsDay2 = [
   {
     time: "09:30 AM",
     title: "THE WORD SYNDICATE",
-    location: "Seminar Hall, 1st Floor, GCEM Campus",
+    location: "105, 1st Floor, GCEM Campus",
     description: "This is an interactive and strategic word-based competition where teams participate in a simulated auction to bid for letters, words, or language-based challenges using fake currency. Teams must use their bidding strategy, vocabulary knowledge, and quick thinking to build valid words, solve linguistic puzzles, and earn points. The event encourages creativity, language skills, and decision-making while maintaining a competitive and engaging environment.",
     category: "Fun",
     prize: "₹3,500",
@@ -338,7 +338,7 @@ export const eventsDay2 = [
   {
     time: "09:30 AM",
     title: "TECH DEBATE COMPETITION",
-    location: "1st Floor, GCEM Campus",
+    location: "Room 107 & 108, 1st Floor, GCEM Campus",
     description: "A knockout-style technical debate competition focusing on emerging technologies like AI, Cybersecurity, Blockchain, Quantum Computing & Digital Ethics.",
     category: "Tech",
     prize: "₹6,000",
