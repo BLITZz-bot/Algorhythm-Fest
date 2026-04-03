@@ -127,3 +127,13 @@ a:hover {
   scrollbar-width: thin;
   scrollbar-color: #9333ea rgba(15, 23, 42, 0.9);
 }
+
+/* Utility for hiding scrollbar while permitting scroll */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
