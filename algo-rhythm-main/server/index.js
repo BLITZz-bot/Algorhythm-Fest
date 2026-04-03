@@ -22,31 +22,26 @@ const ADMIN_RECEIVER_EMAIL = (process.env.ADMIN_RECEIVER_EMAIL || "").trim();
 const BASE_URL = (process.env.BASE_URL || "").trim().replace(/\/$/, "");
 const FRONTEND_URL = (process.env.FRONTEND_URL || "").trim().replace(/\/$/, "");
 
-// Global Nodemailer Transporter - Using smtp.gmail.com hostname for cloud compatibility
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, 
-    auth: {
-        user: SENDER_EMAIL,
-        pass: SENDER_PASSWORD
-    },
-    tls: {
-        rejectUnauthorized: false
-    },
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
-    socketTimeout: 15000
-});
+const GMAIL_CLIENT_ID = (process.env.GMAIL_CLIENT_ID || "").trim();
+const GMAIL_CLIENT_SECRET = (process.env.GMAIL_CLIENT_SECRET || "").trim();
+const GMAIL_REFRESH_TOKEN = (process.env.GMAIL_REFRESH_TOKEN || "").trim();
 
-// Verify SMTP Connection on Startup
-transporter.verify((error, success) => {
-    if (error) {
-        console.error("❌ SMTP Connection Error:", error);
-    } else {
-        console.log("🚀 SMTP Server is ready to send emails!");
+// Global Nodemailer Transporter - Using OAuth2 for Gmail API (Port 443 equivalent)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        type: 'OAuth2',
+        user: SENDER_EMAIL,
+        clientId: GMAIL_CLIENT_ID,
+        clientSecret: GMAIL_CLIENT_SECRET,
+        refreshToken: GMAIL_REFRESH_TOKEN
     }
 });
+
+// Diagnostic Ping for Environment Check
+console.log(`📡 GMail OAuth2 Config: ${GMAIL_CLIENT_ID ? "LOADED" : "MISSING"}`);
+
+
 
 // Middleware
 const allowedOrigins = process.env.FRONTEND_URL
@@ -84,21 +79,21 @@ console.log(`📁 Persistent screenshot storage initialized at: ${path.join(__di
 app.get('/api/ping', (req, res) => res.json({ status: 'online', time: new Date().toISOString() }));
 
 app.get('/api/admin/test-email', async (req, res) => {
-    console.log("--- Manual SMTP Test Request ---");
+    console.log("--- GMail OAuth2 Test Request ---");
     try {
-        if (!SENDER_EMAIL || !SENDER_PASSWORD) {
-            throw new Error("Missing SENDER_EMAIL or SENDER_PASSWORD in environment.");
+        if (!GMAIL_CLIENT_ID || !GMAIL_CLIENT_SECRET || !GMAIL_REFRESH_TOKEN) {
+            throw new Error("Missing OAuth2 Credentials in environment.");
         }
         const info = await transporter.sendMail({
             from: SENDER_EMAIL,
-            to: SENDER_EMAIL,
-            subject: "ALGORHYTHM SMTP TEST 🚀",
-            text: `SMTP Configuration is working!\nSender: ${SENDER_EMAIL}\nTime: ${new Date().toLocaleString()}`
+            to: ADMIN_RECEIVER_EMAIL.split(',')[0].trim(),
+            subject: "ALGORHYTHM GMAIL OAUTH2 TEST 🚀",
+            text: `GMail API (OAuth2) is working!\nSender: ${SENDER_EMAIL}\nTime: ${new Date().toLocaleString()}`
         });
-        console.log("✅ Test email handoff successful! ID:", info.messageId);
+        console.log("✅ OAuth2 Test successful! ID:", info.messageId);
         res.status(200).json({ success: true, messageId: info.messageId });
     } catch (err) {
-        console.error("❌ SMTP Technical Failure:", err.message);
+        console.error("❌ GMail OAuth2 Failure:", err.message);
         res.status(500).json({ success: false, error: err.message });
     }
 });
@@ -398,13 +393,11 @@ const sendConfirmationEmail = async (reg) => {
                 }
             ]
         };
+
         const info = await transporter.sendMail(mailOptions);
-        console.log(`📧 Confirmation email sent! MessageID: ${info.messageId} | Recipient: ${reg.email}`);
+        console.log(`📧 Confirmation email sent via GMail OAuth2! ID: ${info.messageId} | Recipient: ${reg.email}`);
     } catch (err) {
-        console.error(`❌ SMTP Error for ${reg.email}:`, err.message);
-        if (err.code === 'EENVELOPE') {
-            console.error("DEBUG: Invalid recipient email address.");
-        }
+        console.error(`❌ GMail OAuth2 Error for ${reg.email}:`, err.message);
     }
 };
 
@@ -618,6 +611,36 @@ app.post('/api/admin/events/toggle', async (req, res) => {
     }
 });
 
+// --- ADMIN: Resend Confirmation Email to a SINGLE registration ---
+app.post('/api/admin/resend-confirmation/:id', async (req, res) => {
+    try {
+        const password = req.headers['x-admin-password'];
+        if (password !== 'algorhythm@admin2026') {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const { id } = req.params;
+        const registration = await Registration.findOne({ id: id });
+
+        if (!registration) {
+            return res.status(404).json({ success: false, message: 'Registration not found' });
+        }
+
+        console.log(`📧 Manual Resend Triggered for: ${registration.email} (${registration.fullName})`);
+        
+        // Trigger automated confirmation email
+        await sendConfirmationEmail(registration);
+
+        res.status(200).json({ 
+            success: true, 
+            message: `Confirmation email resent successfully to ${registration.email}` 
+        });
+    } catch (error) {
+        console.error("Single Resend Error:", error);
+        res.status(500).json({ success: false, message: `Failed to resend email: ${error.message}` });
+    }
+});
+
 // --- ADMIN: Resend Confirmation Emails to ALL existing registrations ---
 app.post('/api/admin/resend-all-confirmations', async (req, res) => {
     console.log("--- Bulk Resend Confirmation Emails Request ---");
@@ -758,35 +781,22 @@ app.post('/api/admin/send-report', async (req, res) => {
 
         const buffer = await workbook.xlsx.writeBuffer();
 
-        if (!SENDER_EMAIL || !SENDER_PASSWORD || !ADMIN_RECEIVER_EMAIL) {
-            console.error("CRITICAL: Email credentials missing in environment variables!");
-            return res.status(500).json({ success: false, message: 'Server configuration error (Email Credentials).' });
-        }
-
-        // Verify connection on-the-fly
-        try {
-            await transporter.verify();
-            console.log("Nodemailer Transporter is ready to take our messages");
-        } catch (verifyErr) {
-            console.error("SMTP Connection Error during verify:", verifyErr);
-            return res.status(500).json({ success: false, message: `SMTP Connection Failed: ${verifyErr.message}` });
-        }
-
         const mailOptions = {
             from: SENDER_EMAIL,
-            to: ADMIN_RECEIVER_EMAIL,
+            to: ADMIN_RECEIVER_EMAIL.split(',').map(e => e.trim()),
             subject: `AlgoRhythm Fest 2026 - Master Registration Report (${new Date().toLocaleDateString()})`,
             text: `Hello Admin,\n\nPlease find the attached automated registration report for AlgoRhythm Fest 2026.\n\nTotal Registrations from DB: ${registrations.length}\nGenerated at: ${new Date().toLocaleString()}`,
             attachments: [
                 {
                     filename: `AlgoRhythm_Master_Report_${Date.now()}.xlsx`,
-                    content: buffer
+                    content: buffer,
+                    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                 }
             ]
         };
 
-        await transporter.sendMail(mailOptions);
-        console.log(`✅ Automated Report Emailed successfully to: ${ADMIN_RECEIVER_EMAIL}`);
+        const result = await transporter.sendMail(mailOptions);
+        console.log(`✅ Automated Report Emailed successfully via GMail OAuth2! ID: ${result.messageId}`);
         res.status(200).json({ success: true, message: 'Report emailed successfully!' });
 
     } catch (error) {

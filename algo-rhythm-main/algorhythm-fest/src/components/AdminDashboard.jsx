@@ -25,12 +25,22 @@ export default function AdminDashboard({ isOpen, onClose }) {
     const [clearConfirm, setClearConfirm] = useState(false);
     const [clearing, setClearing] = useState(false);
     const [clearError, setClearError] = useState("");
-    const [resending, setResending] = useState(false);
-    const [resendStatus, setResendStatus] = useState("");
     const [isResendModalOpen, setIsResendModalOpen] = useState(false);
     const [resendPassword, setResendPassword] = useState("");
     const [resendConfirm, setResendConfirm] = useState(false);
     const [resendError, setResendError] = useState("");
+
+    // Secondary Authentication states
+    const [isManageAuth, setIsManageAuth] = useState(false);
+    const [isEmailAuth, setIsEmailAuth] = useState(false);
+    const [managePassInput, setManagePassInput] = useState("");
+    const [emailPassInput, setEmailPassInput] = useState("");
+    const [manageAuthErr, setManageAuthErr] = useState("");
+    const [emailAuthErr, setEmailAuthErr] = useState("");
+
+    const [individualResending, setIndividualResending] = useState({}); // Tracking individual resends
+    const [resending, setResending] = useState(false);
+    const [resendStatus, setResendStatus] = useState("");
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -41,6 +51,48 @@ export default function AdminDashboard({ isOpen, onClose }) {
             fetchEventStatuses(); // Load event toggles
         } else {
             setLoginError("Invalid Admin Password");
+        }
+    };
+
+    const handleManageAuth = (e) => {
+        e.preventDefault();
+        if (managePassInput === "bharatha2111") {
+            setIsManageAuth(true);
+            setManageAuthErr("");
+        } else {
+            setManageAuthErr("Incorrect Password");
+        }
+    };
+
+    const handleEmailAuth = (e) => {
+        e.preventDefault();
+        if (emailPassInput === "bharatha2111") {
+            setIsEmailAuth(true);
+            setEmailAuthErr("");
+        } else {
+            setEmailAuthErr("Incorrect Password");
+        }
+    };
+
+    const resendIndividualEmail = async (reg) => {
+        if (!window.confirm(`Resend confirmation email to ${reg.fullName}?`)) return;
+        
+        setIndividualResending(prev => ({ ...prev, [reg.id]: true }));
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/resend-confirmation/${reg.id}`, {
+                method: 'POST',
+                headers: { 'x-admin-password': password }
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(`✅ Sent success to ${reg.email}`);
+            } else {
+                alert(`❌ Failed: ${data.message}`);
+            }
+        } catch (err) {
+            alert("❌ Server Error");
+        } finally {
+            setIndividualResending(prev => ({ ...prev, [reg.id]: false }));
         }
     };
 
@@ -232,7 +284,11 @@ export default function AdminDashboard({ isOpen, onClose }) {
             };
         } else {
             setIsAuthenticated(false);
+            setIsManageAuth(false);
+            setIsEmailAuth(false);
             setPassword("");
+            setManagePassInput("");
+            setEmailPassInput("");
             setLoginError("");
         }
     }, [isOpen]);
@@ -328,8 +384,8 @@ export default function AdminDashboard({ isOpen, onClose }) {
                     transactionId: reg.transactionId || "N/A",
                     paymentDate: reg.paymentDate || "N/A",
                     teamMembers: (reg.teamMembers && Array.isArray(reg.teamMembers) && reg.teamMembers.length > 0)
-                        ? `Member 1 (Leader): ${reg.fullName}\nEmail: ${reg.email}\nPhone: ${reg.phone}\n\n` + 
-                          reg.teamMembers.map((m, idx) => `Member ${idx + 2}: ${m.fullName}\nEmail: ${m.email}\nPhone: ${m.phone}`).join("\n\n")
+                        ? `Member 1 (Leader): ${reg.fullName}\nEmail: ${reg.email}\nPhone: ${reg.phone}\n\n` +
+                        reg.teamMembers.map((m, idx) => `Member ${idx + 2}: ${m.fullName}\nEmail: ${m.email}\nPhone: ${m.phone}`).join("\n\n")
                         : "N/A",
                     screenshot: reg.screenshotPath || "N/A"
                 });
@@ -380,7 +436,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                         animate={{ scale: 1, opacity: 1 }}
                         className="relative w-full max-w-md bg-[#1a1c2e] border border-white/10 rounded-3xl p-8 shadow-2xl"
                     >
-                        <button 
+                        <button
                             onClick={onClose}
                             className="absolute top-4 right-4 p-2 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white transition"
                         >
@@ -434,21 +490,6 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     <svg className={`w-4 h-4 ${emailing ? 'animate-pulse' : ''}`} fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" /></svg>
                                     {emailing ? 'Sending...' : 'GMAIL'}
                                 </button>
-                                <button
-                                    onClick={() => {
-                                        setIsResendModalOpen(true);
-                                        setResendError("");
-                                        setResendPassword("");
-                                        setResendConfirm(false);
-                                    }}
-                                    disabled={resending}
-                                    className={`px-4 py-2 border rounded-xl text-sm transition flex items-center gap-2 font-semibold ${
-                                        resending ? 'bg-gray-600/20 border-gray-500/30 text-gray-500' : 'bg-amber-600/20 border-amber-500/30 text-amber-400 hover:bg-amber-600/30'
-                                    }`}
-                                >
-                                    <svg className={`w-4 h-4 ${resending ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                    {resending ? 'Sending All...' : 'RESEND EMAILS'}
-                                </button>
                                 <button onClick={onClose} className="p-2 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white transition">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
@@ -471,9 +512,15 @@ export default function AdminDashboard({ isOpen, onClose }) {
                             </button>
                             <button
                                 onClick={() => setActiveTab("manage")}
-                                className={`text-sm font-bold pb-3 px-2 transition-colors ${activeTab === "manage" ? "text-purple-400 border-b-2 border-purple-500" : "text-gray-500 hover:text-gray-300"}`}
+                                className={`text-sm font-bold pb-3 px-2 transition-colors ${activeTab === "manage" ? "text-red-400 border-b-2 border-red-500" : "text-gray-500 hover:text-gray-300"}`}
                             >
-                                Handle Registrations
+                                Manage Data
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("emails")}
+                                className={`text-sm font-bold pb-3 px-2 transition-colors ${activeTab === "emails" ? "text-amber-400 border-b-2 border-amber-500" : "text-gray-500 hover:text-gray-300"}`}
+                            >
+                                Bulk Resend
                             </button>
                         </div>
 
@@ -521,7 +568,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Pass Type</th>
                                                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Amount</th>
                                                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">UTR No</th>
-                                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Proof</th>
+                                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-white/10">
@@ -567,18 +614,25 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
                                                             {reg.transactionId}
                                                         </td>
-                                                        <td className="px-6 py-5">
+                                                        <td className="px-6 py-5 flex items-center gap-4">
                                                             {reg.screenshotPath ? (
                                                                 <a
                                                                     href={reg.screenshotPath}
                                                                     target="_blank"
                                                                     rel="noreferrer"
-                                                                    className="text-xs text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 group"
+                                                                    className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold underline"
                                                                 >
-                                                                    VIEW SCREENSHOT
-                                                                    <svg className="w-3 h-3 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                                                    SCREENSHOT
                                                                 </a>
-                                                            ) : <span className="text-gray-600 text-xs italic">No Screenshot</span>}
+                                                            ) : <span className="text-gray-600 text-[10px] italic">NONE</span>}
+                                                            <button 
+                                                                onClick={() => resendIndividualEmail(reg)}
+                                                                disabled={individualResending[reg.id]}
+                                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition flex items-center gap-1 ${individualResending[reg.id] ? 'bg-gray-700 text-gray-400' : 'bg-amber-500/20 text-amber-500 border border-amber-500/30 hover:bg-amber-500/30'}`}
+                                                            >
+                                                                <svg className={`w-3 h-3 ${individualResending[reg.id] ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                                {individualResending[reg.id] ? 'RESENDING...' : 'RESEND'}
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 )) : (
@@ -614,53 +668,155 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     })}
                                 </div>
                             </div>
-                        ) : (
-                            <div className="flex-1 overflow-auto rounded-2xl border border-white/10 bg-black/20 p-6">
-                                <div className="flex justify-between items-center mb-8">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-white mb-2">Handle Registrations</h3>
-                                        <p className="text-gray-400 text-sm">Manage individual records or clear the entire database.</p>
-                                    </div>
-                                    <button 
-                                        onClick={() => { 
-                                            setDeleteTargetId(null);
-                                            setDeleteTargetName("ALL REGISTRATIONS");
-                                            setIsClearModalOpen(true); 
-                                            setClearError(""); 
-                                            setClearPassword(""); 
-                                            setClearConfirm(false); 
-                                        }}
-                                        className="px-6 py-2.5 bg-red-600/20 border border-red-500/50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition-all shadow-lg"
+                        ) : activeTab === "manage" ? (
+                            <div className="flex-1 overflow-auto rounded-3xl border border-white/10 bg-[#0f111a] flex flex-col items-center justify-center">
+                                {!isManageAuth ? (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="max-w-sm w-full p-8 bg-white/5 border border-white/10 rounded-3xl shadow-2xl text-center"
                                     >
-                                        CLEAR ALL DATA
-                                    </button>
-                                </div>
-
-                                <div className="space-y-3">
-                                    {registrations.length > 0 ? registrations.map((reg) => (
-                                        <div key={reg.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between hover:border-white/20 transition-colors">
-                                            <div className="flex flex-col">
-                                                <span className="text-white font-bold text-sm tracking-wide">{reg.fullName.toUpperCase()}</span>
-                                                <span className="text-gray-500 text-[11px] uppercase tracking-wider">{reg.eventTitle} | {reg.college}</span>
-                                            </div>
-                                            <button
-                                                onClick={() => {
-                                                    setDeleteTargetId(reg.id);
-                                                    setDeleteTargetName(reg.fullName.toUpperCase());
-                                                    setIsClearModalOpen(true);
-                                                    setClearError("");
-                                                    setClearPassword("");
-                                                    setClearConfirm(false);
-                                                }}
-                                                className="px-5 py-2 bg-red-500/10 border border-red-500/30 text-red-500 rounded-lg text-xs font-bold hover:bg-red-500 hover:text-white transition-all"
+                                        <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
+                                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white mb-2">Manage Access</h3>
+                                        <p className="text-gray-400 text-sm mb-6">Secondary authentication required to modify registration records.</p>
+                                        <form onSubmit={handleManageAuth} className="space-y-4">
+                                            <input
+                                                type="password"
+                                                autoFocus
+                                                value={managePassInput}
+                                                onChange={(e) => setManagePassInput(e.target.value)}
+                                                placeholder="Secondary Password"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition"
+                                            />
+                                            {manageAuthErr && <p className="text-red-400 text-xs font-bold">{manageAuthErr}</p>}
+                                            <button type="submit" className="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition">
+                                                Unlock Manage Data
+                                            </button>
+                                        </form>
+                                    </motion.div>
+                                ) : (
+                                    <div className="w-full h-full p-8 overflow-auto">
+                                        <div className="flex justify-between items-center mb-10">
+                                            <h3 className="text-2xl font-bold text-white">Manage Database</h3>
+                                            <button 
+                                                onClick={() => { setDeleteTargetId(null); setDeleteTargetName("ALL"); setIsClearModalOpen(true); }}
+                                                className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg"
                                             >
-                                                DELETE
+                                                PURGE ALL DATA
                                             </button>
                                         </div>
-                                    )) : (
-                                        <div className="text-center py-20 text-gray-500 italic">No registrations to manage.</div>
-                                    )}
-                                </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                                            {registrations.map((reg) => (
+                                                <div key={reg.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+                                                    <div className="overflow-hidden">
+                                                        <div className="text-white font-bold text-sm truncate">{reg.fullName}</div>
+                                                        <div className="text-gray-500 text-[10px] truncate">{reg.eventTitle}</div>
+                                                    </div>
+                                                    <button onClick={() => { setDeleteTargetId(reg.id); setDeleteTargetName(reg.fullName); setIsClearModalOpen(true); }} className="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl text-[10px] font-bold hover:bg-red-500 hover:text-white transition">DELETE</button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex-1 overflow-auto rounded-3xl border border-white/10 bg-[#0f111a] flex flex-col items-center justify-center">
+                                {!isEmailAuth ? (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="max-w-sm w-full p-8 bg-white/5 border border-white/10 rounded-3xl shadow-2xl text-center"
+                                    >
+                                        <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-400">
+                                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white mb-2">Bulk Email Access</h3>
+                                        <p className="text-gray-400 text-sm mb-6">Secondary authentication required for bulk communication actions.</p>
+                                        <form onSubmit={handleEmailAuth} className="space-y-4">
+                                            <input
+                                                type="password"
+                                                autoFocus
+                                                value={emailPassInput}
+                                                onChange={(e) => setEmailPassInput(e.target.value)}
+                                                placeholder="Secondary Password"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 transition"
+                                            />
+                                            {emailAuthErr && <p className="text-red-400 text-xs font-bold">{emailAuthErr}</p>}
+                                            <button type="submit" className="w-full bg-amber-600 text-white font-bold py-3 rounded-xl hover:bg-amber-700 transition">
+                                                Unlock Bulk Actions
+                                            </button>
+                                        </form>
+                                    </motion.div>
+                                ) : (
+                                    <div className="w-full h-full p-6 flex flex-col">
+                                        {/* Bulk Section */}
+                                        <div className="bg-amber-500/5 border border-amber-500/10 rounded-3xl p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-3 justify-center md:justify-start mb-2">
+                                                    <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center text-amber-500">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path></svg>
+                                                    </div>
+                                                    <h3 className="text-xl font-bold text-white uppercase tracking-wider">Bulk Resend Tool</h3>
+                                                </div>
+                                                <p className="text-gray-400 text-sm max-w-md">Sends tickets to every student in the database. Use with caution.</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => { setIsResendModalOpen(true); setResendError(""); setResendPassword(""); setResendConfirm(false); }}
+                                                className="px-8 py-4 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-bold transition-all shadow-lg flex items-center gap-2 whitespace-nowrap"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                                TRIGGER SYSTEM-WIDE RESEND
+                                            </button>
+                                        </div>
+
+                                        {/* Individual Section */}
+                                        <div className="flex-1 flex flex-col min-h-0">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest px-2">Individual Quick Resend</h4>
+                                                <span className="text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-1 rounded-md">{registrations.length} TOTAL STUDENTS</span>
+                                            </div>
+                                            <div className="flex-1 overflow-auto rounded-2xl border border-white/5 bg-white/[0.02]">
+                                                {registrations.length > 0 ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-3 p-3">
+                                                        {registrations.map((reg) => (
+                                                            <div key={reg.id} className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center justify-between hover:bg-white/[0.08] transition-colors group">
+                                                                <div className="min-w-0 pr-4">
+                                                                    <div className="text-white font-bold text-sm truncate">{reg.fullName}</div>
+                                                                    <div className="flex flex-col gap-0.5 mt-1">
+                                                                        <div className="text-gray-500 text-[10px] truncate flex items-center gap-1">
+                                                                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                                            {reg.email}
+                                                                        </div>
+                                                                        <div className="text-gray-500 text-[10px] truncate flex items-center gap-1">
+                                                                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                                                            {reg.phone}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <button 
+                                                                    onClick={() => resendIndividualEmail(reg)}
+                                                                    disabled={individualResending[reg.id]}
+                                                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold transition flex items-center gap-1.5 whitespace-nowrap ${individualResending[reg.id] ? 'bg-gray-700 text-gray-500' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500 hover:text-white group-hover:scale-105'}`}
+                                                                >
+                                                                    {individualResending[reg.id] ? (
+                                                                        <svg className="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                                    ) : (
+                                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                                    )}
+                                                                    {individualResending[reg.id] ? 'SENDING...' : 'RESEND'}
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="p-20 text-center text-gray-600 italic">No registrations found.</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </motion.div>
@@ -669,7 +825,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 {/* CLEAR CONFIRMATION MODAL */}
                 {isClearModalOpen && (
                     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                        <motion.div 
+                        <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             className="bg-[#1a1c2e] border border-red-500/30 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center"
@@ -679,8 +835,8 @@ export default function AdminDashboard({ isOpen, onClose }) {
                             </div>
                             <h3 className="text-xl font-bold text-white mb-2">{clearConfirm ? "FINAL WARNING!" : "Administrative Action"}</h3>
                             <div className="text-gray-400 text-sm mb-6">
-                                {clearConfirm 
-                                    ? <p>You are about to permanently delete <span className="text-red-400 font-bold">{deleteTargetName}</span>. This cannot be undone.</p> 
+                                {clearConfirm
+                                    ? <p>You are about to permanently delete <span className="text-red-400 font-bold">{deleteTargetName}</span>. This cannot be undone.</p>
                                     : <p>Deleting <span className="text-purple-400 font-bold">{deleteTargetName}</span> requires admin access. Please enter password.</p>}
                             </div>
 
@@ -697,13 +853,13 @@ export default function AdminDashboard({ isOpen, onClose }) {
                             {clearError && <p className="text-red-400 text-xs mb-4">{clearError}</p>}
 
                             <div className="flex gap-3">
-                                <button 
+                                <button
                                     onClick={() => setIsClearModalOpen(false)}
                                     className="flex-1 px-4 py-3 bg-white/5 text-gray-300 rounded-xl font-bold hover:bg-white/10 transition"
                                 >
                                     Cancel
                                 </button>
-                                <button 
+                                <button
                                     onClick={handleClearRegistrations}
                                     disabled={clearing}
                                     className={`flex-1 px-4 py-3 rounded-xl font-bold transition shadow-lg ${clearConfirm ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-white text-[#1a1c2e] hover:bg-gray-200'}`}
@@ -718,7 +874,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 {/* RESEND CONFIRMATION MODAL */}
                 {isResendModalOpen && (
                     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                        <motion.div 
+                        <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             className="bg-[#1a1c2e] border border-amber-500/30 rounded-3xl p-8 max-w-sm w-full shadow-[0_0_30px_rgba(245,158,11,0.15)] text-center"
@@ -728,8 +884,8 @@ export default function AdminDashboard({ isOpen, onClose }) {
                             </div>
                             <h3 className="text-xl font-bold text-white mb-2">{resendConfirm ? "FINAL WARNING!" : "Administrative Action"}</h3>
                             <div className="text-gray-400 text-sm mb-6">
-                                {resendConfirm 
-                                    ? <p>You are about to resend confirmation emails to <span className="text-amber-400 font-bold">ALL REGISTERED LEADERS</span>. This will take a few minutes.</p> 
+                                {resendConfirm
+                                    ? <p>You are about to resend confirmation emails to <span className="text-amber-400 font-bold">ALL REGISTERED LEADERS</span>. This will take a few minutes.</p>
                                     : <p>Resending bulk emails requires admin verification. Please enter password.</p>}
                             </div>
 
@@ -746,13 +902,13 @@ export default function AdminDashboard({ isOpen, onClose }) {
                             {resendError && <p className="text-pink-400 text-xs mb-4">{resendError}</p>}
 
                             <div className="flex gap-3">
-                                <button 
+                                <button
                                     onClick={() => setIsResendModalOpen(false)}
                                     className="flex-1 px-4 py-3 bg-white/5 text-gray-300 rounded-xl font-bold hover:bg-white/10 transition"
                                 >
                                     Cancel
                                 </button>
-                                <button 
+                                <button
                                     onClick={resendAllConfirmations}
                                     disabled={resending}
                                     className={`flex-1 px-4 py-3 rounded-xl font-bold transition shadow-lg ${resendConfirm ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-white text-[#1a1c2e] hover:bg-gray-200'}`}
