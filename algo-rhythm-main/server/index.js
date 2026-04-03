@@ -783,7 +783,7 @@ app.post('/api/admin/send-report', async (req, res) => {
 
         const mailOptions = {
             from: SENDER_EMAIL,
-            to: ADMIN_RECEIVER_EMAIL.split(',').map(e => e.trim()),
+            to: ADMIN_RECEIVER_EMAIL, // Use the raw string for better stability with GMail API
             subject: `AlgoRhythm Fest 2026 - Master Registration Report (${new Date().toLocaleDateString()})`,
             text: `Hello Admin,\n\nPlease find the attached automated registration report for AlgoRhythm Fest 2026.\n\nTotal Registrations from DB: ${registrations.length}\nGenerated at: ${new Date().toLocaleString()}`,
             attachments: [
@@ -796,12 +796,20 @@ app.post('/api/admin/send-report', async (req, res) => {
         };
 
         const result = await transporter.sendMail(mailOptions);
-        console.log(`✅ Automated Report Emailed successfully via GMail OAuth2! ID: ${result.messageId}`);
+        console.log(`✅ Automated Report Emailed successfully! ID: ${result.messageId} | Recipients: ${ADMIN_RECEIVER_EMAIL}`);
         res.status(200).json({ success: true, message: 'Report emailed successfully!' });
 
     } catch (error) {
-        console.error("Email Automation Error:", error);
-        res.status(500).json({ success: false, message: `Failed to send email: ${error.message || 'Unknown error'}` });
+        console.error("CRITICAL Email Automation Error:", {
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            command: error.command
+        });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to send email: ${error.message || 'Unknown error'}. Check server logs for details.` 
+        });
     }
 });
 
