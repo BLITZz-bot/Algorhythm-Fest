@@ -53,6 +53,14 @@ export default function AdminDashboard({ isOpen, onClose }) {
         type: "primary"
     });
 
+    const addToast = (message, type = "success") => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, message, type }]);
+        setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== id));
+        }, 4000);
+    };
+
     const handleActionConfirm = (title, message, onConfirm, type = "primary") => {
         setConfirmModal({
             isOpen: true,
@@ -64,10 +72,6 @@ export default function AdminDashboard({ isOpen, onClose }) {
             },
             type
         });
-    };
-
-    const showGlobalToast = (message, type = "success") => {
-        window.dispatchEvent(new CustomEvent('show-toast', { detail: { message, type } }));
     };
 
     const handleLogin = (e) => {
@@ -115,12 +119,12 @@ export default function AdminDashboard({ isOpen, onClose }) {
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showGlobalToast(`✅ Success: Sent to ${reg.email}`, "success");
+                        addToast(`✅ Success: Sent to ${reg.email}`, "success");
                     } else {
-                        showGlobalToast(`❌ Failed: ${data.message}`, "error");
+                        addToast(`❌ Failed: ${data.message}`, "error");
                     }
                 } catch (err) {
-                    showGlobalToast("❌ Server Error", "error");
+                    addToast("❌ Server Error", "error");
                 } finally {
                     setIndividualResending(prev => ({ ...prev, [reg.id]: false }));
                 }
@@ -182,7 +186,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
     const sendToAdminEmail = async () => {
         setEmailing(true);
-        showGlobalToast("📤 Preparing registration report...", "info");
+        addToast("📤 Preparing registration report...", "info");
         try {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/send-report`, {
                 method: 'POST',
@@ -190,12 +194,12 @@ export default function AdminDashboard({ isOpen, onClose }) {
             });
             const data = await res.json();
             if (data.success) {
-                showGlobalToast("📬 Report Emailed Successfully!", "success");
+                addToast("📬 Report Emailed Successfully!", "success");
             } else {
-                showGlobalToast(data.message || "Email Failed", "error");
+                addToast(data.message || "Email Failed", "error");
             }
         } catch (err) {
-            showGlobalToast("❌ Connection Error", "error");
+            addToast("❌ Connection Error", "error");
         } finally {
             setEmailing(false);
         }
@@ -221,7 +225,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
             });
             const data = await res.json();
             if (data.success) {
-                showGlobalToast(`✅ ${data.message}`, "success");
+                addToast(`✅ ${data.message}`, "success");
                 setIsResendModalOpen(false);
                 setResendPassword("");
                 setResendConfirm(false);
@@ -259,7 +263,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
             });
             const data = await res.json();
             if (data.success) {
-                showGlobalToast(`✅ ${data.message}`, "success");
+                addToast(`✅ ${data.message}`, "success");
                 setIsClearModalOpen(false);
                 setClearPassword("");
                 setClearConfirm(false);
@@ -594,7 +598,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Pass Type</th>
                                                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Amount</th>
                                                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">UTR No</th>
-                                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Proof</th>
+                                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-white/10">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-white/10">
@@ -640,17 +644,17 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
                                                             {reg.transactionId}
                                                         </td>
-                                                        <td className="px-6 py-5">
+                                                        <td className="px-6 py-5 flex items-center gap-4">
                                                             {reg.screenshotPath ? (
                                                                 <a
                                                                     href={reg.screenshotPath}
                                                                     target="_blank"
                                                                     rel="noreferrer"
-                                                                    className="px-3 py-1.5 rounded-lg text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 font-bold transition-all inline-block"
+                                                                    className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold underline"
                                                                 >
-                                                                    VIEW SCREENSHOT
+                                                                    SCREENSHOT
                                                                 </a>
-                                                            ) : <span className="text-gray-600 text-[10px] italic">No proof uploaded</span>}
+                                                            ) : <span className="text-gray-600 text-[10px] italic">NONE</span>}
                                                         </td>
                                                     </tr>
                                                 )) : (
@@ -937,6 +941,30 @@ export default function AdminDashboard({ isOpen, onClose }) {
                         </motion.div>
                     </div>
                 )}
+
+                {/* --- CUSTOM NOTIFICATION SYSTEM (TOASTS) --- */}
+                <div className="fixed bottom-6 right-6 z-[200] flex flex-col gap-3 pointer-events-none">
+                    <AnimatePresence>
+                        {toasts.map(toast => (
+                            <motion.div
+                                key={toast.id}
+                                initial={{ opacity: 0, x: 50, scale: 0.9 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                                className={`pointer-events-auto flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-xl min-w-[300px] ${
+                                    toast.type === "success" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" :
+                                    toast.type === "error" ? "bg-red-500/10 border-red-500/20 text-red-400" :
+                                    "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                                }`}
+                            >
+                                <div className="flex-1 text-sm font-bold">{toast.message}</div>
+                                <button onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))} className="text-current opacity-50 hover:opacity-100 transition">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
 
                 {/* --- CUSTOM ACTION CONFIRMATION MODAL --- */}
                 <AnimatePresence>
