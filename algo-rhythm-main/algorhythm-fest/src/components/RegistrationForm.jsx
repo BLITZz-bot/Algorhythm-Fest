@@ -121,7 +121,9 @@ export default function RegistrationForm({ event, onClose }) {
             setStep(3)
         } catch (error) {
             console.error("Error submitting registration:", error)
-            alert("There was an error submitting your registration. Please try again. If the issue persists, contact us at bharatha9483@gmail.com or 7975871167.")
+            window.dispatchEvent(new CustomEvent('show-toast', { 
+                detail: { message: "❌ Submission Error. Please try again or contact support at 7975871167.", type: "error" } 
+            }));
         } finally {
             setIsSubmitting(false)
         }
@@ -348,7 +350,9 @@ export default function RegistrationForm({ event, onClose }) {
 
         } catch (err) {
             console.error("PDF generation failed:", err);
-            alert("Failed to create PDF document: " + (err.message || err.toString()));
+            window.dispatchEvent(new CustomEvent('show-toast', { 
+                detail: { message: "❌ PDF Error: Failed to create document.", type: "error" } 
+            }));
         } finally {
             setIsDownloading(false);
         }
@@ -363,11 +367,15 @@ export default function RegistrationForm({ event, onClose }) {
     const handleStep1Submit = (e) => {
         e.preventDefault();
         if (isTeamEvent && (!formData.teamName || formData.teamName.trim() === "")) {
-            alert("Please enter a Team Name.");
+            window.dispatchEvent(new CustomEvent('show-toast', { 
+                detail: { message: "⚠️ Team Name is required!", type: "error" } 
+            }));
             return;
         }
         if (teamMembers.length + 1 < minTeamSize) {
-            alert(`This event requires a minimum team size of ${minTeamSize}. Please add ${minTeamSize - 1 - teamMembers.length} more member(s).`);
+            window.dispatchEvent(new CustomEvent('show-toast', { 
+                detail: { message: `⚠️ Minimum team size is ${minTeamSize}.`, type: "error" } 
+            }));
             return;
         }
         setStep(2);

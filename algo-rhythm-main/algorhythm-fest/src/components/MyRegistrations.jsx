@@ -92,7 +92,9 @@ export default function MyRegistrations({ isOpen, onClose, initialEmail, autoDow
         const event = allEvents.find(e => e.title === registration.eventTitle);
 
         if (!event) {
-            alert("Could not find event details for this registration.");
+            window.dispatchEvent(new CustomEvent('show-toast', { 
+                detail: { message: "❌ Could not find event details.", type: "error" } 
+            }));
             return;
         }
 
@@ -321,7 +323,9 @@ export default function MyRegistrations({ isOpen, onClose, initialEmail, autoDow
 
         } catch (err) {
             console.error("PDF Gen Error:", err);
-            alert("Failed to generate PDF document.");
+            window.dispatchEvent(new CustomEvent('show-toast', { 
+                detail: { message: "❌ PDF Error: Failed to generate document.", type: "error" } 
+            }));
         }
     };
 

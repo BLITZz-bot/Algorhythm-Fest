@@ -45,6 +45,28 @@ export default function App() {
   /* ===== URL Deep-Linking for Pass Downloads ===== */
   const [initialRegEmail, setInitialRegEmail] = useState("");
   const [autoDownload, setAutoDownload] = useState(false);
+  
+  // PROJECT-WIDE TOAST SYSTEM
+  const [toasts, setToasts] = useState([]);
+  
+  const addToast = (message, type = "success") => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 4000);
+  };
+
+  // Listen for custom "show-toast" events from any nested component
+  useEffect(() => {
+      const handleToastEvent = (e) => {
+          const { message, type } = e.detail;
+          addToast(message, type);
+      };
+      window.addEventListener('show-toast', handleToastEvent);
+      return () => window.removeEventListener('show-toast', handleToastEvent);
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('openPass') === 'true' && params.get('email')) {
@@ -185,6 +207,38 @@ export default function App() {
         <Section id="clubs">
           <Clubs />
         </Section>
+
+        {/* ================= PROJECT-WIDE NOTIFICATIONS (TOASTS) ================= */}
+        <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-3 pointer-events-none p-4">
+          <AnimatePresence>
+            {toasts.map(toast => (
+              <motion.div
+                key={toast.id}
+                initial={{ opacity: 0, x: 50, scale: 0.9, rotate: -5 }}
+                animate={{ opacity: 1, x: 0, scale: 1, rotate: 0 }}
+                exit={{ opacity: 0, scale: 0.8, x: 20, transition: { duration: 0.2 } }}
+                className={`pointer-events-auto flex items-center gap-4 px-6 py-4 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.5)] border backdrop-blur-2xl min-w-[280px] max-w-sm ${
+                  toast.type === "success" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-emerald-500/10" :
+                  toast.type === "error" ? "bg-red-500/10 border-red-500/30 text-red-400 shadow-red-500/10" :
+                  "bg-purple-500/10 border-purple-500/30 text-purple-300 shadow-purple-500/10"
+                }`}
+              >
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-current/10 flex-shrink-0">
+                   {toast.type === "success" && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>}
+                   {toast.type === "error" && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>}
+                   {toast.type === "info" && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>}
+                </div>
+                <div className="flex-1 text-sm font-extrabold tracking-tight">{toast.message}</div>
+                <button 
+                    onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))} 
+                    className="text-white/20 hover:text-white transition p-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
 
         {/* ================= FOOTER ================= */}
         <Footer />
