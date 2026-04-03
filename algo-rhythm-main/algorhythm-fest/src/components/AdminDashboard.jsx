@@ -40,7 +40,39 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
     const [individualResending, setIndividualResending] = useState({}); // Tracking individual resends
     const [resending, setResending] = useState(false);
-    const [resendStatus, setResendStatus] = useState("");
+
+    // Custom Notifications (Toasts)
+    const [toasts, setToasts] = useState([]);
+    
+    // Custom Action Confirmation
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: "",
+        message: "",
+        onConfirm: null,
+        type: "primary"
+    });
+
+    const addToast = (message, type = "success") => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, message, type }]);
+        setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== id));
+        }, 4000);
+    };
+
+    const handleActionConfirm = (title, message, onConfirm, type = "primary") => {
+        setConfirmModal({
+            isOpen: true,
+            title,
+            message,
+            onConfirm: () => {
+                onConfirm();
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            },
+            type
+        });
+    };
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -75,25 +107,30 @@ export default function AdminDashboard({ isOpen, onClose }) {
     };
 
     const resendIndividualEmail = async (reg) => {
-        if (!window.confirm(`Resend confirmation email to ${reg.fullName}?`)) return;
-        
-        setIndividualResending(prev => ({ ...prev, [reg.id]: true }));
-        try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/resend-confirmation/${reg.id}`, {
-                method: 'POST',
-                headers: { 'x-admin-password': password }
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert(`✅ Sent success to ${reg.email}`);
-            } else {
-                alert(`❌ Failed: ${data.message}`);
-            }
-        } catch (err) {
-            alert("❌ Server Error");
-        } finally {
-            setIndividualResending(prev => ({ ...prev, [reg.id]: false }));
-        }
+        handleActionConfirm(
+            "Confirm Resend",
+            `Resend confirmation email to ${reg.fullName}?`,
+            async () => {
+                setIndividualResending(prev => ({ ...prev, [reg.id]: true }));
+                try {
+                    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/resend-confirmation/${reg.id}`, {
+                        method: 'POST',
+                        headers: { 'x-admin-password': password }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        addToast(`✅ Success: Sent to ${reg.email}`, "success");
+                    } else {
+                        addToast(`❌ Failed: ${data.message}`, "error");
+                    }
+                } catch (err) {
+                    addToast("❌ Server Error", "error");
+                } finally {
+                    setIndividualResending(prev => ({ ...prev, [reg.id]: false }));
+                }
+            },
+            "primary"
+        );
     };
 
     const fetchEventStatuses = async () => {
@@ -149,7 +186,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
     const sendToAdminEmail = async () => {
         setEmailing(true);
-        setEmailStatus("");
+        addToast("📤 Preparing registration report...", "info");
         try {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/send-report`, {
                 method: 'POST',
@@ -157,13 +194,12 @@ export default function AdminDashboard({ isOpen, onClose }) {
             });
             const data = await res.json();
             if (data.success) {
-                setEmailStatus("Report Emailed Successfully!");
-                setTimeout(() => setEmailStatus(""), 5000);
+                addToast("📬 Report Emailed Successfully!", "success");
             } else {
-                setEmailStatus(data.message || "Email Failed");
+                addToast(data.message || "Email Failed", "error");
             }
         } catch (err) {
-            setEmailStatus("Server Error - check credentials");
+            addToast("❌ Connection Error", "error");
         } finally {
             setEmailing(false);
         }
@@ -189,8 +225,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
             });
             const data = await res.json();
             if (data.success) {
-                setResendStatus(`✅ ${data.message}`);
-                setTimeout(() => setResendStatus(""), 10000);
+                addToast(`✅ ${data.message}`, "success");
                 setIsResendModalOpen(false);
                 setResendPassword("");
                 setResendConfirm(false);
@@ -228,7 +263,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
             });
             const data = await res.json();
             if (data.success) {
-                alert(data.message);
+                addToast(`✅ ${data.message}`, "success");
                 setIsClearModalOpen(false);
                 setClearPassword("");
                 setClearConfirm(false);
@@ -541,16 +576,6 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     >
                                         {uniqueEvents.map(ev => <option key={ev} value={ev} className="bg-[#1a1c2e]">{ev}</option>)}
                                     </select>
-                                    {emailStatus && (
-                                        <span className={`text-sm font-bold ${emailStatus.includes("Success") ? 'text-emerald-400' : 'text-pink-400'}`}>
-                                            {emailStatus}
-                                        </span>
-                                    )}
-                                    {resendStatus && (
-                                        <span className={`text-sm font-bold ${resendStatus.includes("✅") ? 'text-amber-400' : 'text-pink-400'}`}>
-                                            {resendStatus}
-                                        </span>
-                                    )}
                                     <span className="ml-auto text-purple-400 font-bold">{filteredData.length} records found</span>
                                 </div>
 
@@ -924,6 +949,66 @@ export default function AdminDashboard({ isOpen, onClose }) {
                         </motion.div>
                     </div>
                 )}
+
+                {/* --- CUSTOM NOTIFICATION SYSTEM (TOASTS) --- */}
+                <div className="fixed bottom-6 right-6 z-[200] flex flex-col gap-3 pointer-events-none">
+                    <AnimatePresence>
+                        {toasts.map(toast => (
+                            <motion.div
+                                key={toast.id}
+                                initial={{ opacity: 0, x: 50, scale: 0.9 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                                className={`pointer-events-auto flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-xl min-w-[300px] ${
+                                    toast.type === "success" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" :
+                                    toast.type === "error" ? "bg-red-500/10 border-red-500/20 text-red-400" :
+                                    "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                                }`}
+                            >
+                                <div className="flex-1 text-sm font-bold">{toast.message}</div>
+                                <button onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))} className="text-current opacity-50 hover:opacity-100 transition">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
+
+                {/* --- CUSTOM ACTION CONFIRMATION MODAL --- */}
+                <AnimatePresence>
+                    {confirmModal.isOpen && (
+                        <div className="fixed inset-0 z-[210] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm bg-black/60">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                className="w-full max-w-sm bg-[#1a1c2e] border border-white/10 rounded-3xl p-6 shadow-2xl"
+                            >
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white">{confirmModal.title}</h3>
+                                </div>
+                                <p className="text-gray-400 text-sm mb-8 leading-relaxed">{confirmModal.message}</p>
+                                <div className="flex gap-3">
+                                    <button 
+                                        onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                                        className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-gray-300 rounded-xl font-bold transition-all"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        onClick={confirmModal.onConfirm}
+                                        className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-500/20"
+                                    >
+                                        Confirm
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
             </div>
         </AnimatePresence>
     );
