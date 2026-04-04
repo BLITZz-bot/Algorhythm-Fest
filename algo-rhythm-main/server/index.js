@@ -27,8 +27,13 @@ const GMAIL_CLIENT_SECRET = (process.env.GMAIL_CLIENT_SECRET || "").trim();
 const GMAIL_REFRESH_TOKEN = (process.env.GMAIL_REFRESH_TOKEN || "").trim();
 
 // Global Nodemailer Transporter - Using OAuth2 for Gmail API (Port 443 equivalent)
+// Added pool: true for better bulk operation stability (Resend All / Reports)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // SSL
+    pool: true,   // Use connection pooling
+    maxConnections: 5,
     auth: {
         type: 'OAuth2',
         user: SENDER_EMAIL,
@@ -37,6 +42,17 @@ const transporter = nodemailer.createTransport({
         refreshToken: GMAIL_REFRESH_TOKEN
     }
 });
+
+// Helper to log errors to a physical file for remote troubleshooting
+const logEmailError = (regEmail, error) => {
+    const logPath = path.join(__dirname, 'email_errors.log');
+    const logEntry = `[${new Date().toISOString()}] RECIPIENT: ${regEmail} | ERROR: ${error.message} | CODE: ${error.code}\n`;
+    try {
+        fs.appendFileSync(logPath, logEntry);
+    } catch (e) {
+        console.error("Failed to write to email_errors.log:", e.message);
+    }
+};
 
 // Diagnostic Ping for Environment Check
 console.log(`📡 GMail OAuth2 Config: ${GMAIL_CLIENT_ID ? "LOADED" : "MISSING"}`);
@@ -93,8 +109,28 @@ app.get('/api/admin/test-email', async (req, res) => {
         console.log("✅ OAuth2 Test successful! ID:", info.messageId);
         res.status(200).json({ success: true, messageId: info.messageId });
     } catch (err) {
-        console.error("❌ GMail OAuth2 Failure:", err.message);
-        res.status(500).json({ success: false, error: err.message });
+        console.error("❌ GMail OAuth2 Failure:", err);
+        logEmailError("ADMIN_TEST", err);
+        res.status(500).json({ 
+            success: false, 
+            message: `OAuth2 Failed: ${err.message}`, 
+            code: err.code,
+            command: err.command 
+        });
+    }
+});
+
+// Diagnostic Route to read error logs in production
+app.get('/api/admin/debug-mail', (req, res) => {
+    const password = req.headers['x-admin-password'];
+    if (password !== 'algorhythm@admin2026') return res.status(401).json({ success: false });
+
+    const logPath = path.join(__dirname, 'email_errors.log');
+    if (fs.existsSync(logPath)) {
+        const content = fs.readFileSync(logPath, 'utf8');
+        res.status(200).send(`<pre>${content}</pre>`);
+    } else {
+        res.status(200).send("No email errors logged yet.");
     }
 });
 // ----------------------------------------------
@@ -398,6 +434,7 @@ const sendConfirmationEmail = async (reg) => {
         console.log(`📧 Confirmation email sent via GMail OAuth2! ID: ${info.messageId} | Recipient: ${reg.email}`);
     } catch (err) {
         console.error(`❌ GMail OAuth2 Error for ${reg.email}:`, err.message);
+        logEmailError(reg.email, err);
     }
 };
 
@@ -806,9 +843,11 @@ app.post('/api/admin/send-report', async (req, res) => {
             code: error.code,
             command: error.command
         });
+        logEmailError("ADMIN_REPORT", error);
         res.status(500).json({ 
             success: false, 
-            message: `Failed to send email: ${error.message || 'Unknown error'}. Check server logs for details.` 
+            message: `Failed to send email: ${error.message || 'Unknown error'}. Check server logs for details.`,
+            code: error.code
         });
     }
 });
