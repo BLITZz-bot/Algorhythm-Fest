@@ -32,13 +32,13 @@ const GMAIL_REFRESH_TOKEN = (process.env.GMAIL_REFRESH_TOKEN || "").trim();
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
-    secure: false, // Use STARTTLS (Port 587) instead of SSL (Port 465)
+    secure: false, // Use STARTTLS (Port 587) for maximum cloud compatibility
     pool: true,
     maxConnections: 5,
-    connectionTimeout: 20000, 
-    family: 4,               
-    logger: true,              
-    debug: true,               // Keep debug on for this final test
+    connectionTimeout: 20000,
+    family: 4,
+    logger: false,
+    debug: false,
     auth: {
         type: 'OAuth2',
         user: SENDER_EMAIL,
@@ -47,7 +47,7 @@ const transporter = nodemailer.createTransport({
         refreshToken: GMAIL_REFRESH_TOKEN
     },
     tls: {
-        rejectUnauthorized: false // Necessary for some cloud-hosted certificates
+        rejectUnauthorized: false
     }
 });
 
@@ -99,8 +99,8 @@ app.use(cors({
         }
 
         // Allow any Vercel subdomain or the defined FRONTEND_URL
-        if (!process.env.FRONTEND_URL || 
-            allowedOrigins.includes(cleanOrigin) || 
+        if (!process.env.FRONTEND_URL ||
+            allowedOrigins.includes(cleanOrigin) ||
             cleanOrigin.endsWith('.vercel.app')) {
             callback(null, true);
         } else {
@@ -135,11 +135,11 @@ app.get('/api/admin/test-email', async (req, res) => {
     } catch (err) {
         console.error("❌ GMail OAuth2 Failure:", err);
         logEmailError("ADMIN_TEST", err);
-        res.status(500).json({ 
-            success: false, 
-            message: `OAuth2 Failed: ${err.message}`, 
+        res.status(500).json({
+            success: false,
+            message: `OAuth2 Failed: ${err.message}`,
             code: err.code,
-            command: err.command 
+            command: err.command
         });
     }
 });
@@ -278,10 +278,10 @@ const generatePDFPass = (reg) => {
         const mmToPt = 2.8346;
         const width = 180 * mmToPt;
         const height = 260 * mmToPt;
-        
-        const doc = new PDFDocument({ 
+
+        const doc = new PDFDocument({
             size: [width, height],
-            margins: { top: 0, left: 0, bottom: 0, right: 0 } 
+            margins: { top: 0, left: 0, bottom: 0, right: 0 }
         });
         const chunks = [];
 
@@ -298,7 +298,7 @@ const generatePDFPass = (reg) => {
         // Robust Category Normalization (Case-insensitive)
         const rawCat = reg.category || "Tech";
         const normalizedCategory = rawCat.trim().charAt(0).toUpperCase() + rawCat.trim().slice(1).toLowerCase();
-        
+
         console.log(`DEBUG: Generating PDF for ${reg.email} | Event: ${reg.eventTitle} | Category: [${rawCat}] -> Normalized: [${normalizedCategory}]`);
 
         const colors = {
@@ -318,21 +318,21 @@ const generatePDFPass = (reg) => {
             pageDoc.roundedRect(8 * mmToPt, 8 * mmToPt, 164 * mmToPt, 50 * mmToPt, 15 * mmToPt).fill();
             pageDoc.rect(8 * mmToPt, 25 * mmToPt, 164 * mmToPt, 33 * mmToPt).fill();
             pageDoc.fillColor('#ffffff').fontSize(24).font('Helvetica-Bold')
-                   .text("ALGORHYTHM 3.0", 0, 18 * mmToPt, { align: 'center', characterSpacing: 1 });
-            
+                .text("ALGORHYTHM 3.0", 0, 18 * mmToPt, { align: 'center', characterSpacing: 1 });
+
             pageDoc.fontSize(10).font('Helvetica')
-                   .text("OFFICIAL ACCESS PASS", 0, 31 * mmToPt, { align: 'center', characterSpacing: 2 });
+                .text("OFFICIAL ACCESS PASS", 0, 31 * mmToPt, { align: 'center', characterSpacing: 2 });
 
             // Tear Line (Dashed)
             pageDoc.lineWidth(1).strokeColor('#475569').dash(2 * mmToPt, { space: 2 * mmToPt })
-                   .moveTo(15 * mmToPt, 65 * mmToPt).lineTo(165 * mmToPt, 65 * mmToPt).stroke().undash();
+                .moveTo(15 * mmToPt, 65 * mmToPt).lineTo(165 * mmToPt, 65 * mmToPt).stroke().undash();
 
             // Instructions Bottom
             pageDoc.fillColor('#94a3b8').fontSize(7).font('Helvetica-Oblique')
-                   .text("SUBMIT THIS PASS AT THE REGISTRATION DESK", 0, 246 * mmToPt, { align: 'center' });
+                .text("SUBMIT THIS PASS AT THE REGISTRATION DESK", 0, 246 * mmToPt, { align: 'center' });
 
             pageDoc.fillColor('#ffffff').fontSize(8).font('Helvetica-Bold')
-                   .text("THANKS FOR REGISTERING!", 0, 253 * mmToPt, { align: 'center', characterSpacing: 1 });
+                .text("THANKS FOR REGISTERING!", 0, 253 * mmToPt, { align: 'center', characterSpacing: 1 });
             pageDoc.save().translate(171 * mmToPt, 220 * mmToPt).rotate(90);
             pageDoc.fillColor('#344155').fontSize(7).font('Helvetica').text("DESIGNED BY GRAFIK", 0, 0);
             pageDoc.restore();
@@ -373,7 +373,7 @@ const generatePDFPass = (reg) => {
             teamY += 15 * mmToPt;
             reg.teamMembers.forEach((m, i) => {
                 if (teamY > 220 * mmToPt) { doc.addPage({ size: [width, height], margins: { top: 0, left: 0, bottom: 0, right: 0 } }); drawTicketBase(doc); teamY = 80 * mmToPt; }
-                doc.fillColor(activeColor.accent).fontSize(11).font('Helvetica-Bold').text(`Member ${i+2}: ${m.fullName.toUpperCase()}`, 25 * mmToPt, teamY);
+                doc.fillColor(activeColor.accent).fontSize(11).font('Helvetica-Bold').text(`Member ${i + 2}: ${m.fullName.toUpperCase()}`, 25 * mmToPt, teamY);
                 teamY += 6 * mmToPt;
                 doc.fillColor('#94a3b8').fontSize(9).font('Helvetica').text(`Email: ${m.email} | Phone: ${m.phone}`, 25 * mmToPt, teamY);
                 teamY += 10 * mmToPt;
@@ -688,10 +688,10 @@ app.post('/api/admin/resend-confirmation/:id', async (req, res) => {
         }
 
         console.log(`📧 Manual Resend Triggered for: ${registration.email} (${registration.fullName})`);
-        
-        res.status(200).json({ 
-            success: true, 
-            message: `Confirmation email being resent to ${registration.email}` 
+
+        res.status(200).json({
+            success: true,
+            message: `Confirmation email being resent to ${registration.email}`
         });
 
         // Trigger automated confirmation email in background
@@ -719,10 +719,10 @@ app.post('/api/admin/resend-all-confirmations', async (req, res) => {
         }
 
         // Respond immediately so the admin UI doesn't hang
-        res.status(200).json({ 
-            success: true, 
+        res.status(200).json({
+            success: true,
             message: `Sending confirmation emails to ${registrations.length} registrations in background. This may take a few minutes.`,
-            total: registrations.length 
+            total: registrations.length
         });
 
         // Process emails in background with delay to avoid Gmail rate limits
@@ -870,8 +870,8 @@ app.post('/api/admin/send-report', async (req, res) => {
             command: error.command
         });
         logEmailError("ADMIN_REPORT", error);
-        res.status(500).json({ 
-            success: false, 
+        res.status(500).json({
+            success: false,
             message: `Failed to send email: ${error.message || 'Unknown error'}. Check server logs for details.`,
             code: error.code
         });
