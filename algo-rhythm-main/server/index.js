@@ -33,14 +33,14 @@ const GMAIL_REFRESH_TOKEN = (process.env.GMAIL_REFRESH_TOKEN || "").trim();
 // Global Nodemailer Transporter - Using OAuth2 for Gmail API (Port 443 equivalent)
 // Using DIRECT connection (no pool) for maximum reliability on Render's network
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: '74.125.142.108', // Literal IPv4 for smtp.gmail.com to bypass Render's DNS/IPv6 issues
     port: 587,
     secure: false, // STARTTLS
-    pool: false,   // DISABLE pooling (Render network often chokes on shared SMTP connections)
-    connectionTimeout: 60000, // Ultra-long 60-second timeout
+    pool: false,   
+    connectionTimeout: 60000, 
     greetingTimeout: 30000,
     socketTimeout: 60000,
-    family: 4,     // TRIPLE-FORCE IPv4 only
+    family: 4,     
     logger: true,
     debug: true,
     auth: {
@@ -51,7 +51,8 @@ const transporter = nodemailer.createTransport({
         refreshToken: GMAIL_REFRESH_TOKEN
     },
     tls: {
-        rejectUnauthorized: false, // Essential for cloud-hosted handshake stability
+        rejectUnauthorized: false,
+        servername: 'smtp.gmail.com', // Explicitly set for TLS verification
         minVersion: 'TLSv1.2'
     }
 });
