@@ -59,12 +59,15 @@ console.log(`📡 GMail OAuth2 Config: ${GMAIL_CLIENT_ID ? "LOADED" : "MISSING"}
 
 
 // Verify SMTP Connection on Startup
+// Added 'Token Peek' to verify environment sync on Render
+console.log(`🔑 Refresh Token Peek: ${GMAIL_REFRESH_TOKEN.substring(0, 5)}...`);
+
 transporter.verify((error, success) => {
     if (error) {
-        console.error("❌ SMTP Verification Failed:", error);
+        console.error("❌ SMTP Verification Failed (Handshake):", error);
         logEmailError("SYSTEM_STARTUP", error);
     } else {
-        console.log("✅ GMail SMTP System: Ready to Send Emails");
+        console.log("✅ GMail SMTP System: Ready & Handshaked");
     }
 });
 
