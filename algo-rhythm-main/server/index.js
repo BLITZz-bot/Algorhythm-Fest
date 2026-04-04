@@ -29,9 +29,7 @@ const GMAIL_REFRESH_TOKEN = (process.env.GMAIL_REFRESH_TOKEN || "").trim();
 // Global Nodemailer Transporter - Using OAuth2 for Gmail API (Port 443 equivalent)
 // Added pool: true for better bulk operation stability (Resend All / Reports)
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // SSL
+    service: 'gmail',
     pool: true,   // Use connection pooling
     maxConnections: 5,
     auth: {
@@ -665,12 +663,14 @@ app.post('/api/admin/resend-confirmation/:id', async (req, res) => {
 
         console.log(`📧 Manual Resend Triggered for: ${registration.email} (${registration.fullName})`);
         
-        // Trigger automated confirmation email
-        await sendConfirmationEmail(registration);
-
         res.status(200).json({ 
             success: true, 
-            message: `Confirmation email resent successfully to ${registration.email}` 
+            message: `Confirmation email being resent to ${registration.email}` 
+        });
+
+        // Trigger automated confirmation email in background
+        sendConfirmationEmail(registration).catch(err => {
+            console.error("Resend task error:", err);
         });
     } catch (error) {
         console.error("Single Resend Error:", error);
