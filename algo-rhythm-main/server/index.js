@@ -19,6 +19,7 @@ const PORT = process.env.PORT || 5000;
 const SENDER_EMAIL = (process.env.SENDER_EMAIL || "").trim();
 const SENDER_PASSWORD = (process.env.SENDER_PASSWORD || "").trim();
 const ADMIN_RECEIVER_EMAIL = (process.env.ADMIN_RECEIVER_EMAIL || "").trim();
+const ADMIN_EMAILS = ADMIN_RECEIVER_EMAIL.split(',').map(e => e.trim()).filter(e => e.length > 5);
 const BASE_URL = (process.env.BASE_URL || "").trim().replace(/\/$/, "");
 const FRONTEND_URL = (process.env.FRONTEND_URL || "").trim().replace(/\/$/, "");
 
@@ -56,6 +57,16 @@ const logEmailError = (regEmail, error) => {
 console.log(`📡 GMail OAuth2 Config: ${GMAIL_CLIENT_ID ? "LOADED" : "MISSING"}`);
 
 
+
+// Verify SMTP Connection on Startup
+transporter.verify((error, success) => {
+    if (error) {
+        console.error("❌ SMTP Verification Failed:", error);
+        logEmailError("SYSTEM_STARTUP", error);
+    } else {
+        console.log("✅ GMail SMTP System: Ready to Send Emails");
+    }
+});
 
 // Middleware
 const allowedOrigins = process.env.FRONTEND_URL
@@ -100,7 +111,7 @@ app.get('/api/admin/test-email', async (req, res) => {
         }
         const info = await transporter.sendMail({
             from: SENDER_EMAIL,
-            to: ADMIN_RECEIVER_EMAIL.split(',')[0].trim(),
+            to: ADMIN_EMAILS[0] || SENDER_EMAIL,
             subject: "ALGORHYTHM GMAIL OAUTH2 TEST 🚀",
             text: `GMail API (OAuth2) is working!\nSender: ${SENDER_EMAIL}\nTime: ${new Date().toLocaleString()}`
         });
@@ -820,7 +831,7 @@ app.post('/api/admin/send-report', async (req, res) => {
 
         const mailOptions = {
             from: SENDER_EMAIL,
-            to: ADMIN_RECEIVER_EMAIL, // Use the raw string for better stability with GMail API
+            to: ADMIN_EMAILS, // Pass as array for maximum stability in GMail API
             subject: `AlgoRhythm Fest 2026 - Master Registration Report (${new Date().toLocaleDateString()})`,
             text: `Hello Admin,\n\nPlease find the attached automated registration report for AlgoRhythm Fest 2026.\n\nTotal Registrations from DB: ${registrations.length}\nGenerated at: ${new Date().toLocaleString()}`,
             attachments: [
