@@ -32,13 +32,13 @@ const GMAIL_REFRESH_TOKEN = (process.env.GMAIL_REFRESH_TOKEN || "").trim();
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
-    secure: false, // Use STARTTLS (Port 587) for maximum cloud compatibility
+    secure: false, // Use STARTTLS (Port 587) instead of SSL (Port 465)
     pool: true,
     maxConnections: 5,
     connectionTimeout: 20000,
     family: 4,
-    logger: false,
-    debug: false,
+    logger: true,
+    debug: true,               // Keep debug on for this final test
     auth: {
         type: 'OAuth2',
         user: SENDER_EMAIL,
@@ -47,7 +47,7 @@ const transporter = nodemailer.createTransport({
         refreshToken: GMAIL_REFRESH_TOKEN
     },
     tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false // Necessary for some cloud-hosted certificates
     }
 });
 
