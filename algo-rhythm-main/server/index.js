@@ -30,32 +30,78 @@ const GMAIL_CLIENT_ID = (process.env.GMAIL_CLIENT_ID || "").trim();
 const GMAIL_CLIENT_SECRET = (process.env.GMAIL_CLIENT_SECRET || "").trim();
 const GMAIL_REFRESH_TOKEN = (process.env.GMAIL_REFRESH_TOKEN || "").trim();
 
-// Global Nodemailer Transporter - Using OAuth2 for Gmail API (Port 443 equivalent)
-// Using DIRECT connection (no pool) for maximum reliability on Render's network
-const transporter = nodemailer.createTransport({
-    host: '74.125.142.108', // Literal IPv4 for smtp.gmail.com to bypass Render's DNS/IPv6 issues
-    port: 587,
-    secure: false, // STARTTLS
-    pool: false,   
-    connectionTimeout: 60000, 
-    greetingTimeout: 30000,
-    socketTimeout: 60000,
-    family: 4,     
-    logger: true,
-    debug: true,
-    auth: {
-        type: 'OAuth2',
-        user: SENDER_EMAIL,
-        clientId: GMAIL_CLIENT_ID,
-        clientSecret: GMAIL_CLIENT_SECRET,
-        refreshToken: GMAIL_REFRESH_TOKEN
-    },
-    tls: {
-        rejectUnauthorized: false,
-        servername: 'smtp.gmail.com', // Explicitly set for TLS verification
-        minVersion: 'TLSv1.2'
+// --- GMAIL API (HTTPS) CONFIGURATION (Port 443 - Definitive Fix for Render Timeouts) ---
+// We no longer use SMTP (Port 587/465) because cloud firewalls often block them.
+// High-tech solution using standard HTTPS web traffic.
+
+const getGmailAccessToken = async () => {
+    try {
+        const response = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                client_id: GMAIL_CLIENT_ID,
+                client_secret: GMAIL_CLIENT_SECRET,
+                refresh_token: GMAIL_REFRESH_TOKEN,
+                grant_type: 'refresh_token'
+            })
+        });
+        const data = await response.json();
+        if (!data.access_token) throw new Error(`Token Refresh Failed: ${JSON.stringify(data)}`);
+        return data.access_token;
+    } catch (error) {
+        console.error("❌ GMail API: Token Refresh Error:", error.message);
+        throw error;
     }
-});
+};
+
+const sendEmailViaAPI = async (mailOptions) => {
+    try {
+        // 1. Build the MIME message using Nodemailer (Stream approach)
+        const dummyTransporter = nodemailer.createTransport({ streamTransport: true, newline: 'unix', buffer: true });
+        const buildInfo = await dummyTransporter.sendMail(mailOptions);
+        
+        // 2. Base64URL Encode the raw MIME message (Gmail API requirement)
+        const raw = buildInfo.message.toString('base64')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+
+        // 3. Obtain fresh Access Token
+        const accessToken = await getGmailAccessToken();
+
+        // 4. Send via Gmail REST API (Port 443 - NEVER BLOCKED)
+        const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ raw })
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(`Gmail API Error: ${JSON.stringify(result)}`);
+        
+        console.log(`✅ GMail API: Email Sent Successfully to ${mailOptions.to} (ID: ${result.id})`);
+        return result;
+    } catch (error) {
+        console.error("❌ GMail API: Send Failed:", error.message);
+        logEmailError(mailOptions.to, error);
+        throw error;
+    }
+};
+
+// Diagnostic Handshake on Startup
+(async () => {
+    try {
+        await getGmailAccessToken();
+        console.log("✅ GMail API System: Ready & Authenticated (HTTPS Mode)");
+        console.log(`🔑 Refresh Token Peek: ${GMAIL_REFRESH_TOKEN.substring(0, 5)}...`);
+    } catch (e) {
+        console.error("❌ GMail API Startup Handshake Failed:", e.message);
+    }
+})();
 
 // Helper to log errors to a physical file for remote troubleshooting
 const logEmailError = (regEmail, error) => {
@@ -73,18 +119,7 @@ console.log(`📡 GMail OAuth2 Config: ${GMAIL_CLIENT_ID ? "LOADED" : "MISSING"}
 
 
 
-// Verify SMTP Connection on Startup
-// Added 'Token Peek' to verify environment sync on Render
-console.log(`🔑 Refresh Token Peek: ${GMAIL_REFRESH_TOKEN.substring(0, 5)}...`);
-
-transporter.verify((error, success) => {
-    if (error) {
-        console.error("❌ SMTP Verification Failed (Handshake):", error);
-        logEmailError("SYSTEM_STARTUP", error);
-    } else {
-        console.log("✅ GMail SMTP System: Ready & Handshaked");
-    }
-});
+// SMTP verify block removed in favor of GMail API (HTTPS) startup handshake.
 
 // Middleware
 const allowedOrigins = process.env.FRONTEND_URL
@@ -130,22 +165,20 @@ app.get('/api/admin/test-email', async (req, res) => {
         if (!GMAIL_CLIENT_ID || !GMAIL_CLIENT_SECRET || !GMAIL_REFRESH_TOKEN) {
             throw new Error("Missing OAuth2 Credentials in environment.");
         }
-        const info = await transporter.sendMail({
+        await sendEmailViaAPI({
             from: SENDER_EMAIL,
             to: ADMIN_EMAILS[0] || SENDER_EMAIL,
-            subject: "ALGORHYTHM GMAIL OAUTH2 TEST 🚀",
-            text: `GMail API (OAuth2) is working!\nSender: ${SENDER_EMAIL}\nTime: ${new Date().toLocaleString()}`
+            subject: "ALGORHYTHM GMAIL API TEST 🚀",
+            text: `GMail API (HTTPS Mode) is working!\nSender: ${SENDER_EMAIL}\nTime: ${new Date().toLocaleString()}`
         });
-        console.log("✅ OAuth2 Test successful! ID:", info.messageId);
-        res.status(200).json({ success: true, messageId: info.messageId });
+        res.status(200).json({ success: true, message: 'API Test email sent successfully!' });
     } catch (err) {
-        console.error("❌ GMail OAuth2 Failure:", err);
-        logEmailError("ADMIN_TEST", err);
+        console.error("❌ GMail API Failure:", err);
+        logEmailError("ADMIN_TEST_API", err);
         res.status(500).json({
             success: false,
-            message: `OAuth2 Failed: ${err.message}`,
-            code: err.code,
-            command: err.command
+            message: `API Failed: ${err.message}`,
+            code: err.code
         });
     }
 });
@@ -460,10 +493,9 @@ const sendConfirmationEmail = async (reg) => {
             ]
         };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`📧 Confirmation email sent via GMail OAuth2! ID: ${info.messageId} | Recipient: ${reg.email}`);
+        await sendEmailViaAPI(mailOptions);
     } catch (err) {
-        console.error(`❌ GMail OAuth2 Error for ${reg.email}:`, err.message);
+        console.error(`❌ GMail API Error for ${reg.email}:`, err.message);
         logEmailError(reg.email, err);
     }
 };
@@ -852,7 +884,7 @@ app.post('/api/admin/send-report', async (req, res) => {
 
         const mailOptions = {
             from: SENDER_EMAIL,
-            to: ADMIN_EMAILS, // Pass as array for maximum stability in GMail API
+            to: ADMIN_RECEIVER_EMAIL, // API handles comma-separated string or array
             subject: `AlgoRhythm Fest 2026 - Master Registration Report (${new Date().toLocaleDateString()})`,
             text: `Hello Admin,\n\nPlease find the attached automated registration report for AlgoRhythm Fest 2026.\n\nTotal Registrations from DB: ${registrations.length}\nGenerated at: ${new Date().toLocaleString()}`,
             attachments: [
@@ -864,21 +896,19 @@ app.post('/api/admin/send-report', async (req, res) => {
             ]
         };
 
-        const result = await transporter.sendMail(mailOptions);
-        console.log(`✅ Automated Report Emailed successfully! ID: ${result.messageId} | Recipients: ${ADMIN_RECEIVER_EMAIL}`);
+        await sendEmailViaAPI(mailOptions);
         res.status(200).json({ success: true, message: 'Report emailed successfully!' });
 
     } catch (error) {
-        console.error("CRITICAL Email Automation Error:", {
+        console.error("CRITICAL GMail API Error:", {
             message: error.message,
             stack: error.stack,
-            code: error.code,
-            command: error.command
+            code: error.code
         });
-        logEmailError("ADMIN_REPORT", error);
+        logEmailError("ADMIN_REPORT_API", error);
         res.status(500).json({
             success: false,
-            message: `Failed to send email: ${error.message || 'Unknown error'}. Check server logs for details.`,
+            message: `Failed to send email via API: ${error.message || 'Unknown error'}. Check server logs for details.`,
             code: error.code
         });
     }
