@@ -33,8 +33,9 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     pool: true,
     maxConnections: 5,
-    connectionTimeout: 20000, // 20-second timeout to avoid hangups
-    logger: true,              // Print raw SMTP chatter to Render logs
+    connectionTimeout: 20000, 
+    family: 4,                // FORCE IPv4 to fix ENETUNREACH on Render
+    logger: true,              
     debug: false,
     auth: {
         type: 'OAuth2',
@@ -92,7 +93,10 @@ app.use(cors({
             return callback(null, true);
         }
 
-        if (!process.env.FRONTEND_URL || allowedOrigins.includes(cleanOrigin)) {
+        // Allow any Vercel subdomain or the defined FRONTEND_URL
+        if (!process.env.FRONTEND_URL || 
+            allowedOrigins.includes(cleanOrigin) || 
+            cleanOrigin.endsWith('.vercel.app')) {
             callback(null, true);
         } else {
             console.warn(`❌ CORS Blocked: ${origin}. Not in: ${allowedOrigins}`);
