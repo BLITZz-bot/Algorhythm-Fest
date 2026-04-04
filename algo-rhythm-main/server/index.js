@@ -12,6 +12,9 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const PDFDocument = require('pdfkit');
 
+// FORCE IPv4 Priority at the DNS level (Crucial for Render's network stability)
+dns.setDefaultResultOrder('ipv4first');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
