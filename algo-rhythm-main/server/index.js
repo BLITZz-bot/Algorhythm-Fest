@@ -31,8 +31,11 @@ const GMAIL_REFRESH_TOKEN = (process.env.GMAIL_REFRESH_TOKEN || "").trim();
 // Added pool: true for better bulk operation stability (Resend All / Reports)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
-    pool: true,   // Use connection pooling
+    pool: true,
     maxConnections: 5,
+    connectionTimeout: 20000, // 20-second timeout to avoid hangups
+    logger: true,              // Print raw SMTP chatter to Render logs
+    debug: false,
     auth: {
         type: 'OAuth2',
         user: SENDER_EMAIL,
