@@ -1085,9 +1085,14 @@ app.post('/api/admin/send-event-mail', async (req, res) => {
         };
 
         if (target === 'individual' && registrationId) {
-            // Send to a single registration
-            const reg = await Registration.findById(registrationId);
-            if (!reg) return res.status(404).json({ success: false, message: 'Registration not found' });
+            // Support both MongoDB _id and custom id string (Timestamp-based)
+            const reg = await Registration.findOne({ 
+                $or: [
+                    { id: registrationId },
+                    { _id: mongoose.isValidObjectId(registrationId) ? registrationId : null }
+                ].filter(q => q._id !== null || q.id)
+            });
+            if (!reg) return res.status(404).json({ success: true, message: 'Registration not found' });
 
             await sendEmailViaAPI({
                 from: SENDER_EMAIL,
