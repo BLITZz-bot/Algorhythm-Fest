@@ -1,8 +1,26 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
-export default function Navbar({ onOpenRegistrations, onOpenAdmin }) {
+export default function Navbar({ onOpenRegistrations, onOpenAdmin, onOpenThemeReveal }) {
   const [open, setOpen] = useState(false)
+  const [themeVisible, setThemeVisible] = useState(false)
+
+  // Fetch theme reveal status from server
+  useEffect(() => {
+    const checkTheme = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/theme/status`)
+        const data = await res.json()
+        if (data.success) setThemeVisible(data.revealed)
+      } catch (err) {
+        console.error("Theme status fetch failed", err)
+      }
+    }
+    checkTheme()
+    // Re-check every 30s for admin live toggle
+    const interval = setInterval(checkTheme, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Floating animation for the hamburger menu
   const hamburgerVariants = {
@@ -88,7 +106,7 @@ export default function Navbar({ onOpenRegistrations, onOpenAdmin }) {
         </motion.button>
 
         {/* LOGO AREA - SECRET ADMIN LINK (Hidden) */}
-        <div 
+        <div
           className="mb-12 mt-4 cursor-default active:scale-95 transition-transform"
           onClick={() => { onOpenAdmin(); setOpen(false); }}
         >
@@ -123,7 +141,6 @@ export default function Navbar({ onOpenRegistrations, onOpenAdmin }) {
 
           <motion.div variants={itemVariants} className="w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent my-4" />
 
-          {/* Registrations Button */}
           <motion.button
             variants={itemVariants}
             whileHover={{ scale: 1.02 }}
@@ -137,6 +154,23 @@ export default function Navbar({ onOpenRegistrations, onOpenAdmin }) {
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </span>
           </motion.button>
+
+          {/* Theme Reveal Button - Only shows when admin turns it ON */}
+          {themeVisible && (
+            <motion.button
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => { onOpenThemeReveal(); setOpen(false); }}
+              className="w-full relative px-6 py-4 rounded-xl bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/30 hover:border-blue-400/60 hover:from-blue-600/30 hover:to-cyan-600/30 transition-all group overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:250%_250%] group-hover:animate-shine" />
+              <span className="relative z-10 text-blue-300 font-semibold flex items-center justify-between">
+                ✨ SHOTCUT THEME
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" /></svg>
+              </span>
+            </motion.button>
+          )}
 
 
         </motion.nav>

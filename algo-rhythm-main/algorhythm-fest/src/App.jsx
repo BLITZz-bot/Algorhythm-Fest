@@ -24,6 +24,7 @@ import AdminDashboard from "./components/AdminDashboard"
 import FixedWatermark from "./components/FixedWatermark"
 import WelcomeAnimation from "./components/WelcomeAnimation"
 import PrizePool from "./components/PrizePool"
+import ThemeRevealModal from "./components/ThemeRevealModal"
 import { useState, useEffect } from "react"
 
 export default function App() {
@@ -33,6 +34,7 @@ export default function App() {
     return sessionStorage.getItem('hasSeenWelcome') === 'true';
   });
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [isThemeRevealOpen, setIsThemeRevealOpen] = useState(false);
 
 
   /* ===== Scroll Parallax ===== */
@@ -98,6 +100,7 @@ export default function App() {
         <Navbar
           onOpenRegistrations={() => setIsRegistrationsOpen(true)}
           onOpenAdmin={() => setIsAdminOpen(true)}
+          onOpenThemeReveal={() => setIsThemeRevealOpen(true)}
         />
 
         <MyRegistrations
@@ -107,6 +110,7 @@ export default function App() {
           autoDownload={autoDownload}
         />
         <AdminDashboard isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+        <ThemeRevealModal isOpen={isThemeRevealOpen} onClose={() => setIsThemeRevealOpen(false)} />
 
         <CornerLogos
           isWelcomeDone={isWelcomeDone}

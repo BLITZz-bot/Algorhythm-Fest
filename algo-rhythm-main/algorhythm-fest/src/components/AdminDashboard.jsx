@@ -41,9 +41,36 @@ export default function AdminDashboard({ isOpen, onClose }) {
     const [individualResending, setIndividualResending] = useState({}); // Tracking individual resends
     const [resending, setResending] = useState(false);
 
+    // Theme Reveal States
+    const [isThemeAuth, setIsThemeAuth] = useState(false);
+    const [themePassInput, setThemePassInput] = useState("");
+    const [themeAuthErr, setThemeAuthErr] = useState("");
+    const [themeTitle, setThemeTitle] = useState("");
+    const [themeDescription, setThemeDescription] = useState("");
+    const [isThemeRevealed, setIsThemeRevealed] = useState(false);
+    const [isEditingTheme, setIsEditingTheme] = useState(false);
+    const [themeSaving, setThemeSaving] = useState(false);
+
+    // Event Mailer States
+    const [isMailerAuth, setIsMailerAuth] = useState(false);
+    const [mailerPassInput, setMailerPassInput] = useState("");
+    const [mailerAuthErr, setMailerAuthErr] = useState("");
+    const [mailerSubject, setMailerSubject] = useState("We're Excited to See You Tomorrow! 🚀");
+    const [mailerBody, setMailerBody] = useState("Please carry your PDF pass (digital or printed).\nArrive at the registration desk by the time mentioned below.\nBring your college ID card for verification.\nEnsure your team is present together.");
+    const [mailerTime, setMailerTime] = useState("8:30 AM - 9:00 AM");
+    const [mailerVenue, setMailerVenue] = useState("GIS Auditorium, GCEM");
+    const [mailerContact, setMailerContact] = useState("Bharath");
+    const [mailerPhone, setMailerPhone] = useState("7975871167");
+    const [mailerSending, setMailerSending] = useState(false);
+    const [individualMailerSending, setIndividualMailerSending] = useState({});
+    const [showMailerPreview, setShowMailerPreview] = useState(false);
+    const [isMailerConfirmOpen, setIsMailerConfirmOpen] = useState(false);
+    const [mailerConfirmPassword, setMailerConfirmPassword] = useState("");
+    const [mailerConfirmError, setMailerConfirmError] = useState("");
+
     // Custom Notifications (Toasts)
     const [toasts, setToasts] = useState([]);
-    
+
     // Custom Action Confirmation
     const [confirmModal, setConfirmModal] = useState({
         isOpen: false,
@@ -81,6 +108,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
             setLoginError("");
             fetchRegistrations(password); // Automatically load data instantly on successful login
             fetchEventStatuses(); // Load event toggles
+            fetchThemeConfig(); // Load theme config
         } else {
             setLoginError("Invalid Admin Password");
         }
@@ -131,6 +159,117 @@ export default function AdminDashboard({ isOpen, onClose }) {
             },
             "primary"
         );
+    };
+
+    const handleThemeAuth = (e) => {
+        e.preventDefault();
+        if (themePassInput === "bharatha2111") {
+            setIsThemeAuth(true);
+            setThemeAuthErr("");
+        } else {
+            setThemeAuthErr("Incorrect Password");
+        }
+    };
+
+    const handleMailerAuth = (e) => {
+        e.preventDefault();
+        if (mailerPassInput === "bharatha2111") {
+            setIsMailerAuth(true);
+            setMailerAuthErr("");
+        } else {
+            setMailerAuthErr("Incorrect Password");
+        }
+    };
+
+    const sendEventMail = async (target, registrationId = null) => {
+        if (target === 'all') setMailerSending(true);
+        else setIndividualMailerSending(prev => ({ ...prev, [registrationId]: true }));
+
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/send-event-mail`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+                body: JSON.stringify({
+                    target,
+                    registrationId,
+                    subject: mailerSubject,
+                    body: mailerBody,
+                    arrivalTime: mailerTime,
+                    venue: mailerVenue,
+                    contactName: mailerContact,
+                    contactPhone: mailerPhone
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                if (target === 'all') {
+                    addToast(`✅ Bulk Send: ${data.sent} sent, ${data.failed} failed`, "success");
+                } else {
+                    addToast(`✅ ${data.message}`, "success");
+                }
+            } else {
+                addToast(`❌ ${data.message}`, "error");
+            }
+        } catch (err) {
+            addToast("❌ Server error sending mail", "error");
+        } finally {
+            if (target === 'all') setMailerSending(false);
+            else setIndividualMailerSending(prev => ({ ...prev, [registrationId]: false }));
+        }
+    };
+
+    const getMailerPreviewHtml = () => {
+        const instructionLines = mailerBody.split('\n').filter(l => l.trim()).map(line =>
+            `<tr><td style="padding:8px 0;padding-left:20px;color:#e2e8f0;font-size:14px;line-height:1.7;border-left:3px solid #7c3aed;">${line.trim()}</td></tr>`
+        ).join('');
+        return `<div style="font-family:'Segoe UI',sans-serif;max-width:100%;background:#0f111a;color:#e2e8f0;border-radius:16px;overflow:hidden;border:1px solid #1e1e3a;"><div style="background:linear-gradient(135deg,#7c3aed,#9333ea,#a855f7);padding:30px 20px;text-align:center;"><h1 style="color:#fff;margin:0;font-size:22px;letter-spacing:2px;font-weight:900;">ALGO-RHYTHM 3.0</h1><p style="color:rgba(255,255,255,0.85);margin-top:6px;font-size:11px;letter-spacing:3px;text-transform:uppercase;">Official Communication</p></div><div style="padding:25px 20px;"><p style="font-size:15px;color:#f1f5f9;margin-bottom:5px;">Hello <strong style="color:#a78bfa;">John Doe</strong>,</p><p style="font-size:13px;color:#94a3b8;margin-bottom:20px;">Registered for: <strong style="color:#c4b5fd;">Sample Event</strong></p><div style="background:#1a1c2e;border:1px solid #2d2f4a;border-radius:12px;padding:20px;margin-bottom:20px;"><h3 style="color:#a78bfa;font-size:11px;text-transform:uppercase;letter-spacing:3px;margin:0 0 12px 0;">📋 Instructions</h3><table style="width:100%;border-collapse:collapse;">${instructionLines}</table></div><table style="width:100%;border-collapse:collapse;margin-bottom:20px;"><tr><td style="width:50%;padding-right:6px;vertical-align:top;"><div style="background:#1a1c2e;border:1px solid #2d2f4a;border-radius:12px;padding:15px;text-align:center;"><p style="color:#7c3aed;font-size:10px;text-transform:uppercase;letter-spacing:2px;margin:0 0 6px 0;font-weight:700;">🕐 Arrival Time</p><p style="color:#f1f5f9;font-size:16px;font-weight:900;margin:0;">${mailerTime}</p></div></td><td style="width:50%;padding-left:6px;vertical-align:top;"><div style="background:#1a1c2e;border:1px solid #2d2f4a;border-radius:12px;padding:15px;text-align:center;"><p style="color:#7c3aed;font-size:10px;text-transform:uppercase;letter-spacing:2px;margin:0 0 6px 0;font-weight:700;">📍 Venue</p><p style="color:#f1f5f9;font-size:14px;font-weight:900;margin:0;">${mailerVenue}</p></div></td></tr></table><div style="background:linear-gradient(135deg,#1e1b4b,#2e1065);border:1px solid #4c1d95;border-radius:12px;padding:15px;text-align:center;margin-bottom:20px;"><p style="color:#c4b5fd;font-size:11px;text-transform:uppercase;letter-spacing:2px;margin:0 0 8px 0;">📞 On-Ground Assistance</p><p style="color:#e2e8f0;font-size:12px;margin:0 0 10px 0;line-height:1.6;">If you face any issues at the registration desk or need any help on the event day, please do not hesitate to reach out to our team coordinator.</p><p style="color:#fff;font-size:15px;font-weight:900;margin:0;"><span style="color:#a78bfa;">${mailerContact}</span> — <span style="color:#a78bfa;">${mailerPhone}</span></p></div><p style="font-size:13px;color:#64748b;text-align:center;">We can't wait to see you there! 🎉</p></div><div style="border-top:1px solid #1e1e3a;padding:15px;text-align:center;"><p style="color:#475569;font-size:11px;margin:0;">AlgoRhythm 3.0 | GCEM, Bengaluru</p></div></div>`;
+    };
+
+    const fetchThemeConfig = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/theme/status`);
+            const data = await res.json();
+            if (data.success) {
+                setThemeTitle(data.title || "");
+                setThemeDescription(data.description || "");
+                setIsThemeRevealed(data.revealed || false);
+            }
+        } catch (err) {
+            console.error("Failed to fetch theme config", err);
+        }
+    };
+
+    const saveThemeConfig = async (overrides = {}) => {
+        setThemeSaving(true);
+        try {
+            const body = {
+                title: overrides.title !== undefined ? overrides.title : themeTitle,
+                description: overrides.description !== undefined ? overrides.description : themeDescription,
+                revealed: overrides.revealed !== undefined ? overrides.revealed : isThemeRevealed
+            };
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/theme/update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (data.success) {
+                addToast("Theme config saved!", "success");
+                setIsEditingTheme(false);
+            } else {
+                addToast("Failed to save theme", "error");
+            }
+        } catch (err) {
+            addToast("Server error saving theme", "error");
+        } finally {
+            setThemeSaving(false);
+        }
+    };
+
+    const toggleThemeReveal = async () => {
+        const next = !isThemeRevealed;
+        setIsThemeRevealed(next);
+        await saveThemeConfig({ revealed: next });
     };
 
     const fetchEventStatuses = async () => {
@@ -560,6 +699,18 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                 >
                                     Bulk Resend
                                 </button>
+                                <button
+                                    onClick={() => setActiveTab("themeReveal")}
+                                    className={`text-xs sm:text-sm font-bold pb-3 px-1 sm:px-2 transition-colors flex-shrink-0 ${activeTab === "themeReveal" ? "text-blue-400 border-b-2 border-blue-500 font-extrabold" : "text-gray-500 hover:text-gray-300"}`}
+                                >
+                                    🎬 Theme Reveal
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab("eventMailer")}
+                                    className={`text-xs sm:text-sm font-bold pb-3 px-1 sm:px-2 transition-colors flex-shrink-0 ${activeTab === "eventMailer" ? "text-emerald-400 border-b-2 border-emerald-500 font-extrabold" : "text-gray-500 hover:text-gray-300"}`}
+                                >
+                                    📬 Event Mailer
+                                </button>
                             </div>
                             <div className="absolute right-0 top-0 bottom-1 w-10 bg-gradient-to-l from-[#0f111a] to-transparent pointer-events-none md:hidden" />
                         </div>
@@ -693,7 +844,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                         ) : activeTab === "manage" ? (
                             <div className="flex-1 overflow-auto rounded-3xl border border-white/10 bg-[#0f111a] flex flex-col items-center justify-center">
                                 {!isManageAuth ? (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className="max-w-sm w-full p-8 bg-white/5 border border-white/10 rounded-3xl shadow-2xl text-center"
@@ -722,7 +873,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     <div className="w-full h-full p-8 overflow-auto">
                                         <div className="flex justify-between items-center mb-10">
                                             <h3 className="text-2xl font-bold text-white">Manage Database</h3>
-                                            <button 
+                                            <button
                                                 onClick={() => { setDeleteTargetId(null); setDeleteTargetName("ALL"); setIsClearModalOpen(true); }}
                                                 className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg"
                                             >
@@ -743,10 +894,10 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     </div>
                                 )}
                             </div>
-                        ) : (
+                        ) : activeTab === "emails" ? (
                             <div className="flex-1 overflow-auto rounded-3xl border border-white/10 bg-[#0f111a] flex flex-col items-center justify-center">
                                 {!isEmailAuth ? (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className="max-w-sm w-full p-8 bg-white/5 border border-white/10 rounded-3xl shadow-2xl text-center"
@@ -784,7 +935,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                 </div>
                                                 <p className="text-gray-400 text-xs sm:text-sm max-w-md">Sends tickets to every student in the database.</p>
                                             </div>
-                                            <button 
+                                            <button
                                                 onClick={() => { setIsResendModalOpen(true); setResendError(""); setResendPassword(""); setResendConfirm(false); }}
                                                 className="w-full md:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-amber-600 hover:bg-amber-700 text-white rounded-xl sm:rounded-2xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 whitespace-nowrap text-xs sm:text-sm"
                                             >
@@ -817,7 +968,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <button 
+                                                                <button
                                                                     onClick={() => resendIndividualEmail(reg)}
                                                                     disabled={individualResending[reg.id]}
                                                                     className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-bold transition flex items-center gap-1 sm:gap-1.5 whitespace-nowrap flex-shrink-0 ${individualResending[reg.id] ? 'bg-gray-700 text-gray-500' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500 hover:text-white group-hover:scale-105'}`}
@@ -840,7 +991,269 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                     </div>
                                 )}
                             </div>
-                        )}
+                        ) : activeTab === "themeReveal" ? (
+                            <div className="flex-1 overflow-auto rounded-3xl border border-white/10 bg-[#0f111a] flex flex-col items-center justify-center">
+                                {!isThemeAuth ? (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="max-w-sm w-full p-8 bg-white/5 border border-white/10 rounded-3xl shadow-2xl text-center"
+                                    >
+                                        <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-400">
+                                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path></svg>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white mb-2">Theme Reveal Control</h3>
+                                        <p className="text-gray-400 text-sm mb-6">Manage the cinematic theme reveal for event leaders.</p>
+                                        <form onSubmit={handleThemeAuth} className="space-y-4">
+                                            <input
+                                                type="password"
+                                                autoFocus
+                                                value={themePassInput}
+                                                onChange={(e) => setThemePassInput(e.target.value)}
+                                                placeholder="Secondary Password"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
+                                            />
+                                            {themeAuthErr && <p className="text-red-400 text-xs font-bold">{themeAuthErr}</p>}
+                                            <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">
+                                                Unlock Theme Manager
+                                            </button>
+                                        </form>
+                                    </motion.div>
+                                ) : (
+                                    <div className="w-full h-full p-2 sm:p-6 flex flex-col">
+                                        {/* Master Switch */}
+                                        <div className={`border rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-4 sm:mb-6 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 text-center md:text-left ${isThemeRevealed ? 'bg-blue-500/5 border-blue-500/20' : 'bg-gray-500/5 border-gray-500/20'}`}>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 sm:gap-3 justify-center md:justify-start mb-1 sm:mb-2">
+                                                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center ${isThemeRevealed ? 'bg-blue-500/20 text-blue-500' : 'bg-gray-500/20 text-gray-500'}`}>
+                                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                    </div>
+                                                    <h3 className="text-lg sm:text-xl font-bold text-white uppercase tracking-wider">Master Switch</h3>
+                                                </div>
+                                                <p className="text-gray-400 text-xs sm:text-sm max-w-md">{isThemeRevealed ? 'Theme is LIVE — Navbar button is visible to all users.' : 'Theme is HIDDEN — Navbar button is not visible.'}</p>
+                                            </div>
+                                            <button
+                                                onClick={toggleThemeReveal}
+                                                className={`w-full md:w-auto px-6 py-3 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl font-black transition-all shadow-lg whitespace-nowrap text-xs sm:text-sm ${isThemeRevealed ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-400'}`}
+                                            >
+                                                {isThemeRevealed ? '🟢 REVEALED (LIVE)' : '🔴 HIDDEN (OFF)'}
+                                            </button>
+                                        </div>
+
+                                        {/* Content Editor */}
+                                        <div className="flex-1 flex flex-col min-h-0">
+                                            <div className="flex items-center justify-between mb-3 sm:mb-4 px-1">
+                                                <h4 className="text-[10px] sm:text-sm font-bold text-gray-500 sm:text-gray-400 uppercase tracking-widest">Theme Content</h4>
+                                                <button
+                                                    onClick={() => setIsEditingTheme(!isEditingTheme)}
+                                                    className={`text-[10px] sm:text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-lg transition ${isEditingTheme ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}`}
+                                                >
+                                                    {isEditingTheme ? 'Cancel' : '✏️ Edit'}
+                                                </button>
+                                            </div>
+                                            <div className="flex-1 overflow-auto rounded-xl sm:rounded-2xl border border-white/5 bg-white/[0.02] p-4 sm:p-6">
+                                                <div className="space-y-6">
+                                                    {/* Title */}
+                                                    <div>
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2 block">Theme Title</label>
+                                                        {isEditingTheme ? (
+                                                            <input
+                                                                type="text"
+                                                                value={themeTitle}
+                                                                onChange={(e) => setThemeTitle(e.target.value)}
+                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-lg font-bold focus:outline-none focus:border-blue-500 transition"
+                                                                placeholder="Enter theme title..."
+                                                            />
+                                                        ) : (
+                                                            <div className="bg-white/5 border border-white/5 rounded-xl px-4 py-3">
+                                                                <p className="text-white text-lg font-bold">{themeTitle || <span className="text-gray-600 italic">No title set</span>}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    {/* Description */}
+                                                    <div>
+                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2 block">Theme Description</label>
+                                                        {isEditingTheme ? (
+                                                            <textarea
+                                                                value={themeDescription}
+                                                                onChange={(e) => setThemeDescription(e.target.value)}
+                                                                rows={6}
+                                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition resize-none"
+                                                                placeholder="Enter theme description..."
+                                                            />
+                                                        ) : (
+                                                            <div className="bg-white/5 border border-white/5 rounded-xl px-4 py-3">
+                                                                <p className="text-gray-300 text-sm whitespace-pre-wrap">{themeDescription || <span className="text-gray-600 italic">No description set</span>}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    {/* Save Button */}
+                                                    {isEditingTheme && (
+                                                        <button
+                                                            onClick={() => saveThemeConfig()}
+                                                            disabled={themeSaving}
+                                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+                                                        >
+                                                            {themeSaving ? (
+                                                                <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
+                                                            ) : (
+                                                                <>💾 Save Theme Content</>
+                                                            )}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : activeTab === "eventMailer" ? (
+                            <div className="flex-1 overflow-auto rounded-3xl border border-white/10 bg-[#0f111a] flex flex-col items-center justify-center">
+                                {!isMailerAuth ? (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="max-w-sm w-full p-8 bg-white/5 border border-white/10 rounded-3xl shadow-2xl text-center"
+                                    >
+                                        <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-400">
+                                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white mb-2">Event Day Mailer</h3>
+                                        <p className="text-gray-400 text-sm mb-6">Secondary authentication required for custom mailing.</p>
+                                        <form onSubmit={handleMailerAuth} className="space-y-4">
+                                            <input
+                                                type="password"
+                                                autoFocus
+                                                value={mailerPassInput}
+                                                onChange={(e) => setMailerPassInput(e.target.value)}
+                                                placeholder="Secondary Password"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition"
+                                            />
+                                            {mailerAuthErr && <p className="text-red-400 text-xs font-bold">{mailerAuthErr}</p>}
+                                            <button type="submit" className="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition">
+                                                Unlock Event Mailer
+                                            </button>
+                                        </form>
+                                    </motion.div>
+                                ) : (
+                                    <div className="w-full h-full p-2 sm:p-6 flex flex-col overflow-auto">
+                                        {/* Header */}
+                                        <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-4 sm:mb-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 sm:gap-3 justify-center md:justify-start mb-1 sm:mb-2">
+                                                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500/20 rounded-lg sm:rounded-xl flex items-center justify-center text-emerald-500">
+                                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                    </div>
+                                                    <h3 className="text-lg sm:text-xl font-bold text-white uppercase tracking-wider">Event Day Mailer</h3>
+                                                </div>
+                                                <p className="text-gray-400 text-xs sm:text-sm max-w-md">Compose & send custom event-day instruction emails to all registered participants.</p>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => setShowMailerPreview(!showMailerPreview)}
+                                                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition ${showMailerPreview ? 'bg-emerald-500 text-white' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}
+                                                >
+                                                    {showMailerPreview ? '✏️ Editor' : '👁️ Preview'}
+                                                </button>
+                                                <button
+                                                    onClick={() => { setIsMailerConfirmOpen(true); setMailerConfirmPassword(""); setMailerConfirmError(""); }}
+                                                    disabled={mailerSending}
+                                                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all shadow-lg flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm disabled:opacity-50"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                                    {mailerSending ? 'SENDING...' : '📬 SEND TO ALL'}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {showMailerPreview ? (
+                                            /* Live Email Preview */
+                                            <div className="flex-1 overflow-auto rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+                                                <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/5">
+                                                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                                    <span className="text-[10px] font-mono text-gray-500 tracking-widest uppercase">Live Email Preview</span>
+                                                    <span className="ml-auto text-[10px] text-gray-600">Subject: {mailerSubject}</span>
+                                                </div>
+                                                <div className="bg-[#0f111a] rounded-xl overflow-hidden" dangerouslySetInnerHTML={{ __html: getMailerPreviewHtml() }} />
+                                            </div>
+                                        ) : (
+                                            /* Editor Form + Individual Grid */
+                                            <div className="flex-1 flex flex-col gap-4 overflow-auto">
+                                                {/* Form Fields */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="md:col-span-2">
+                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">Email Subject</label>
+                                                        <input value={mailerSubject} onChange={(e) => setMailerSubject(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-emerald-500 transition" placeholder="Subject line..." />
+                                                    </div>
+                                                    <div className="md:col-span-2">
+                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">Instructions Body (one per line)</label>
+                                                        <textarea value={mailerBody} onChange={(e) => setMailerBody(e.target.value)} rows="5" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-emerald-500 transition resize-none font-mono" placeholder="Each line becomes a bullet point..." />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">Arrival Time</label>
+                                                        <input value={mailerTime} onChange={(e) => setMailerTime(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-emerald-500 transition" placeholder="e.g., 8:30 AM - 9:00 AM" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">Venue</label>
+                                                        <input value={mailerVenue} onChange={(e) => setMailerVenue(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-emerald-500 transition" placeholder="e.g., GIS Auditorium, GCEM" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">Help Contact Name</label>
+                                                        <input value={mailerContact} onChange={(e) => setMailerContact(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-emerald-500 transition" placeholder="e.g., Bharath" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">Help Contact Phone</label>
+                                                        <input value={mailerPhone} onChange={(e) => setMailerPhone(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-emerald-500 transition" placeholder="e.g., 7975871167" />
+                                                    </div>
+                                                </div>
+
+                                                {/* Individual Send Grid */}
+                                                <div className="flex-1 flex flex-col min-h-0">
+                                                    <div className="flex items-center justify-between mb-3 px-1">
+                                                        <h4 className="text-[10px] sm:text-sm font-bold text-gray-500 uppercase tracking-widest">Individual Send</h4>
+                                                        <span className="text-[8px] sm:text-[10px] text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md">{registrations.length} STUDENTS</span>
+                                                    </div>
+                                                    <div className="flex-1 overflow-auto rounded-xl border border-white/5 bg-white/[0.02]">
+                                                        {registrations.length > 0 ? (
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-2 sm:gap-3 p-2 sm:p-3">
+                                                                {registrations.map((reg) => (
+                                                                    <div key={reg.id} className="bg-white/5 border border-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between hover:bg-white/[0.08] transition-colors group gap-2 overflow-hidden">
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <div className="text-white font-bold text-xs sm:text-sm truncate">{reg.fullName}</div>
+                                                                            <div className="flex flex-col gap-0.5 mt-0.5">
+                                                                                <div className="text-gray-500 text-[9px] sm:text-[10px] truncate flex items-center gap-1">
+                                                                                    <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                                                    <span className="truncate">{reg.email}</span>
+                                                                                </div>
+                                                                                <div className="text-gray-500 text-[9px] sm:text-[10px] truncate">{reg.eventTitle}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <button
+                                                                            onClick={() => sendEventMail('individual', reg.id)}
+                                                                            disabled={individualMailerSending[reg.id]}
+                                                                            className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-bold transition flex items-center gap-1 whitespace-nowrap flex-shrink-0 ${individualMailerSending[reg.id] ? 'bg-gray-700 text-gray-500' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white'}`}
+                                                                        >
+                                                                            {individualMailerSending[reg.id] ? (
+                                                                                <svg className="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                                            ) : (
+                                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                                            )}
+                                                                            {individualMailerSending[reg.id] ? '...' : 'SEND'}
+                                                                        </button>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="p-20 text-center text-gray-600 italic">No registrations found.</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ) : null}
                     </motion.div>
                 )}
 
@@ -951,11 +1364,10 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                 initial={{ opacity: 0, x: 50, scale: 0.9 }}
                                 animate={{ opacity: 1, x: 0, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-                                className={`pointer-events-auto flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-xl min-w-[300px] ${
-                                    toast.type === "success" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" :
-                                    toast.type === "error" ? "bg-red-500/10 border-red-500/20 text-red-400" :
-                                    "bg-blue-500/10 border-blue-500/20 text-blue-400"
-                                }`}
+                                className={`pointer-events-auto flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-xl min-w-[300px] ${toast.type === "success" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" :
+                                        toast.type === "error" ? "bg-red-500/10 border-red-500/20 text-red-400" :
+                                            "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                                    }`}
                             >
                                 <div className="flex-1 text-sm font-bold">{toast.message}</div>
                                 <button onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))} className="text-current opacity-50 hover:opacity-100 transition">
@@ -984,17 +1396,68 @@ export default function AdminDashboard({ isOpen, onClose }) {
                                 </div>
                                 <p className="text-gray-400 text-sm mb-8 leading-relaxed">{confirmModal.message}</p>
                                 <div className="flex gap-3">
-                                    <button 
+                                    <button
                                         onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
                                         className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-gray-300 rounded-xl font-bold transition-all"
                                     >
                                         Cancel
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={confirmModal.onConfirm}
                                         className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-500/20"
                                     >
                                         Confirm
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+
+                    {/* EVENT MAILER CONFIRMATION MODAL */}
+                    {isMailerConfirmOpen && (
+                        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className="bg-[#1a1c2e] border border-emerald-500/30 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center"
+                            >
+                                <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-500">
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-2">Send to ALL Participants?</h3>
+                                <p className="text-gray-400 text-sm mb-2">This will send the event-day email to <span className="text-emerald-400 font-bold">{registrations.length}</span> registered participants.</p>
+                                <p className="text-gray-500 text-xs mb-6">Enter the admin password to confirm.</p>
+
+                                <input
+                                    type="password"
+                                    value={mailerConfirmPassword}
+                                    onChange={(e) => setMailerConfirmPassword(e.target.value)}
+                                    placeholder="Admin Password"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white mb-4 focus:outline-none focus:border-emerald-500 transition"
+                                />
+
+                                {mailerConfirmError && <p className="text-red-400 text-xs mb-4">{mailerConfirmError}</p>}
+
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setIsMailerConfirmOpen(false)}
+                                        className="flex-1 px-4 py-3 bg-white/5 text-gray-300 rounded-xl font-bold hover:bg-white/10 transition"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            if (mailerConfirmPassword === "algorhythm@admin2026") {
+                                                setIsMailerConfirmOpen(false);
+                                                sendEventMail('all');
+                                            } else {
+                                                setMailerConfirmError("Incorrect admin password.");
+                                            }
+                                        }}
+                                        disabled={mailerSending}
+                                        className="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition shadow-lg"
+                                    >
+                                        {mailerSending ? 'Sending...' : '📬 CONFIRM SEND'}
                                     </button>
                                 </div>
                             </motion.div>

@@ -60,7 +60,7 @@ const sendEmailViaAPI = async (mailOptions) => {
         // 1. Build the MIME message using Nodemailer (Stream approach)
         const dummyTransporter = nodemailer.createTransport({ streamTransport: true, newline: 'unix', buffer: true });
         const buildInfo = await dummyTransporter.sendMail(mailOptions);
-        
+
         // 2. Base64URL Encode the raw MIME message (Gmail API requirement)
         const raw = buildInfo.message.toString('base64')
             .replace(/\+/g, '-')
@@ -82,7 +82,7 @@ const sendEmailViaAPI = async (mailOptions) => {
 
         const result = await response.json();
         if (!response.ok) throw new Error(`Gmail API Error: ${JSON.stringify(result)}`);
-        
+
         console.log(`✅ GMail API: Email Sent Successfully to ${mailOptions.to} (ID: ${result.id})`);
         return result;
     } catch (error) {
@@ -911,6 +911,226 @@ app.post('/api/admin/send-report', async (req, res) => {
             message: `Failed to send email via API: ${error.message || 'Unknown error'}. Check server logs for details.`,
             code: error.code
         });
+    }
+});
+
+// === SYSTEM CONFIG SCHEMA (For Theme Reveal & Global Settings) ===
+const systemConfigSchema = new mongoose.Schema({
+    key: { type: String, required: true, unique: true },
+    value: { type: mongoose.Schema.Types.Mixed, default: null }
+});
+const SystemConfig = mongoose.model('SystemConfig', systemConfigSchema);
+
+// --- THEME REVEAL API ---
+app.get('/api/theme/status', async (req, res) => {
+    try {
+        const revealedConfig = await SystemConfig.findOne({ key: 'theme_revealed' });
+        const titleConfig = await SystemConfig.findOne({ key: 'theme_title' });
+        const descConfig = await SystemConfig.findOne({ key: 'theme_description' });
+
+        res.status(200).json({
+            success: true,
+            revealed: revealedConfig?.value || false,
+            title: titleConfig?.value || '',
+            description: descConfig?.value || ''
+        });
+    } catch (error) {
+        console.error("Theme status error:", error);
+        res.status(500).json({ success: false, message: 'Failed to fetch theme status' });
+    }
+});
+
+app.post('/api/admin/theme/update', async (req, res) => {
+    try {
+        const password = req.headers['x-admin-password'];
+        if (password !== 'algorhythm@admin2026') {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const { title, description, revealed } = req.body;
+
+        if (title !== undefined) {
+            await SystemConfig.findOneAndUpdate({ key: 'theme_title' }, { value: title }, { upsert: true });
+        }
+        if (description !== undefined) {
+            await SystemConfig.findOneAndUpdate({ key: 'theme_description' }, { value: description }, { upsert: true });
+        }
+        if (revealed !== undefined) {
+            await SystemConfig.findOneAndUpdate({ key: 'theme_revealed' }, { value: revealed }, { upsert: true });
+        }
+
+        console.log(`🎬 Theme Config Updated — Revealed: ${revealed}, Title: "${title}"`);
+        res.status(200).json({ success: true, message: 'Theme config updated' });
+    } catch (error) {
+        console.error("Theme update error:", error);
+        res.status(500).json({ success: false, message: 'Failed to update theme config' });
+    }
+});
+
+// --- THEME VERIFY EMAIL (checks if email belongs to allowed events) ---
+app.post('/api/theme/verify', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ success: false, message: 'Email is required' });
+
+        const ALLOWED_EVENTS = ['HIGHLIGHT REEL', 'SHOT CUT'];
+        const registration = await Registration.findOne({
+            email: email.trim().toLowerCase(),
+            eventTitle: { $in: ALLOWED_EVENTS }
+        });
+
+        if (!registration) {
+            // Also check case-insensitive
+            const allRegs = await Registration.find({ email: { $regex: new RegExp(`^${email.trim()}$`, 'i') } });
+            const match = allRegs.find(r => ALLOWED_EVENTS.includes(r.eventTitle));
+            if (match) {
+                return res.status(200).json({ success: true, verified: true, name: match.fullName });
+            }
+            return res.status(200).json({ success: false, verified: false, message: 'This reveal is exclusively for Highlight Reel & Shot Cut leaders.' });
+        }
+
+        res.status(200).json({ success: true, verified: true, name: registration.fullName });
+    } catch (error) {
+        console.error("Theme verify error:", error);
+        res.status(500).json({ success: false, message: 'Server error during verification' });
+    }
+});
+
+// --- ADMIN: Send Custom Event Day Email ---
+app.post('/api/admin/send-event-mail', async (req, res) => {
+    try {
+        const password = req.headers['x-admin-password'];
+        if (password !== 'algorhythm@admin2026') {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const { target, registrationId, subject, body, arrivalTime, venue, contactName, contactPhone } = req.body;
+
+        if (!subject || !body) {
+            return res.status(400).json({ success: false, message: 'Subject and body are required' });
+        }
+
+        // Build the HTML email template (AlgoRhythm 3.0 Theme)
+        const buildEventEmail = (reg) => {
+            const instructionLines = body.split('\n').filter(l => l.trim()).map(line =>
+                `<tr><td style="padding: 8px 0; padding-left: 20px; color: #e2e8f0; font-size: 15px; line-height: 1.7; border-left: 3px solid #7c3aed;">${line.trim()}</td></tr>`
+            ).join('');
+
+            return `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; background: #0f111a; color: #e2e8f0; border-radius: 24px; overflow: hidden; border: 1px solid #1e1e3a;">
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #a855f7 100%); padding: 40px 30px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; letter-spacing: 2px; font-weight: 900;">ALGO-RHYTHM 3.0</h1>
+                        <p style="color: rgba(255,255,255,0.85); margin-top: 8px; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600;">Official Communication</p>
+                    </div>
+
+                    <!-- Body -->
+                    <div style="padding: 35px 30px;">
+                        <p style="font-size: 17px; color: #f1f5f9; margin-bottom: 5px;">Hello <strong style="color: #a78bfa;">${reg.fullName}</strong>,</p>
+                        <p style="font-size: 14px; color: #94a3b8; margin-bottom: 25px;">Registered for: <strong style="color: #c4b5fd;">${reg.eventTitle}</strong></p>
+
+                        <!-- Instructions -->
+                        <div style="background: #1a1c2e; border: 1px solid #2d2f4a; border-radius: 16px; padding: 25px; margin-bottom: 25px;">
+                            <h3 style="color: #a78bfa; font-size: 12px; text-transform: uppercase; letter-spacing: 3px; margin: 0 0 15px 0; font-weight: 700;">📋 Instructions</h3>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                ${instructionLines}
+                            </table>
+                        </div>
+
+                        <!-- Time & Venue Card -->
+                        <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; vertical-align: top; padding-right: 8px;">
+                                        <div style="background: #1a1c2e; border: 1px solid #2d2f4a; border-radius: 16px; padding: 20px; text-align: center;">
+                                            <p style="color: #7c3aed; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0; font-weight: 700;">🕐 Arrival Time</p>
+                                            <p style="color: #f1f5f9; font-size: 20px; font-weight: 900; margin: 0;">${arrivalTime || '9:00 AM'}</p>
+                                        </div>
+                                    </td>
+                                    <td style="width: 50%; vertical-align: top; padding-left: 8px;">
+                                        <div style="background: #1a1c2e; border: 1px solid #2d2f4a; border-radius: 16px; padding: 20px; text-align: center;">
+                                            <p style="color: #7c3aed; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0; font-weight: 700;">📍 Venue</p>
+                                            <p style="color: #f1f5f9; font-size: 16px; font-weight: 900; margin: 0;">${venue || 'GIS Auditorium'}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Help Contact -->
+                        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%); border: 1px solid #4c1d95; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 25px;">
+                            <p style="color: #c4b5fd; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 10px 0; font-weight: 600;">📞 On-Ground Assistance</p>
+                            <p style="color: #e2e8f0; font-size: 14px; margin: 0 0 12px 0; line-height: 1.6;">
+                                If you face any issues at the registration desk or need any help on the event day, please do not hesitate to reach out to Us.
+                            </p>
+                            <p style="color: #ffffff; font-size: 18px; font-weight: 900; margin: 0;">
+                                <span style="color: #a78bfa;">${contactName || 'Bharath'}</span> — 
+                                <a href="tel:${contactPhone || '7975871167'}" style="color: #a78bfa; text-decoration: none; border-bottom: 1px dashed #a78bfa;">${contactPhone || '7975871167'}</a>
+                            </p>
+                        </div>
+
+                        <p style="font-size: 14px; color: #64748b; text-align: center; line-height: 1.6;">
+                            We can't wait to see you there! Let's make this an unforgettable experience. 🎉
+                        </p>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="border-top: 1px solid #1e1e3a; padding: 25px 30px; text-align: center;">
+                        <p style="color: #475569; font-size: 12px; margin: 0; letter-spacing: 1px;">
+                            AlgoRhythm 3.0 | Techno-Cultural Fest 2026<br/>GCEM, Bengaluru
+                        </p>
+                    </div>
+                </div>
+            `;
+        };
+
+        if (target === 'individual' && registrationId) {
+            // Send to a single registration
+            const reg = await Registration.findById(registrationId);
+            if (!reg) return res.status(404).json({ success: false, message: 'Registration not found' });
+
+            await sendEmailViaAPI({
+                from: SENDER_EMAIL,
+                to: reg.email,
+                subject: subject,
+                html: buildEventEmail(reg)
+            });
+
+            console.log(`📬 Event Mail sent to: ${reg.email} (${reg.fullName})`);
+            return res.status(200).json({ success: true, message: `Email sent to ${reg.fullName}` });
+
+        } else if (target === 'all') {
+            // Send to ALL registrations
+            const registrations = await Registration.find({});
+            if (!registrations.length) return res.status(404).json({ success: false, message: 'No registrations found' });
+
+            let sent = 0, failed = 0;
+            for (const reg of registrations) {
+                try {
+                    await sendEmailViaAPI({
+                        from: SENDER_EMAIL,
+                        to: reg.email,
+                        subject: subject,
+                        html: buildEventEmail(reg)
+                    });
+                    sent++;
+                    console.log(`📬 Event Mail [${sent}/${registrations.length}] sent to: ${reg.email}`);
+                } catch (err) {
+                    failed++;
+                    console.error(`❌ Event Mail failed for ${reg.email}: ${err.message}`);
+                }
+                // Small delay to avoid rate limiting
+                await new Promise(r => setTimeout(r, 500));
+            }
+
+            console.log(`✅ Event Mail Complete! Sent: ${sent}, Failed: ${failed}, Total: ${registrations.length}`);
+            return res.status(200).json({ success: true, message: `Sent: ${sent}, Failed: ${failed}`, sent, failed, total: registrations.length });
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid target. Use "all" or "individual".' });
+        }
+    } catch (error) {
+        console.error("Event Mail Error:", error);
+        res.status(500).json({ success: false, message: `Failed to send event mail: ${error.message}` });
     }
 });
 
