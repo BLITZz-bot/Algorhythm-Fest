@@ -119,7 +119,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
     const handleManageAuth = (e) => {
         e.preventDefault();
-        if (managePassInput === "bharatha2111") {
+        if (managePassInput.trim().toLowerCase() === "bharatha2111") {
             setIsManageAuth(true);
             setManageAuthErr("");
         } else {
@@ -129,7 +129,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
     const handleEmailAuth = (e) => {
         e.preventDefault();
-        if (emailPassInput === "bharatha2111") {
+        if (emailPassInput.trim().toLowerCase() === "bharatha2111") {
             setIsEmailAuth(true);
             setEmailAuthErr("");
         } else {
@@ -139,7 +139,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
     const handleControlsAuth = (e) => {
         e.preventDefault();
-        if (controlsPassInput === "bharatha2111") {
+        if (controlsPassInput.trim().toLowerCase() === "bharatha2111") {
             setIsControlsAuth(true);
             setControlsAuthErr("");
         } else {
@@ -176,7 +176,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
     const handleThemeAuth = (e) => {
         e.preventDefault();
-        if (themePassInput === "bharatha2111") {
+        if (themePassInput.trim().toLowerCase() === "bharatha2111") {
             setIsThemeAuth(true);
             setThemeAuthErr("");
         } else {
@@ -186,7 +186,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
     const handleMailerAuth = (e) => {
         e.preventDefault();
-        if (mailerPassInput === "bharatha2111") {
+        if (mailerPassInput.trim().toLowerCase() === "bharatha2111") {
             setIsMailerAuth(true);
             setMailerAuthErr("");
         } else {
