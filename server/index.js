@@ -1086,7 +1086,7 @@ app.post('/api/admin/send-event-mail', async (req, res) => {
 
         if (target === 'individual' && registrationId) {
             // Support both MongoDB _id and custom id string (Timestamp-based)
-            const reg = await Registration.findOne({ 
+            const reg = await Registration.findOne({
                 $or: [
                     { id: registrationId },
                     { _id: mongoose.isValidObjectId(registrationId) ? registrationId : null }
